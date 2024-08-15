@@ -1,111 +1,103 @@
-
 import express from 'express';
-import xlsx from 'xlsx';
-import { filePath } from '../../constants/path';
+import { spreadsheetId } from '../../helper/googleapis'; 
+import sheets from '../../helper/googleapis';
 const router = express.Router();
 
 
 
-
-const transformData = (data:any[]) => {
-    const title = "3.4.5 Number of research papers per teacher in the Journals notified on UGC website during the last five years  (15)";
-    const authorName = "__EMPTY";
-    const teacherDepartment = "__EMPTY_1";
-    const journalName = "__EMPTY_2";
-    const publicationYear = "__EMPTY_3";
-    const issnNumber = "__EMPTY_4";
-    const linkWebsite = "__EMPTY_5";
-    const linkDocs = "__EMPTY_6";
-    const isListed = "__EMPTY_7";
-    const linktoRe = "__EMPTY_8";
-    const records = data.slice(3);
-    return records.map(record => ({
-        title: record[title]??'',
-        authorName: record[authorName]??'',
-        teacherDepartment: record[teacherDepartment]??'',
-        journalName: record[journalName]??'',
-        publicationYear: record[publicationYear]??'',
-        issnNumber: record[issnNumber]??'',
-        linkWebsite: record[linkWebsite]??'',
-        linkDocs: record[linkDocs]??'',
-        isListed: record[isListed]??'',
-        linktoRe: record[linktoRe]??''
-    }));
-  };
-
-
-  const transformSingleRecord = (record: any) => {
-    const title = "3.4.5 Number of research papers per teacher in the Journals notified on UGC website during the last five years  (15)";
-    const authorName = "__EMPTY";
-    const teacherDepartment = "__EMPTY_1";
-    const journalName = "__EMPTY_2";
-    const publicationYear = "__EMPTY_3";
-    const issnNumber = "__EMPTY_4";
-    const linkWebsite = "__EMPTY_5";
-    const linkDocs = "__EMPTY_6";
-    const isListed = "__EMPTY_7";
-    const linktoRe = "__EMPTY_8";
-
-    return {
-        [title]: record.title,
-        [authorName]: record.authorName,
-        [teacherDepartment]: record.teacherDepartment,
-        [journalName]: record.journalName,
-        [publicationYear]: record.publicationYear,
-        [issnNumber]: record.issnNumber,
-        [linkWebsite]: record.linkWebsite,
-        [linkDocs]: record.linkDocs,
-        [isListed]: record.isListed,
-        [linktoRe]: record.linktoRe
-    };
+const sheet = '3.4.5'
+const headers = {
+  title: "3.4.5 Number of research papers per teacher in the Journals notified on UGC website during the last five years  (15)",
+  authorName: "__EMPTY",
+  teacherDepartment: "__EMPTY_1",
+  journalName: "__EMPTY_2",
+  publicationYear: "__EMPTY_3",
+  issnNumber: "__EMPTY_4",
+  linkWebsite: "__EMPTY_5",
+  linkDocs: "__EMPTY_6",
+  isListed: "__EMPTY_7",
+  linktoRe: "__EMPTY_8"
 };
 
 
-router.get('/',(req,res)=>{
-  const name = '3.4.5';
-  if (!name) {
-    return res.status(400).send('Sheet name is required');
-  }
+const transformData = (data: any[]) => {
+  const records = data.slice(4); 
+  return records.map((row: any[]) => ({
+    title: row[0] ?? '',
+    authorName: row[1] ?? '',
+    teacherDepartment: row[2] ?? '',
+    journalName: row[3] ?? '',
+    publicationYear: row[4] ?? '',
+    issnNumber: row[5] ?? '',
+    linkWebsite: row[6] ?? '',
+    linkDocs: row[7] ?? '',
+    isListed: row[8] ?? '',
+    linktoRe: row[9] ?? ''
+  }));
+};
 
+const transformSingleRecord = (record: any) => ({
+  [headers.title]: record.title,
+  [headers.authorName]: record.authorName,
+  [headers.teacherDepartment]: record.teacherDepartment,
+  [headers.journalName]: record.journalName,
+  [headers.publicationYear]: record.publicationYear,
+  [headers.issnNumber]: record.issnNumber,
+  [headers.linkWebsite]: record.linkWebsite,
+  [headers.linkDocs]: record.linkDocs,
+  [headers.isListed]: record.isListed,
+  [headers.linktoRe]: record.linktoRe
+});
+
+
+router.get('/', async (req, res) => {
+  const sheetName = sheet;
   try {
-    const workbook = xlsx.readFile(filePath);
-    const sheet = workbook.Sheets[name as string];
-    console.log("sheet",sheet)
-    if (!sheet) {
-      return res.status(404).send('Sheet not found');
-    }
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: sheetName,
+    });
 
-    const data = xlsx.utils.sheet_to_json(sheet);
+    const data = response.data.values || [];
     res.status(200).json(transformData(data));
   } catch (error) {
-    console.log("error",error)
-    res.status(500).send('Error reading XLSX file');
+    console.error('Error reading Google Sheet:', error);
+    res.status(500).send('Error reading Google Sheet');
   }
-})
+});
 
 
-router.post('/',(req,res)=>{
-    const newRecord = req.body;
-    try {
-        const workbook = xlsx.readFile(filePath);
-        const sheetName = '3.4.5';
-        let sheet = workbook.Sheets[sheetName];
-        if (!sheet) {
-            sheet = {};
-            workbook.SheetNames.push(sheetName);
-        }
-        const existingData = xlsx.utils.sheet_to_json(sheet);
-        const transformedNewRecord = transformSingleRecord(newRecord);
-        const updatedData = [...existingData, transformedNewRecord];
-        sheet = xlsx.utils.json_to_sheet(updatedData);
-        workbook.Sheets[sheetName] = sheet;
-        xlsx.writeFile(workbook, filePath);
-        res.status(201).send('Data successfully added');
-    } catch (error) {
-        console.log("error", error);
-        res.status(500).send('Error updating XLSX file');
-    }
-})
+router.post('/', async (req, res) => {
+  const newRecord = req.body;
+  try {
+    const readResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${sheet}`,
+    });
 
+    const existingData = readResponse.data.values || [];
+    const headers = existingData.slice(0,4);
+    const body = existingData.slice(4);
+    const transformedNewRecord = transformSingleRecord(newRecord);
+    const updatedData = [...headers,Object.values(transformedNewRecord), ...body];
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${sheet}`,
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: updatedData,
+      },
+    });
+
+    res.status(201).json({
+      message: 'Data successfully added at the top',
+      updatedData,
+    });
+  } catch (error) {
+    console.error('Error updating Google Sheet:', error);
+    res.status(500).send('Error updating Google Sheet');
+  }
+});
 
 export default router;
