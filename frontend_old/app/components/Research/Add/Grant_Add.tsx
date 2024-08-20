@@ -18,7 +18,7 @@ type GrantJSON = {
     projectName: string,
     principalInvestigator: string,
     fundingAgency: string,
-    type: string, // Single string value
+    type: string,
     department: string,
     awardYear: string,
     fundProvided: string,
