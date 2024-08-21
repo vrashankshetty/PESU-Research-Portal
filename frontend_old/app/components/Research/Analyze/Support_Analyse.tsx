@@ -70,6 +70,7 @@ export default function ResearchSupport() {
         },
         maintainAspectRatio: false,
         responsive: true,
+        maxBarThickness: 20,
     });
     let ref = useRef<ChartJS<'bar'>>(null);
     let tableRef = useRef(null);

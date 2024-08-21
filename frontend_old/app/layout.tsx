@@ -11,15 +11,15 @@ interface RootLayoutProps {
 }
 
 export const metadata: Metadata = {
-  title: "Publication Portal",
-  description: "Publication portal for PES EC Campus Faculty",
+  title: "NAAC Portal",
+  description: "NAAC portal for PES EC Campus Faculty",
 };
 
 export default function RootLayout({children}:RootLayoutProps){
   return (
     <html lang="en">
       <head>
-        <meta name="keywords" content="PES EC Publication, Teachers Publication"/>
+        <meta name="keywords" content="PES EC NAAC, Teachers Research"/>
       </head>
       <body>
           {children}

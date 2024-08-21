@@ -69,7 +69,8 @@ export default function AwardsCompare() {
             },
         },
         maintainAspectRatio: false,
-        responsive: true
+        responsive: true,
+        maxBarThickness: 20,
     });
     let ref = useRef<ChartJS<'bar'>>(null);
     let tableRef = useRef(null);
