@@ -44,7 +44,9 @@ type JournalJSON = {
     linkWebsite: string,
     linkDocs: string,
     isListed: boolean,
-    linkToRe: string
+    abstract: string,
+    keywords: string,
+    titleDomain: string,
 }
 
 interface ChartDataInf {
@@ -74,7 +76,8 @@ export default function JournalsCompare() {
             },
         },
         maintainAspectRatio: false,
-        responsive: true
+        responsive: true,
+        maxBarThickness: 20,
     });
     let ref = useRef<ChartJS<'bar'>>(null);
     let tableRef = useRef(null);
@@ -254,6 +257,9 @@ export default function JournalsCompare() {
                                     <th className='p-3 text-sm font-semibold tracking-wide text-left'>Journal Name</th>
                                     <th className='p-3 text-sm font-semibold tracking-wide text-left'>ISSN Number</th>
                                     <th className='p-3 text-sm font-semibold tracking-wide text-left'>Listed</th>
+                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Abstract</th>
+                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Keywords</th>
+                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Title Domain</th>
                                 </tr>
                             </thead>
                             <tbody className='divide-y divide-gray-100'>
@@ -266,6 +272,9 @@ export default function JournalsCompare() {
                                         <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{journal.journalName}</td>
                                         <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{journal.issnNumber}</td>
                                         <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{journal.isListed ? 'Yes' : 'No'}</td>
+                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{journal.abstract}</td>
+                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{journal.keywords}</td>
+                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{journal.titleDomain}</td>
                                     </tr>
                                 ))}
                             </tbody>

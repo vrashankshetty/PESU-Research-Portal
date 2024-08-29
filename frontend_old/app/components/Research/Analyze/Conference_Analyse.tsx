@@ -42,7 +42,10 @@ type ConferenceJSON = {
     publicationYear: string,
     issnNumber: string,
     isSameInstitution: boolean,
-    publisherName: string
+    publisherName: string,
+    abstract: string,
+    keywords: string,
+    titleDomain: string,
 }
 
 interface ChartDataInf {
@@ -70,12 +73,20 @@ export default function ConferencesCompare() {
             legend: {
                 position: 'top' as const,
             },
+            tooltip: {
+                callbacks: {
+                    label: (tooltipItem: any) => {
+                        return tooltipItem.dataset.label + ': ' + tooltipItem.formattedValue;
+                    }
+                }
+            }
         },
         maintainAspectRatio: false,
-        responsive: true
+        responsive: true,
+        maxBarThickness: 20,
     });
     let ref = useRef<ChartJS<'bar'>>(null);
-    let tableRef = useRef(null);
+    let tableRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchConferences();
@@ -137,14 +148,24 @@ export default function ConferencesCompare() {
         });
     }
 
+    // const handleDownloadGraph = useCallback(() => {
+    //     if (ref.current) {
+    //         const link = document.createElement("a");
+    //         link.download = "conferences_comparison.png";
+    //         link.href = ref.current.toBase64Image();
+    //         link.click();
+    //     }
+    // }, [])
+
     const handleDownloadGraph = useCallback(() => {
         if (ref.current) {
+            ref.current.update();
             const link = document.createElement("a");
             link.download = "conferences_comparison.png";
             link.href = ref.current.toBase64Image();
             link.click();
         }
-    }, [])
+    }, []);
 
     return (
         <div className="bg-[#d5e7eb]">
@@ -241,32 +262,40 @@ export default function ConferencesCompare() {
                     </div>
 
                     <div className='overflow-x-auto'>
-                        <table className='table-auto w-full border-separate border-spacing-0'>
-                            <thead className='bg-gray-100 border-b-2 border-gray-200'>
-                                <tr>
-                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Year</th>
-                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Title of Paper</th>
-                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Faculty Name</th>
-                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Title of Conference</th>
-                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Publisher Name</th>
-                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>ISSN Number</th>
-                                    <th className='p-3 text-sm font-semibold tracking-wide text-left'>Same Institution</th>
-                                </tr>
-                            </thead>
-                            <tbody className='divide-y divide-gray-100'>
-                                {selectedYearConferences.map((conference, index) => (
-                                    <tr key={index}>
-                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.publicationYear}</td>
-                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.titlePaper}</td>
-                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.facultyName}</td>
-                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.titleConference}</td>
-                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.publisherName}</td>
-                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.issnNumber}</td>
-                                        <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.isSameInstitution ? 'Yes' : 'No'}</td>
+                        <div ref={tableRef}>
+                            <table className='table-auto w-full border-separate border-spacing-0'>
+                                <thead className='bg-gray-100 border-b-2 border-gray-200'>
+                                    <tr>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Year</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Title of Paper</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Faculty Name</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Title of Conference</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Publisher Name</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>ISSN Number</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Same Institution</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Abstract</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Keywords</th>
+                                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Title Domain</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className='divide-y divide-gray-100'>
+                                    {selectedYearConferences.map((conference, index) => (
+                                        <tr key={index}>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.publicationYear}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.titlePaper}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.facultyName}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.titleConference}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.publisherName}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.issnNumber}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.isSameInstitution ? 'Yes' : 'No'}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.abstract}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.keywords}</td>
+                                            <td className='p-3 text-sm text-gray-700 whitespace-nowrap'>{conference.titleDomain}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -119,7 +119,9 @@ const headers = {
   linkWebsite: "__EMPTY_5",
   linkDocs: "__EMPTY_6",
   isListed: "__EMPTY_7",
-  linktoRe: "__EMPTY_8",
+  abstract: "__EMPTY_8",
+  keywords: "__EMPTY_9",
+  titleDomain: "__EMPTY_10",
 };
 
 const transformData = (data: any[]) => {
@@ -134,7 +136,9 @@ const transformData = (data: any[]) => {
     linkWebsite: row[6] ?? "",
     linkDocs: row[7] ?? "",
     isListed: row[8] ?? "",
-    linktoRe: row[9] ?? "",
+    abstract: row[9] ?? "",
+    keywords: row[10] ?? "",
+    titleDomain: row[11] ?? "",
   }));
 };
 
@@ -147,8 +151,10 @@ const transformSingleRecord = (record: any) => ({
   [headers.issnNumber]: record.issnNumber,
   [headers.linkWebsite]: record.linkWebsite,
   [headers.linkDocs]: record.linkDocs,
-  [headers.isListed]: record.isListed ? "Yes" : "",
-  [headers.linktoRe]: record.linkToRe,
+  [headers.isListed]: record.isListed ? "Yes" : "No",
+  [headers.abstract]: record.abstract,
+  [headers.keywords]: record.keywords,
+  [headers.titleDomain]: record.titleDomain,
 });
 
 router.get("/", async (req, res) => {
@@ -170,18 +176,6 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const newRecord = req.body;
   console.log(newRecord);
-
-  if (newRecord.isListed === true && !newRecord.linkToRe) {
-    return res
-      .status(400)
-      .json({ error: "If 'isListed' is true, 'linkToRe' must be provided." });
-  }
-
-  if (newRecord.isListed === false && newRecord.linkToRe) {
-    return res.status(400).json({
-      error: "If 'isListed' is false, 'linkToRe' must not be provided.",
-    });
-  }
 
   try {
     const readResponse = await sheets.spreadsheets.values.get({

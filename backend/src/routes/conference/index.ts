@@ -1,8 +1,7 @@
-import express from 'express';
-import { spreadsheetId } from '../../helper/googleapis'; 
-import sheets from '../../helper/googleapis';
+import express from "express";
+import { spreadsheetId } from "../../helper/googleapis";
+import sheets from "../../helper/googleapis";
 const router = express.Router();
-
 
 const headers = {
   slno: "3.4.6 Number of books and  chapters in edited volumes published per teacher during the last five years (15)\n",
@@ -13,24 +12,29 @@ const headers = {
   publicationYear: "__EMPTY_4",
   issnNumber: "__EMPTY_5",
   isSameInstitution: "__EMPTY_6",
-  publisherName: "__EMPTY_7"
+  publisherName: "__EMPTY_7",
+  abstract: "__EMPTY_8",
+  keywords: "__EMPTY_9",
+  titleDomain: "__EMPTY_10",
 };
 
 const transformData = (data: any[]) => {
-  const records = data.slice(3); 
+  const records = data.slice(3);
   return records.map((row: any[]) => ({
-    slno: row[0] ?? '',
-    facultyName: row[1] ?? '',
-    titleBook: row[2] ?? '',
-    titlePaper: row[3] ?? '',
-    titleConference: row[4] ?? '',
-    publicationYear: row[5] ?? '',
-    issnNumber: row[6] ?? '',
-    isSameInstitution: row[7] ?? '',
-    publisherName: row[8] ?? ''
+    slno: row[0] ?? "",
+    facultyName: row[1] ?? "",
+    titleBook: row[2] ?? "",
+    titlePaper: row[3] ?? "",
+    titleConference: row[4] ?? "",
+    publicationYear: row[5] ?? "",
+    issnNumber: row[6] ?? "",
+    isSameInstitution: row[7] ?? "",
+    publisherName: row[8] ?? "",
+    abstract: row[9] ?? "",
+    keywords: row[10] ?? "",
+    titleDomain: row[11] ?? "",
   }));
 };
-
 
 const transformSingleRecord = (record: any) => ({
   [headers.slno]: record.slno,
@@ -41,12 +45,14 @@ const transformSingleRecord = (record: any) => ({
   [headers.publicationYear]: record.publicationYear,
   [headers.issnNumber]: record.issnNumber,
   [headers.isSameInstitution]: record.isSameInstitution,
-  [headers.publisherName]: record.publisherName
+  [headers.publisherName]: record.publisherName,
+  [headers.abstract]: record.abstract,
+  [headers.keywords]: record.keywords,
+  [headers.titleDomain]: record.titleDomain,
 });
 
-
-router.get('/', async (req, res) => {
-  const sheetName = '3.4.6'; 
+router.get("/", async (req, res) => {
+  const sheetName = "3.4.6";
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -56,33 +62,33 @@ router.get('/', async (req, res) => {
     const data = response.data.values || [];
     res.status(200).json(transformData(data));
   } catch (error) {
-    console.error('Error reading Google Sheet:', error);
-    res.status(500).send('Error reading Google Sheet');
+    console.error("Error reading Google Sheet:", error);
+    res.status(500).send("Error reading Google Sheet");
   }
 });
 
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   const newRecord = req.body;
   try {
     const transformedNewRecord = transformSingleRecord(newRecord);
 
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: '3.4.6!A1',
-      valueInputOption: 'RAW',
-      insertDataOption: 'INSERT_ROWS',
+      range: "3.4.6!A1",
+      valueInputOption: "RAW",
+      insertDataOption: "INSERT_ROWS",
       requestBody: {
         values: [Object.values(transformedNewRecord)],
       },
     });
 
     res.status(201).json({
-      message: 'Data successfully added',
+      message: "Data successfully added",
       updates: response.data,
     });
   } catch (error) {
-    console.error('Error updating Google Sheet:', error);
-    res.status(500).send('Error updating Google Sheet');
+    console.error("Error updating Google Sheet:", error);
+    res.status(500).send("Error updating Google Sheet");
   }
 });
 
