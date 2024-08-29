@@ -1,0 +1,360 @@
+{
+  "id": "6832a5ac-ea70-4c2e-9191-ef7f737ac11d",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "journal": {
+      "name": "journal",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "serial_no": {
+          "name": "serial_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "facultyNames": {
+          "name": "facultyNames",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "campus": {
+          "name": "campus",
+          "type": "campus",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dept": {
+          "name": "dept",
+          "type": "dept",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "journalName": {
+          "name": "journalName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "month": {
+          "name": "month",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "year": {
+          "name": "year",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "volumeNo": {
+          "name": "volumeNo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issueNo": {
+          "name": "issueNo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issn": {
+          "name": "issn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "websiteLink": {
+          "name": "websiteLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "articleLink": {
+          "name": "articleLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isListed": {
+          "name": "isListed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "abstract": {
+          "name": "abstract",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "keywords": {
+          "name": "keywords",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "domainExpertise": {
+          "name": "domainExpertise",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "conference": {
+      "name": "conference",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "serial_no": {
+          "name": "serial_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "teacherName": {
+          "name": "teacherName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "coAuthors": {
+          "name": "coAuthors",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "totalAuthors": {
+          "name": "totalAuthors",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "facultyNames": {
+          "name": "facultyNames",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "campus": {
+          "name": "campus",
+          "type": "campus",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dept": {
+          "name": "dept",
+          "type": "dept",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bookTitle": {
+          "name": "bookTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "paperTitle": {
+          "name": "paperTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proceedings_conference_title": {
+          "name": "proceedings_conference_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "volumeNo": {
+          "name": "volumeNo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issueNo": {
+          "name": "issueNo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "year": {
+          "name": "year",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issn": {
+          "name": "issn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_affiliating_institution_same": {
+          "name": "is_affiliating_institution_same",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "publisherName": {
+          "name": "publisherName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "impactFactor": {
+          "name": "impactFactor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "link_of_paper": {
+          "name": "link_of_paper",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "isCapstone": {
+          "name": "isCapstone",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "abstract": {
+          "name": "abstract",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "keywords": {
+          "name": "keywords",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "domainExpertise": {
+          "name": "domainExpertise",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "patent": {
+      "name": "patent",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "teacherName": {
+          "name": "teacherName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "campus": {
+          "name": "campus",
+          "type": "campus",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dept": {
+          "name": "dept",
+          "type": "dept",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "patentNumber": {
+          "name": "patentNumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "patentTitle": {
+          "name": "patentTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "year": {
+          "name": "year",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "documentLink": {
+          "name": "documentLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {
+    "campus": {
+      "name": "campus",
+      "values": {
+        "EC": "EC",
+        "RR": "RR",
+        "HSN": "HSN"
+      }
+    },
+    "dept": {
+      "name": "dept",
+      "values": {
+        "EC": "EC",
+        "RR": "RR",
+        "HSN": "HSN"
+      }
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
