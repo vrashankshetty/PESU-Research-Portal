@@ -55,3 +55,23 @@ export type Patent = {
     year: string;
     documentLink: string;
 };
+
+
+export type User = {          
+    empId: string;         
+    name: string;     
+    password:string;        
+    phno: string;            
+    dept: Dept;       
+    campus: Campus;           
+    panNo: string;            
+    qualification: string;    
+    designation: string;       
+    expertise: string;         
+    dateofJoining: string;       
+    totalExpBfrJoin: string;   
+    googleScholarId: string;   
+    sId: string;               
+    oId: string;             
+    profileImg?: string;      
+  }

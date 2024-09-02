@@ -1,6 +1,7 @@
 
-import { PgEnum, pgEnum, pgTable, text} from 'drizzle-orm/pg-core';
+import { PgEnum, pgEnum, pgTable, text,timestamp} from 'drizzle-orm/pg-core';
 import { campusEnum,departmentEnum } from './journal';
+
 
 export const patent = pgTable('patent', {
     id: text('id').primaryKey(),
@@ -10,5 +11,6 @@ export const patent = pgTable('patent', {
     patentNumber:text('patentNumber').notNull(),
     patentTitle:text('patentTitle').notNull(),
     year:text('year').notNull(),
-    documentLink:text('documentLink').notNull()
+    documentLink:text('documentLink').notNull(),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
 });

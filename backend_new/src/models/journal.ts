@@ -34,5 +34,6 @@ export const journal = pgTable('journal', {
     isListed:boolean('isListed').default(false),
     abstract:text('abstract').notNull(),
     keywords:text('keywords').array(),
-    domainExpertise:text('domainExpertise').notNull()
+    domainExpertise:text('domainExpertise').notNull(),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
 });

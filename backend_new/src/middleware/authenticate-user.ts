@@ -1,36 +1,33 @@
-// import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-// import { verifyToken } from '../routes/auth/repository';
-// import db from '../db';
-// import { user } from '../models/user';
-// import { eq } from 'drizzle-orm';
+import { verifyToken } from '../routes/auth/repository';
+import db from '../db';
+import { user } from '../models/user';
+import { eq } from 'drizzle-orm';
 
-// declare module 'express-serve-static-core' {
-//     interface Request {
-//         user: { id: string; email: string; role: string };
-//     }
-// }
 
-// export default async function authenticateUser(req: Request, res: Response, next: NextFunction) {
-//     try {
-//         const token = req.headers.authorization?.split(' ')[1];
-//         if (!token) {
-//             throw new Error('Unauthorized');
-//         }
-//         const userTokenData = verifyToken(token);
-//         if (userTokenData) {
-//             const result = await db.select().from(user).where(eq(user.id, userTokenData.id));
-//             if (result.length === 0) {
-//                 throw new Error('Account has been deleted');
-//             }
-//         }
-//         //console.log('verifyToken', userTokenData);
-//         (req as any).user = userTokenData;
-//         next();
-//     } catch (e) {
-//         return res.status(401).send('Unauthorized');
-//     }
-// }
+
+export default async function authenticateUser(req: Request, res: Response, next: NextFunction) {
+    try {
+        const token = req.cookies['accessToken'];
+        console.log("token..",token)
+        if (!token) {
+            throw new Error('Unauthorized');
+        }
+        const userTokenData = verifyToken(token);
+        console.log("userData from token",userTokenData)
+        if (userTokenData) {
+            const result = await db.select().from(user).where(eq(user.id, userTokenData.id));
+            if (result.length === 0) {
+                throw new Error('Account has been deleted');
+            }
+        }
+        (req as any).user = userTokenData;
+        next();
+    } catch (e) {
+        return res.status(401).send('Unauthorized');
+    }
+}
 
 // export function authenticateAdmin(req: Request, res: Response, next: NextFunction) {
 //     authenticateUser(req, res, () => {

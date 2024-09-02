@@ -23,6 +23,7 @@ export async function getAllJournal() {
     try {
         return await db.query.journal.findMany()
     } catch (error) {
+        console.log("err in repo",error)
         errs(error);
     }
 }

@@ -3,7 +3,7 @@ import { createJournal, deleteJournal, getAllJournal, getEachJournal, updateJour
 import { catchError } from '../../utils/catch-error';
 import { journalSchema } from './schema';
 import handleValidationError from '../../utils/handle-validation-error';
-
+import authenticateUser from '../../middleware/authenticate-user';
 
 const Router = express.Router();
 
@@ -14,11 +14,12 @@ const Router = express.Router();
 
 
 
-Router.get('/', async (req, res) => {
+Router.get('/',authenticateUser,async (req, res) => {
     try {
         const course = await getAllJournal();
         res.status(200).send(course);
     } catch (error) {
+        console.log("error",error)
         catchError(error, res);
     }
 });
