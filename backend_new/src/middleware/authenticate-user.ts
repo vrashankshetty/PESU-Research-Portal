@@ -14,6 +14,7 @@ export default async function authenticateUser(req: Request, res: Response, next
         if (!token) {
             throw new Error('Unauthorized');
         }
+        
         const userTokenData = verifyToken(token);
         console.log("userData from token",userTokenData)
         if (userTokenData) {

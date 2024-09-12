@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
     cors({
         credentials: true,
-        origin: ['http://localhost:3000', 'https://skillshap.com'],
+        origin: ['http://localhost:3000'],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     }),
 );

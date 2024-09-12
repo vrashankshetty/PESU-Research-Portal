@@ -5,10 +5,11 @@ import journal from './journal/api';
 import conference from './conference/api'
 import patent from './patent/api'
 import auth from './auth/api'
+import authenticateUser from '../middleware/authenticate-user';
 const router = express.Router();
 
-router.use('/journal', journal);
-router.use('/conference',conference);
-router.use('/patent',patent);
+router.use('/journal',authenticateUser, journal);
+router.use('/conference',authenticateUser,conference);
+router.use('/patent',authenticateUser,patent);
 router.use('/auth',auth);
 export default router;

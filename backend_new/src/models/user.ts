@@ -1,6 +1,17 @@
 
 import { PgEnum, pgEnum, pgTable, text,date,timestamp} from 'drizzle-orm/pg-core';
-import { campusEnum,departmentEnum } from './journal';
+
+
+const campusEnum: PgEnum<['EC','RR','HSN']> = pgEnum('campus', [
+    'EC',
+    'RR',
+    'HSN'
+]);
+
+
+const departmentEnum: PgEnum<['EC','CSE']> = pgEnum('dept', [
+    'EC','CSE'
+]);
 
 
 export const user = pgTable('user', {
@@ -23,3 +34,5 @@ export const user = pgTable('user', {
     profileImg:text('profileImg'),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
+
+

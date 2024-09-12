@@ -1,26 +1,33 @@
 
-import { PgEnum, pgEnum, pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { PgEnum, pgEnum, pgTable, text, timestamp, boolean, integer } from 'drizzle-orm/pg-core';
+import { user } from './user';
+import { relations } from 'drizzle-orm';
+import { journalUser } from './journalUser';
 
 
 
-export const campusEnum: PgEnum<['EC','RR','HSN']> = pgEnum('campus', [
+const campusEnum: PgEnum<['EC','RR','HSN']> = pgEnum('campus', [
     'EC',
     'RR',
     'HSN'
 ]);
 
 
-export const departmentEnum: PgEnum<['EC','RR','HSN']> = pgEnum('dept', [
-    'EC',
-    'RR',
-    'HSN'
+const departmentEnum: PgEnum<['EC','CSE']> = pgEnum('dept', [
+    'EC','CSE'
 ]);
+
+
+export const qnoEnum: PgEnum<['Q1','Q2','Q3','Q4','NA']> = pgEnum('qNo', [
+    'Q1','Q2','Q3','Q4','NA'
+]);
+
 
 export const journal = pgTable('journal', {
     id: text('id').primaryKey(),
     serial_no:text('serial_no').notNull(),
     title:text('title').notNull(),
-    facultyNames:text('facultyNames').array(),
+    teacherAdminId:text('teacherAdminId').notNull().references(()=>user.id),
     campus:campusEnum('campus').notNull(),
     dept:departmentEnum('dept').notNull(),
     journalName:text('journalName').notNull(),
@@ -31,9 +38,25 @@ export const journal = pgTable('journal', {
     issn:text('issn').notNull(),
     websiteLink:text('websiteLink'),
     articleLink:text('articleLink'),
-    isListed:boolean('isListed').default(false),
+    isUGC:boolean('isUGC').default(false),
+    isScopus:boolean('isScopus').default(false),
+    isWOS:boolean('isWOS').default(false),
+    qNo:qnoEnum('qNo').notNull().default('NA'),
+    impactFactor:text('impactFactor'),
+    isCapstone:boolean('isCapstone').default(false),
+    isAffiliating:boolean('isAffiliating').default(false),
+    pageNumber:integer('pageNumber').default(0),
     abstract:text('abstract').notNull(),
     keywords:text('keywords').array(),
-    domainExpertise:text('domainExpertise').notNull(),
+    domain:text('domain').notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
+
+
+export const journalRelation = relations(journal, ({ one,many }) => ({
+    teacherAdmin: one(user,{
+      fields: [journal.teacherAdminId],
+      references: [user.id]
+    }),
+    teachers:many(journalUser)
+  }));
