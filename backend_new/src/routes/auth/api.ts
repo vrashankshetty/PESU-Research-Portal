@@ -32,25 +32,25 @@ Router.post('/login', async (req, res) => {
 
         date.setFullYear(date.getFullYear() + 1);
 
-        res.setHeader(
-            'Set-Cookie',
-            cookie.serialize('refreshToken', refreshToken, {
-                httpOnly: true,
-                expires: date,
-                sameSite: 'strict',
-                secure: false,
-                path: '/',
-                domain: 'localhost',
-            }),
-             );
+        // res.setHeader(
+        //     'Set-Cookie',
+        //     cookie.serialize('refreshToken', refreshToken, {
+        //         httpOnly: true,
+        //         expires: date,
+        //         sameSite: 'strict',
+        //         secure: false,
+        //         path: '/',
+        //         domain: 'localhost',
+        //     }),
+        //      );
 
-        res.cookie("accessToken", accessToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                path: "/",
-                domain: 'localhost',
-        })
+        // res.cookie("accessToken", accessToken, {
+        //         httpOnly: true,
+        //         secure: true,
+        //         sameSite: 'strict',
+        //         path: "/",
+        //         domain: 'localhost',
+        // })
 
         res.status(200).send({
                 message: 'Successfully logged in',

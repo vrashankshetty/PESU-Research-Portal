@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
+// import Cookie  from "js-cookie";
 import { setCookie } from "cookies-next";
-
 const formSchema = z.object({
   empId: z.string().min(6, { message: "EMP ID must be at least 6 characters" }),
   password: z
@@ -57,14 +57,14 @@ export default function LoginPage() {
       console.log(response);
 
       if (response.data.message === "Successfully logged in") {
-        // console.log("Setting cookies");
-        // setCookie("accessToken", response.data.token, {
-        //   httpOnly: true,
-        //   secure: true,
-        //   sameSite: "strict",
-        //   path: "/",
-        //   domain: "localhost",
-        // });
+        console.log("Setting cookies",response.data.token);
+        setCookie("accessToken", response.data.token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          path: "/",
+          domain: "localhost",
+        });
         router.push("/");
       }
     } catch (error) {
