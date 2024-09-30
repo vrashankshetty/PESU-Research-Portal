@@ -52,12 +52,12 @@ export default function Research() {
                 </h2>
                 <p className="text-gray-600 mb-4">{option.description}</p>
                 <Link href={`/research/${option.href}/add`} passHref>
-                  <Button className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 my-2 rounded">
+                  <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
                     Add {option.title}
                   </Button>
                 </Link>
                 <Link href={`/research/${option.href}/analyze`} passHref>
-                  <Button className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 my-2 rounded">
+                  <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
                     Analyze {option.title}
                   </Button>
                 </Link>

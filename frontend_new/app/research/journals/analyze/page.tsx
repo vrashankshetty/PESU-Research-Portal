@@ -31,62 +31,83 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 
-type Patent = {
-  teacherAdminId: string;
-  campus: "EC" | "RR" | "HSN";
+type Journal = {
+  serial_no: string;
+  title: string;
+  teacherIds: string[];
+  campus: string;
   dept: "EC" | "CSE";
-  patentNumber: string;
-  patentTitle: string;
-  isCapstone: boolean;
+  journalName: string;
+  month: string;
   year: string;
-  documentLink: string;
+  volumeNo: string;
+  issueNo: string;
+  issn: string;
+  websiteLink?: string;
+  articleLink?: string;
+  isUGC: boolean;
+  isScopus: boolean;
+  isWOS: boolean;
+  qNo: "Q1" | "Q2" | "Q3" | "Q4" | "NA";
+  impactFactor?: string;
+  isCapstone: boolean;
+  isAffiliating: boolean;
+  pageNumber: number;
+  abstract: string;
+  keywords: string[];
+  domain: string;
 };
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-export default function ImprovedPatentDashboard() {
-  const [patents, setPatents] = useState<Patent[]>([]);
-  const [filteredPatents, setFilteredPatents] = useState<Patent[]>([]);
+export default function JournalDashboard() {
+  const [journals, setJournals] = useState<Journal[]>([]);
+  const [filteredJournals, setFilteredJournals] = useState<Journal[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
-  const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus");
+  const [metric, setMetric] = useState<"campus" | "dept" | "year" | "qNo">(
+    "campus"
+  );
   const [yearRange, setYearRange] = useState({ start: "2000", end: "2023" });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
+  const [selectedQNos, setSelectedQNos] = useState<string[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchPatents = async () => {
+    const fetchJournals = async () => {
       try {
-        const response = await fetch("http://localhost:5500/api/v1/patent");
+        const response = await fetch("http://localhost:5500/api/v1/journal");
         const data = await response.json();
-        setPatents(data);
-        setFilteredPatents(data);
+        setJournals(data);
+        setFilteredJournals(data);
       } catch (error) {
-        console.error("Error fetching patents:", error);
+        console.error("Error fetching journals:", error);
       }
     };
-    fetchPatents();
+    fetchJournals();
   }, []);
 
   useEffect(() => {
-    const filtered = patents.filter((patent) => {
+    const filtered = journals.filter((journal) => {
       const yearInRange =
-        parseInt(patent.year) >= parseInt(yearRange.start) &&
-        parseInt(patent.year) <= parseInt(yearRange.end);
+        parseInt(journal.year) >= parseInt(yearRange.start) &&
+        parseInt(journal.year) <= parseInt(yearRange.end);
       const campusMatch =
         selectedCampuses.length === 0 ||
-        selectedCampuses.includes(patent.campus);
+        selectedCampuses.includes(journal.campus);
       const deptMatch =
-        selectedDepts.length === 0 || selectedDepts.includes(patent.dept);
-      return yearInRange && campusMatch && deptMatch;
+        selectedDepts.length === 0 || selectedDepts.includes(journal.dept);
+      const qNoMatch =
+        selectedQNos.length === 0 || selectedQNos.includes(journal.qNo);
+      return yearInRange && campusMatch && deptMatch && qNoMatch;
     });
-    setFilteredPatents(filtered);
-  }, [patents, yearRange, selectedCampuses, selectedDepts]);
+    setFilteredJournals(filtered);
+  }, [journals, yearRange, selectedCampuses, selectedDepts, selectedQNos]);
 
   const getChartData = () => {
     const data: { [key: string]: number } = {};
-    filteredPatents.forEach((patent) => {
-      const key = patent[metric];
+    filteredJournals.forEach((journal) => {
+      const key = journal[metric];
       data[key] = (data[key] || 0) + 1;
     });
     return Object.entries(data).map(([name, value]) => ({ name, value }));
@@ -164,7 +185,7 @@ export default function ImprovedPatentDashboard() {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
         const link = document.createElement("a");
-        link.download = "patent_chart.png";
+        link.download = "journal_chart.png";
         link.href = canvas.toDataURL();
         link.click();
       });
@@ -173,27 +194,59 @@ export default function ImprovedPatentDashboard() {
 
   const downloadTableAsCSV = () => {
     const headers = [
-      "Teacher ID",
+      "Serial No",
+      "Title",
+      "Teacher IDs",
       "Campus",
       "Department",
-      "Patent Number",
-      "Patent Title",
+      "Journal Name",
+      "Month",
       "Year",
+      "Volume No",
+      "Issue No",
+      "ISSN",
+      "Website Link",
+      "Article Link",
+      "UGC",
+      "Scopus",
+      "WOS",
+      "Q No",
+      "Impact Factor",
       "Capstone",
-      "Document Link",
+      "Affiliating",
+      "Page Number",
+      "Abstract",
+      "Keywords",
+      "Domain",
     ];
     const csvContent = [
       headers.join(","),
-      ...filteredPatents.map((patent) =>
+      ...filteredJournals.map((journal) =>
         [
-          patent.teacherAdminId,
-          patent.campus,
-          patent.dept,
-          patent.patentNumber,
-          `"${patent.patentTitle.replace(/"/g, '""')}"`,
-          patent.year,
-          patent.isCapstone ? "Yes" : "No",
-          patent.documentLink,
+          journal.serial_no,
+          `"${journal.title.replace(/"/g, '""')}"`,
+          `"${journal.teacherIds.join(";")}"`,
+          journal.campus,
+          journal.dept,
+          `"${journal.journalName.replace(/"/g, '""')}"`,
+          journal.month,
+          journal.year,
+          journal.volumeNo,
+          journal.issueNo,
+          journal.issn,
+          journal.websiteLink || "",
+          journal.articleLink || "",
+          journal.isUGC ? "Yes" : "No",
+          journal.isScopus ? "Yes" : "No",
+          journal.isWOS ? "Yes" : "No",
+          journal.qNo,
+          journal.impactFactor || "",
+          journal.isCapstone ? "Yes" : "No",
+          journal.isAffiliating ? "Yes" : "No",
+          journal.pageNumber,
+          `"${journal.abstract.replace(/"/g, '""')}"`,
+          `"${journal.keywords.join(";")}"`,
+          journal.domain,
         ].join(",")
       ),
     ].join("\n");
@@ -203,7 +256,7 @@ export default function ImprovedPatentDashboard() {
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute("href", url);
-      link.setAttribute("download", "patent_data.csv");
+      link.setAttribute("download", "journal_data.csv");
       link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
@@ -213,7 +266,7 @@ export default function ImprovedPatentDashboard() {
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Patent Analysis Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Journal Analysis Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <Card>
@@ -244,7 +297,7 @@ export default function ImprovedPatentDashboard() {
           </CardHeader>
           <CardContent>
             <Select
-              onValueChange={(value: "campus" | "dept" | "year") =>
+              onValueChange={(value: "campus" | "dept" | "year" | "qNo") =>
                 setMetric(value)
               }
             >
@@ -255,6 +308,7 @@ export default function ImprovedPatentDashboard() {
                 <SelectItem value="campus">Campus</SelectItem>
                 <SelectItem value="dept">Department</SelectItem>
                 <SelectItem value="year">Year</SelectItem>
+                <SelectItem value="qNo">Q Number</SelectItem>
               </SelectContent>
             </Select>
           </CardContent>
@@ -295,7 +349,7 @@ export default function ImprovedPatentDashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Campus Filter</CardTitle>
@@ -347,11 +401,37 @@ export default function ImprovedPatentDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Q Number Filter</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4">
+              {["Q1", "Q2", "Q3", "Q4", "NA"].map((qNo) => (
+                <div key={qNo} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`qNo-${qNo}`}
+                    checked={selectedQNos.includes(qNo)}
+                    onCheckedChange={(checked) => {
+                      setSelectedQNos(
+                        checked
+                          ? [...selectedQNos, qNo]
+                          : selectedQNos.filter((q) => q !== qNo)
+                      );
+                    }}
+                  />
+                  <Label htmlFor={`qNo-${qNo}`}>{qNo}</Label>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Patent Analysis Chart</CardTitle>
+          <CardTitle>Journal Analysis Chart</CardTitle>
         </CardHeader>
         <CardContent className="h-[480px]">
           <div ref={chartRef}>{renderChart()}</div>
@@ -363,7 +443,7 @@ export default function ImprovedPatentDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Patent Details</CardTitle>
+          <CardTitle>Journal Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="table" className="w-full">
@@ -376,37 +456,43 @@ export default function ImprovedPatentDashboard() {
                 <table className="w-full text-sm text-left text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3">Teacher ID</th>
+                      <th className="px-6 py-3">Serial No</th>
+                      <th className="px-6 py-3">Title</th>
                       <th className="px-6 py-3">Campus</th>
                       <th className="px-6 py-3">Department</th>
-                      <th className="px-6 py-3">Patent Number</th>
-                      <th className="px-6 py-3">Patent Title</th>
+                      <th className="px-6 py-3">Journal Name</th>
                       <th className="px-6 py-3">Year</th>
-                      <th className="px-6 py-3">Capstone</th>
-                      <th className="px-6 py-3">Document</th>
+                      <th className="px-6 py-3">Q No</th>
+                      <th className="px-6 py-3">Impact Factor</th>
+                      <th className="px-6 py-3">Article Link</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredPatents.map((patent, index) => (
+                    {filteredJournals.map((journal, index) => (
                       <tr key={index} className="bg-white border-b">
-                        <td className="px-6 py-4">{patent.teacherAdminId}</td>
-                        <td className="px-6 py-4">{patent.campus}</td>
-                        <td className="px-6 py-4">{patent.dept}</td>
-                        <td className="px-6 py-4">{patent.patentNumber}</td>
-                        <td className="px-6 py-4">{patent.patentTitle}</td>
-                        <td className="px-6 py-4">{patent.year}</td>
+                        <td className="px-6 py-4">{journal.serial_no}</td>
+                        <td className="px-6 py-4">{journal.title}</td>
+                        <td className="px-6 py-4">{journal.campus}</td>
+                        <td className="px-6 py-4">{journal.dept}</td>
+                        <td className="px-6 py-4">{journal.journalName}</td>
+                        <td className="px-6 py-4">{journal.year}</td>
+                        <td className="px-6 py-4">{journal.qNo}</td>
                         <td className="px-6 py-4">
-                          {patent.isCapstone ? "Yes" : "No"}
+                          {journal.impactFactor || "N/A"}
                         </td>
                         <td className="px-6 py-4">
-                          <a
-                            href={patent.documentLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                          >
-                            View
-                          </a>
+                          {journal.articleLink ? (
+                            <a
+                              href={journal.articleLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              View
+                            </a>
+                          ) : (
+                            "N/A"
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -419,39 +505,54 @@ export default function ImprovedPatentDashboard() {
             </TabsContent>
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredPatents.map((patent, index) => (
+                {filteredJournals.map((journal, index) => (
                   <Card key={index}>
                     <CardHeader>
-                      <CardTitle>{patent.patentTitle}</CardTitle>
+                      <CardTitle>{journal.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p>
-                        <strong>Teacher ID:</strong> {patent.teacherAdminId}
+                        <strong>Serial No:</strong> {journal.serial_no}
                       </p>
                       <p>
-                        <strong>Campus:</strong> {patent.campus}
+                        <strong>Campus:</strong> {journal.campus}
                       </p>
                       <p>
-                        <strong>Department:</strong> {patent.dept}
+                        <strong>Department:</strong> {journal.dept}
                       </p>
                       <p>
-                        <strong>Patent Number:</strong> {patent.patentNumber}
+                        <strong>Journal Name:</strong> {journal.journalName}
                       </p>
                       <p>
-                        <strong>Year:</strong> {patent.year}
+                        <strong>Year:</strong> {journal.year}
                       </p>
                       <p>
-                        <strong>Capstone:</strong>{" "}
-                        {patent.isCapstone ? "Yes" : "No"}
+                        <strong>Q No:</strong> {journal.qNo}
                       </p>
-                      <a
-                        href={patent.documentLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        View Document
-                      </a>
+                      <p>
+                        <strong>Impact Factor:</strong>{" "}
+                        {journal.impactFactor || "N/A"}
+                      </p>
+                      <p>
+                        <strong>UGC:</strong> {journal.isUGC ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Scopus:</strong>{" "}
+                        {journal.isScopus ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>WOS:</strong> {journal.isWOS ? "Yes" : "No"}
+                      </p>
+                      {journal.articleLink && (
+                        <a
+                          href={journal.articleLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          View Article
+                        </a>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
