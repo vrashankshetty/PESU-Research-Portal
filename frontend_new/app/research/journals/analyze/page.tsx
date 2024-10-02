@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -61,31 +63,76 @@ type Journal = {
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export default function JournalDashboard() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [journals, setJournals] = useState<Journal[]>([]);
   const [filteredJournals, setFilteredJournals] = useState<Journal[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
   const [metric, setMetric] = useState<"campus" | "dept" | "year" | "qNo">(
     "campus"
   );
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2023" });
+  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
   const [selectedQNos, setSelectedQNos] = useState<string[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
 
+  const updateQueryParams = useCallback(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set("chartType", chartType);
+    params.set("metric", metric);
+    params.set("yearStart", yearRange.start);
+    params.set("yearEnd", yearRange.end);
+    params.set("campuses", selectedCampuses.join(","));
+    params.set("depts", selectedDepts.join(","));
+    params.set("qNos", selectedQNos.join(","));
+    router.push(`?${params.toString()}`);
+  }, [
+    chartType,
+    metric,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    selectedQNos,
+    router,
+    searchParams,
+  ]);
+
   useEffect(() => {
     const fetchJournals = async () => {
       try {
-        const response = await fetch("http://localhost:5500/api/v1/journal");
-        const data = await response.json();
-        setJournals(data);
-        setFilteredJournals(data);
+        const response = await axios.get(
+          "http://localhost:5500/api/v1/journal",
+          { withCredentials: true }
+        );
+        setJournals(response.data);
       } catch (error) {
         console.error("Error fetching journals:", error);
       }
     };
     fetchJournals();
   }, []);
+
+  useEffect(() => {
+    setChartType(
+      (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
+    );
+    setMetric(
+      (searchParams.get("metric") as "campus" | "dept" | "year" | "qNo") ||
+        "campus"
+    );
+    setYearRange({
+      start: searchParams.get("yearStart") || "2000",
+      end: searchParams.get("yearEnd") || "2024",
+    });
+    setSelectedCampuses(
+      searchParams.get("campuses")?.split(",").filter(Boolean) || []
+    );
+    setSelectedDepts(
+      searchParams.get("depts")?.split(",").filter(Boolean) || []
+    );
+    setSelectedQNos(searchParams.get("qNos")?.split(",").filter(Boolean) || []);
+  }, [searchParams]);
 
   useEffect(() => {
     const filtered = journals.filter((journal) => {
@@ -102,7 +149,15 @@ export default function JournalDashboard() {
       return yearInRange && campusMatch && deptMatch && qNoMatch;
     });
     setFilteredJournals(filtered);
-  }, [journals, yearRange, selectedCampuses, selectedDepts, selectedQNos]);
+    updateQueryParams();
+  }, [
+    journals,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    selectedQNos,
+    updateQueryParams,
+  ]);
 
   const getChartData = () => {
     const data: { [key: string]: number } = {};
@@ -116,15 +171,29 @@ export default function JournalDashboard() {
   const renderChart = () => {
     const data = getChartData();
 
+    if (data.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-[400px]">
+          <p className="text-lg font-semibold">No Matching Data Available</p>
+        </div>
+      );
+    }
+
     switch (chartType) {
       case "bar":
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+            <BarChart data={data} barSize={24} barGap={8}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(255, 255, 255, 0.8)",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+              />
               <Legend />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
@@ -141,12 +210,25 @@ export default function JournalDashboard() {
         return (
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(255, 255, 255, 0.8)",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+              />
               <Legend />
-              <Line type="monotone" dataKey="value" stroke="#8884d8" />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#8884d8"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -173,7 +255,13 @@ export default function JournalDashboard() {
                   />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(255, 255, 255, 0.8)",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+              />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
@@ -275,6 +363,7 @@ export default function JournalDashboard() {
           </CardHeader>
           <CardContent>
             <Select
+              value={chartType}
               onValueChange={(value: "bar" | "line" | "pie") =>
                 setChartType(value)
               }
@@ -297,6 +386,7 @@ export default function JournalDashboard() {
           </CardHeader>
           <CardContent>
             <Select
+              value={metric}
               onValueChange={(value: "campus" | "dept" | "year" | "qNo") =>
                 setMetric(value)
               }

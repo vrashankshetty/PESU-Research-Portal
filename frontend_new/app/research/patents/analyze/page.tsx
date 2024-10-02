@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -45,28 +47,70 @@ type Patent = {
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export default function ImprovedPatentDashboard() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [patents, setPatents] = useState<Patent[]>([]);
   const [filteredPatents, setFilteredPatents] = useState<Patent[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
   const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus");
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2023" });
+  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
 
+  const updateQueryParams = useCallback(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set("chartType", chartType);
+    params.set("metric", metric);
+    params.set("yearStart", yearRange.start);
+    params.set("yearEnd", yearRange.end);
+    params.set("campuses", selectedCampuses.join(","));
+    params.set("depts", selectedDepts.join(","));
+    router.push(`?${params.toString()}`);
+  }, [
+    chartType,
+    metric,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    router,
+    searchParams,
+  ]);
+
   useEffect(() => {
     const fetchPatents = async () => {
       try {
-        const response = await fetch("http://localhost:5500/api/v1/patent");
-        const data = await response.json();
-        setPatents(data);
-        setFilteredPatents(data);
+        const response = await axios.get(
+          "http://localhost:5500/api/v1/patent",
+          { withCredentials: true }
+        );
+        console.log(response);
+        setPatents(response.data);
       } catch (error) {
         console.error("Error fetching patents:", error);
       }
     };
     fetchPatents();
   }, []);
+
+  useEffect(() => {
+    setChartType(
+      (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
+    );
+    setMetric(
+      (searchParams.get("metric") as "campus" | "dept" | "year") || "campus"
+    );
+    setYearRange({
+      start: searchParams.get("yearStart") || "2000",
+      end: searchParams.get("yearEnd") || "2024",
+    });
+    setSelectedCampuses(
+      searchParams.get("campuses")?.split(",").filter(Boolean) || []
+    );
+    setSelectedDepts(
+      searchParams.get("depts")?.split(",").filter(Boolean) || []
+    );
+  }, [searchParams]);
 
   useEffect(() => {
     const filtered = patents.filter((patent) => {
@@ -81,7 +125,8 @@ export default function ImprovedPatentDashboard() {
       return yearInRange && campusMatch && deptMatch;
     });
     setFilteredPatents(filtered);
-  }, [patents, yearRange, selectedCampuses, selectedDepts]);
+    updateQueryParams();
+  }, [patents, yearRange, selectedCampuses, selectedDepts, updateQueryParams]);
 
   const getChartData = () => {
     const data: { [key: string]: number } = {};
@@ -95,15 +140,29 @@ export default function ImprovedPatentDashboard() {
   const renderChart = () => {
     const data = getChartData();
 
+    if (data.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-[400px]">
+          <p className="text-lg font-semibold">No Matching Data Available</p>
+        </div>
+      );
+    }
+    
     switch (chartType) {
       case "bar":
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+            <BarChart data={data} barSize={24} barGap={8}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(255, 255, 255, 0.8)",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+              />
               <Legend />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
@@ -120,12 +179,25 @@ export default function ImprovedPatentDashboard() {
         return (
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(255, 255, 255, 0.8)",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+              />
               <Legend />
-              <Line type="monotone" dataKey="value" stroke="#8884d8" />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#8884d8"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -152,7 +224,13 @@ export default function ImprovedPatentDashboard() {
                   />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(255, 255, 255, 0.8)",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+              />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
@@ -222,6 +300,7 @@ export default function ImprovedPatentDashboard() {
           </CardHeader>
           <CardContent>
             <Select
+              value={chartType}
               onValueChange={(value: "bar" | "line" | "pie") =>
                 setChartType(value)
               }
@@ -244,6 +323,7 @@ export default function ImprovedPatentDashboard() {
           </CardHeader>
           <CardContent>
             <Select
+              value={metric}
               onValueChange={(value: "campus" | "dept" | "year") =>
                 setMetric(value)
               }
