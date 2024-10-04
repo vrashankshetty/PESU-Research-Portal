@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import {
@@ -46,7 +46,7 @@ type Patent = {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-export default function ImprovedPatentDashboard() {
+function ImprovedPatentDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [patents, setPatents] = useState<Patent[]>([]);
@@ -147,7 +147,7 @@ export default function ImprovedPatentDashboard() {
         </div>
       );
     }
-    
+
     switch (chartType) {
       case "bar":
         return (
@@ -541,5 +541,13 @@ export default function ImprovedPatentDashboard() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PatentAnalyze() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ImprovedPatentDashboard />
+    </Suspense>
   );
 }
