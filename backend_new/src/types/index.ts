@@ -8,7 +8,6 @@ export type QNo = 'Q1' | 'Q2' | 'Q3' | 'Q4' | 'NA';
 export type Core =  'coreA' | 'coreB' | 'coreC' | 'scopus' | 'NA';
 
 export type Journal={
-    serial_no: string;
     title: string;
     teacherIds: string[]; 
     campus: Campus;
@@ -36,7 +35,6 @@ export type Journal={
 
 
 export type Conference={
-    serial_no: string;
     teacherIds: string[]; 
     campus: Campus;
     dept: Department;

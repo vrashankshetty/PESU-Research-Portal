@@ -1,7 +1,6 @@
 import Joi from 'joi';
 
 export const journalSchema =  Joi.object({
-    serial_no: Joi.string().required(),
     title: Joi.string().required(),
     teacherIds: Joi.array().items(Joi.string()).default([]),
     campus: Joi.string().required(), 

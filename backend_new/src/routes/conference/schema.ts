@@ -2,7 +2,6 @@ import Joi from 'joi';
 
 
 export const conferenceSchema = Joi.object({
-    serial_no: Joi.string().required(),
     teacherIds: Joi.array().items(Joi.string()).default([]),
     campus: Joi.string().required(), 
     dept: Joi.string().valid('EC','CSE').required(),

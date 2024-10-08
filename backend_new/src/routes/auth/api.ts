@@ -43,7 +43,7 @@ Router.post('/login', async (req, res) => {
         //         domain: 'localhost',
         //     }),
         //      );
-
+        // //Only for testing
         // res.cookie("accessToken", accessToken, {
         //         httpOnly: true,
         //         secure: true,
