@@ -33,29 +33,47 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 
-type Patent = {
-  teacherAdminId: string;
-  campus: "EC" | "RR" | "HSN";
+type Conference = {
+  serial_no: string;
+  teacherIds: string[];
+  campus: string;
   dept: "EC" | "CSE";
-  patentNumber: string;
-  patentTitle: string;
-  isCapstone: boolean;
+  bookTitle: string;
+  paperTitle: string;
+  proceedings_conference_title: string;
+  volumeNo: string;
+  issueNo: string;
   year: string;
-  documentLink: string;
+  pageNumber: number;
+  issn: string;
+  is_affiliating_institution_same: boolean;
+  publisherName: string;
+  impactFactor: string;
+  core: "coreA" | "coreB" | "coreC" | "scopus" | "NA";
+  link_of_paper: string;
+  isCapstone: boolean;
+  abstract: string;
+  keywords: string[];
+  domain: string;
 };
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-function ImprovedPatentDashboard() {
+function ConferenceDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [patents, setPatents] = useState<Patent[]>([]);
-  const [filteredPatents, setFilteredPatents] = useState<Patent[]>([]);
+  const [conferences, setConferences] = useState<Conference[]>([]);
+  const [filteredConferences, setFilteredConferences] = useState<Conference[]>(
+    []
+  );
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
-  const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus");
+  const [metric, setMetric] = useState<"campus" | "dept" | "year" | "core">(
+    "campus"
+  );
   const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
+  const [selectedCores, setSelectedCores] = useState<string[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
 
   const updateQueryParams = useCallback(() => {
@@ -66,6 +84,7 @@ function ImprovedPatentDashboard() {
     params.set("yearEnd", yearRange.end);
     params.set("campuses", selectedCampuses.join(","));
     params.set("depts", selectedDepts.join(","));
+    params.set("cores", selectedCores.join(","));
     router.push(`?${params.toString()}`);
   }, [
     chartType,
@@ -73,24 +92,24 @@ function ImprovedPatentDashboard() {
     yearRange,
     selectedCampuses,
     selectedDepts,
+    selectedCores,
     router,
     searchParams,
   ]);
 
   useEffect(() => {
-    const fetchPatents = async () => {
+    const fetchConferences = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5500/api/v1/patent",
+          "http://localhost:5500/api/v1/conference",
           { withCredentials: true }
         );
-        console.log(response);
-        setPatents(response.data);
+        setConferences(response.data);
       } catch (error) {
-        console.error("Error fetching patents:", error);
+        console.error("Error fetching conferences:", error);
       }
     };
-    fetchPatents();
+    fetchConferences();
   }, []);
 
   useEffect(() => {
@@ -98,7 +117,8 @@ function ImprovedPatentDashboard() {
       (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
     );
     setMetric(
-      (searchParams.get("metric") as "campus" | "dept" | "year") || "campus"
+      (searchParams.get("metric") as "campus" | "dept" | "year" | "core") ||
+        "campus"
     );
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
@@ -110,28 +130,40 @@ function ImprovedPatentDashboard() {
     setSelectedDepts(
       searchParams.get("depts")?.split(",").filter(Boolean) || []
     );
+    setSelectedCores(
+      searchParams.get("cores")?.split(",").filter(Boolean) || []
+    );
   }, [searchParams]);
 
   useEffect(() => {
-    const filtered = patents.filter((patent) => {
+    const filtered = conferences.filter((conference) => {
       const yearInRange =
-        parseInt(patent.year) >= parseInt(yearRange.start) &&
-        parseInt(patent.year) <= parseInt(yearRange.end);
+        parseInt(conference.year) >= parseInt(yearRange.start) &&
+        parseInt(conference.year) <= parseInt(yearRange.end);
       const campusMatch =
         selectedCampuses.length === 0 ||
-        selectedCampuses.includes(patent.campus);
+        selectedCampuses.includes(conference.campus);
       const deptMatch =
-        selectedDepts.length === 0 || selectedDepts.includes(patent.dept);
-      return yearInRange && campusMatch && deptMatch;
+        selectedDepts.length === 0 || selectedDepts.includes(conference.dept);
+      const coreMatch =
+        selectedCores.length === 0 || selectedCores.includes(conference.core);
+      return yearInRange && campusMatch && deptMatch && coreMatch;
     });
-    setFilteredPatents(filtered);
+    setFilteredConferences(filtered);
     updateQueryParams();
-  }, [patents, yearRange, selectedCampuses, selectedDepts, updateQueryParams]);
+  }, [
+    conferences,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    selectedCores,
+    updateQueryParams,
+  ]);
 
   const getChartData = () => {
     const data: { [key: string]: number } = {};
-    filteredPatents.forEach((patent) => {
-      const key = patent[metric];
+    filteredConferences.forEach((conference) => {
+      const key = conference[metric];
       data[key] = (data[key] || 0) + 1;
     });
     return Object.entries(data).map(([name, value]) => ({ name, value }));
@@ -148,21 +180,20 @@ function ImprovedPatentDashboard() {
       );
     }
 
+    const commonProps = {
+      data,
+      margin: { top: 5, right: 30, left: 20, bottom: 5 },
+    };
+
     switch (chartType) {
       case "bar":
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={data} barSize={24} barGap={8}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(255, 255, 255, 0.8)",
-                  border: "none",
-                  borderRadius: "4px",
-                }}
-              />
+            <BarChart {...commonProps} barSize={24} barGap={8}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
               <Legend />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
@@ -178,26 +209,13 @@ function ImprovedPatentDashboard() {
       case "line":
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(255, 255, 255, 0.8)",
-                  border: "none",
-                  borderRadius: "4px",
-                }}
-              />
+            <LineChart {...commonProps}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
               <Legend />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#8884d8"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
+              <Line type="monotone" dataKey="value" stroke="#8884d8" />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -224,13 +242,7 @@ function ImprovedPatentDashboard() {
                   />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(255, 255, 255, 0.8)",
-                  border: "none",
-                  borderRadius: "4px",
-                }}
-              />
+              <Tooltip />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
@@ -242,7 +254,7 @@ function ImprovedPatentDashboard() {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
         const link = document.createElement("a");
-        link.download = "patent_chart.png";
+        link.download = "conference_chart.png";
         link.href = canvas.toDataURL();
         link.click();
       });
@@ -251,27 +263,53 @@ function ImprovedPatentDashboard() {
 
   const downloadTableAsCSV = () => {
     const headers = [
-      "Teacher ID",
+      "Serial No",
+      "Teacher IDs",
       "Campus",
       "Department",
-      "Patent Number",
-      "Patent Title",
+      "Book Title",
+      "Paper Title",
+      "Proceedings Conference Title",
+      "Volume No",
+      "Issue No",
       "Year",
+      "Page Number",
+      "ISSN",
+      "Affiliating Institution Same",
+      "Publisher Name",
+      "Impact Factor",
+      "Core",
+      "Link of Paper",
       "Capstone",
-      "Document Link",
+      "Abstract",
+      "Keywords",
+      "Domain",
     ];
     const csvContent = [
       headers.join(","),
-      ...filteredPatents.map((patent) =>
+      ...filteredConferences.map((conference) =>
         [
-          patent.teacherAdminId,
-          patent.campus,
-          patent.dept,
-          patent.patentNumber,
-          `"${patent.patentTitle.replace(/"/g, '""')}"`,
-          patent.year,
-          patent.isCapstone ? "Yes" : "No",
-          patent.documentLink,
+          conference.serial_no,
+          `"${conference.teacherIds.join(";")}"`,
+          conference.campus,
+          conference.dept,
+          `"${conference.bookTitle.replace(/"/g, '""')}"`,
+          `"${conference.paperTitle.replace(/"/g, '""')}"`,
+          `"${conference.proceedings_conference_title.replace(/"/g, '""')}"`,
+          conference.volumeNo,
+          conference.issueNo,
+          conference.year,
+          conference.pageNumber,
+          conference.issn,
+          conference.is_affiliating_institution_same ? "Yes" : "No",
+          `"${conference.publisherName.replace(/"/g, '""')}"`,
+          conference.impactFactor,
+          conference.core,
+          conference.link_of_paper,
+          conference.isCapstone ? "Yes" : "No",
+          `"${conference.abstract.replace(/"/g, '""')}"`,
+          `"${conference.keywords.join(";")}"`,
+          conference.domain,
         ].join(",")
       ),
     ].join("\n");
@@ -281,7 +319,7 @@ function ImprovedPatentDashboard() {
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute("href", url);
-      link.setAttribute("download", "patent_data.csv");
+      link.setAttribute("download", "conference_data.csv");
       link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
@@ -291,7 +329,7 @@ function ImprovedPatentDashboard() {
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Patent Analysis Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Conference Analysis Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <Card>
@@ -324,7 +362,7 @@ function ImprovedPatentDashboard() {
           <CardContent>
             <Select
               value={metric}
-              onValueChange={(value: "campus" | "dept" | "year") =>
+              onValueChange={(value: "campus" | "dept" | "year" | "core") =>
                 setMetric(value)
               }
             >
@@ -335,6 +373,7 @@ function ImprovedPatentDashboard() {
                 <SelectItem value="campus">Campus</SelectItem>
                 <SelectItem value="dept">Department</SelectItem>
                 <SelectItem value="year">Year</SelectItem>
+                <SelectItem value="core">Core</SelectItem>
               </SelectContent>
             </Select>
           </CardContent>
@@ -375,7 +414,7 @@ function ImprovedPatentDashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Campus Filter</CardTitle>
@@ -427,11 +466,37 @@ function ImprovedPatentDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Core Filter</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4">
+              {["coreA", "coreB", "coreC", "scopus", "NA"].map((core) => (
+                <div key={core} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`core-${core}`}
+                    checked={selectedCores.includes(core)}
+                    onCheckedChange={(checked) => {
+                      setSelectedCores(
+                        checked
+                          ? [...selectedCores, core]
+                          : selectedCores.filter((c) => c !== core)
+                      );
+                    }}
+                  />
+                  <Label htmlFor={`core-${core}`}>{core}</Label>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Patent Analysis Chart</CardTitle>
+          <CardTitle>Conference Analysis Chart</CardTitle>
         </CardHeader>
         <CardContent className="h-[480px]">
           <div ref={chartRef}>{renderChart()}</div>
@@ -443,7 +508,7 @@ function ImprovedPatentDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Patent Details</CardTitle>
+          <CardTitle>Conference Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="table" className="w-full">
@@ -456,31 +521,33 @@ function ImprovedPatentDashboard() {
                 <table className="w-full text-sm text-left text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3">Teacher ID</th>
+                      <th className="px-6 py-3">Serial No</th>
+                      <th className="px-6 py-3">Paper Title</th>
                       <th className="px-6 py-3">Campus</th>
                       <th className="px-6 py-3">Department</th>
-                      <th className="px-6 py-3">Patent Number</th>
-                      <th className="px-6 py-3">Patent Title</th>
+                      <th className="px-6 py-3">Conference Title</th>
                       <th className="px-6 py-3">Year</th>
-                      <th className="px-6 py-3">Capstone</th>
-                      <th className="px-6 py-3">Document</th>
+                      <th className="px-6 py-3">Core</th>
+                      <th className="px-6 py-3">Impact Factor</th>
+                      <th className="px-6 py-3">Paper Link</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredPatents.map((patent, index) => (
+                    {filteredConferences.map((conference, index) => (
                       <tr key={index} className="bg-white border-b">
-                        <td className="px-6 py-4">{patent.teacherAdminId}</td>
-                        <td className="px-6 py-4">{patent.campus}</td>
-                        <td className="px-6 py-4">{patent.dept}</td>
-                        <td className="px-6 py-4">{patent.patentNumber}</td>
-                        <td className="px-6 py-4">{patent.patentTitle}</td>
-                        <td className="px-6 py-4">{patent.year}</td>
+                        <td className="px-6 py-4">{conference.serial_no}</td>
+                        <td className="px-6 py-4">{conference.paperTitle}</td>
+                        <td className="px-6 py-4">{conference.campus}</td>
+                        <td className="px-6 py-4">{conference.dept}</td>
                         <td className="px-6 py-4">
-                          {patent.isCapstone ? "Yes" : "No"}
+                          {conference.proceedings_conference_title}
                         </td>
+                        <td className="px-6 py-4">{conference.year}</td>
+                        <td className="px-6 py-4">{conference.core}</td>
+                        <td className="px-6 py-4">{conference.impactFactor}</td>
                         <td className="px-6 py-4">
                           <a
-                            href={patent.documentLink}
+                            href={conference.link_of_paper}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
@@ -499,38 +566,49 @@ function ImprovedPatentDashboard() {
             </TabsContent>
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredPatents.map((patent, index) => (
+                {filteredConferences.map((conference, index) => (
                   <Card key={index}>
                     <CardHeader>
-                      <CardTitle>{patent.patentTitle}</CardTitle>
+                      <CardTitle>{conference.paperTitle}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p>
-                        <strong>Teacher ID:</strong> {patent.teacherAdminId}
+                        <strong>Serial No:</strong> {conference.serial_no}
                       </p>
                       <p>
-                        <strong>Campus:</strong> {patent.campus}
+                        <strong>Campus:</strong> {conference.campus}
                       </p>
                       <p>
-                        <strong>Department:</strong> {patent.dept}
+                        <strong>Department:</strong> {conference.dept}
                       </p>
                       <p>
-                        <strong>Patent Number:</strong> {patent.patentNumber}
+                        <strong>Conference Title:</strong>{" "}
+                        {conference.proceedings_conference_title}
                       </p>
                       <p>
-                        <strong>Year:</strong> {patent.year}
+                        <strong>Year:</strong> {conference.year}
+                      </p>
+                      <p>
+                        <strong>Core:</strong> {conference.core}
+                      </p>
+                      <p>
+                        <strong>Impact Factor:</strong>{" "}
+                        {conference.impactFactor}
+                      </p>
+                      <p>
+                        <strong>Publisher:</strong> {conference.publisherName}
                       </p>
                       <p>
                         <strong>Capstone:</strong>{" "}
-                        {patent.isCapstone ? "Yes" : "No"}
+                        {conference.isCapstone ? "Yes" : "No"}
                       </p>
                       <a
-                        href={patent.documentLink}
+                        href={conference.link_of_paper}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline"
                       >
-                        View Document
+                        View Paper
                       </a>
                     </CardContent>
                   </Card>
@@ -544,10 +622,10 @@ function ImprovedPatentDashboard() {
   );
 }
 
-export default function PatentAnalyze() {
+export default function ConferenceAnalyze() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ImprovedPatentDashboard />
+      <ConferenceDashboard />
     </Suspense>
   );
 }

@@ -25,11 +25,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import axios from "axios";
 
 const formSchema = z.object({
   serial_no: z.string().min(1, "Serial number is required"),
   title: z.string().min(1, "Title is required"),
-  teacherAdminId: z.string().min(1, "Teacher Admin ID is required"),
+  teacherIds: z.array(z.string()),
   campus: z.enum(["EC", "RR", "HSN"], {
     required_error: "Please select a campus.",
   }),
@@ -71,7 +72,7 @@ export default function JournalForm() {
     defaultValues: {
       serial_no: "",
       title: "",
-      teacherAdminId: "",
+      teacherIds: [],
       campus: undefined,
       dept: undefined,
       journalName: "",
@@ -98,17 +99,39 @@ export default function JournalForm() {
 
   const { toast } = useToast();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Submitted", values);
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 rounded-md p-4">
-          <code>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      ),
-      variant: "mine",
-    });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await axios.post(
+        "http://localhost:5500/api/v1/journal",
+        values,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        toast({
+          title: "Journal Publication Submitted",
+          description:
+            "Your journal publication has been successfully submitted.",
+          variant: "mine",
+        });
+        form.reset(); // Reset the form after successful submission
+      } else {
+        throw new Error("Submission failed");
+      }
+    } catch (error) {
+      console.error("Error submitting journal publication:", error);
+      toast({
+        title: "Submission Error",
+        description:
+          "There was an error submitting your journal publication. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -122,7 +145,7 @@ export default function JournalForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
                   name="serial_no"
@@ -131,19 +154,6 @@ export default function JournalForm() {
                       <FormLabel>Serial Number</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter Serial Number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="teacherAdminId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Teacher EMP ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter Teacher EMP ID" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -233,7 +243,11 @@ export default function JournalForm() {
                     <FormItem>
                       <FormLabel>Month</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter Month" {...field} />
+                        <Input
+                          type="month"
+                          placeholder="Enter Month"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { deleteCookie, getCookie, getCookies } from "cookies-next";
+// import { deleteCookie, getCookie, getCookies } from "cookies-next";
+import Cookie from "js-cookie";
 import { Menu, X } from "lucide-react";
 
 function Navbar() {
@@ -11,10 +12,10 @@ function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const allCookies = getCookies();
-    console.log("All cookies:", allCookies);
+    // const allCookies = getCookies();
+    // console.log("All cookies:", allCookies);
 
-    const tokenFromCookie = getCookie("accessToken");
+    const tokenFromCookie = Cookie.get("accessToken");
     console.log("Access Token:", tokenFromCookie);
 
     if (tokenFromCookie) {
@@ -23,7 +24,7 @@ function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    deleteCookie("auth");
+    Cookie.remove("accessToken");
     setIsLoggedIn(false);
   };
 
