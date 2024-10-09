@@ -34,7 +34,6 @@ import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 
 type Conference = {
-  serial_no: string;
   teacherIds: string[];
   campus: string;
   dept: "EC" | "CSE";
@@ -289,7 +288,6 @@ function ConferenceDashboard() {
       headers.join(","),
       ...filteredConferences.map((conference) =>
         [
-          conference.serial_no,
           `"${conference.teacherIds.join(";")}"`,
           conference.campus,
           conference.dept,
@@ -535,7 +533,7 @@ function ConferenceDashboard() {
                   <tbody>
                     {filteredConferences.map((conference, index) => (
                       <tr key={index} className="bg-white border-b">
-                        <td className="px-6 py-4">{conference.serial_no}</td>
+                        <td className="px-6 py-4">{index + 1}</td>
                         <td className="px-6 py-4">{conference.paperTitle}</td>
                         <td className="px-6 py-4">{conference.campus}</td>
                         <td className="px-6 py-4">{conference.dept}</td>
@@ -573,7 +571,7 @@ function ConferenceDashboard() {
                     </CardHeader>
                     <CardContent>
                       <p>
-                        <strong>Serial No:</strong> {conference.serial_no}
+                        <strong>Serial No:</strong> {index + 1}
                       </p>
                       <p>
                         <strong>Campus:</strong> {conference.campus}

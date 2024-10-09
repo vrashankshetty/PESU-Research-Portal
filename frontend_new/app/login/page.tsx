@@ -25,7 +25,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import Cookie from "js-cookie";
-// import { setCookie } from "cookies-next";
+import Link from "next/link";
+
 const formSchema = z.object({
   empId: z.string().min(6, { message: "EMP ID must be at least 6 characters" }),
   password: z
@@ -58,13 +59,6 @@ export default function LoginPage() {
 
       if (response.data.message === "Successfully logged in") {
         console.log("Setting cookies", response.data.token);
-        // setCookie("accessToken", response.data.token, {
-        //   httpOnly: true,
-        //   secure: true,
-        //   sameSite: "strict",
-        //   path: "/",
-        //   domain: "localhost",
-        // });
         Cookie.set("accessToken", response.data.token, { expires: 1 });
         router.push("/");
       }
@@ -128,10 +122,14 @@ export default function LoginPage() {
                 )}
               />
             </CardContent>
-            <CardFooter>
+            <CardFooter className="block">
               <Button type="submit" className="w-full bg-sky-800">
                 Login
               </Button>
+              <p className="mt-2 text-center">
+                Don&apos;t have an account?{" "}
+                <Link href="/register" className="underline">Register now!</Link>
+              </p>
             </CardFooter>
           </form>
         </Form>

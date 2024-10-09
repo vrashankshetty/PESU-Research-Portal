@@ -97,10 +97,11 @@ export default function RegistrationPage() {
         }
       );
 
-      if (response.data.message === "Successfully registered") {
+      if (response.status === 201) {
         toast({
           title: "Registration Successful",
           description: "You have been successfully registered.",
+          variant: "mine",
         });
         router.push("/login");
       }
@@ -110,7 +111,8 @@ export default function RegistrationPage() {
           variant: "destructive",
           title: "Registration Error",
           description:
-            error.response.data || "An error occurred during registration",
+            error.response.data.message ||
+            "An error occurred during registration",
         });
       } else {
         toast({

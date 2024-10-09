@@ -24,9 +24,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import axios from "axios";
 
 const formSchema = z.object({
-  teacherAdminId: z.string().min(1, "Teacher Admin ID is required"),
+  teacherIds: z.array(z.string()),
   campus: z.enum(["EC", "RR", "HSN"], {
     required_error: "Please select a campus.",
   }),
@@ -44,7 +45,7 @@ export default function PatentForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      teacherAdminId: "",
+      teacherIds: [],
       campus: undefined,
       dept: undefined,
       patentNumber: "",
@@ -57,17 +58,51 @@ export default function PatentForm() {
 
   const { toast } = useToast();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Submitted", values);
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 rounded-md p-4">
-          <code>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      ),
-      variant: "mine",
-    });
+  // function onSubmit(values: z.infer<typeof formSchema>) {
+  //   console.log("Submitted", values);
+  //   toast({
+  //     title: "You submitted the following values:",
+  //     description: (
+  //       <pre className="mt-2 rounded-md p-4">
+  //         <code>{JSON.stringify(values, null, 2)}</code>
+  //       </pre>
+  //     ),
+  //     variant: "mine",
+  //   });
+  // }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await axios.post(
+        "http://localhost:5500/api/v1/patent",
+        values,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        toast({
+          title: "Patent Submitted",
+          description: "Your patent has been successfully submitted.",
+          variant: "mine",
+        });
+        form.reset();
+      } else {
+        throw new Error("Submission failed");
+      }
+    } catch (error) {
+      console.error("Error submitting patent:", error);
+      toast({
+        title: "Submission Error",
+        description:
+          "There was an error submitting your patent. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -81,20 +116,7 @@ export default function PatentForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="teacherAdminId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Teacher EMP ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter Teacher EMP ID" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
                   name="patentNumber"
