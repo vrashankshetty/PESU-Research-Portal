@@ -22,7 +22,6 @@ export const departmentEnum: PgEnum<['EC','CSE']> = pgEnum('dept', [
 
 export const conference = pgTable('conference', {
     id: text('id').primaryKey(),
-    serial_no:text('serial_no').notNull(),
     teacherAdminId:text('teacherAdminId').notNull().references(()=>user.id),
     totalAuthors:integer('totalAuthors').default(0),
     campus:campusEnum('campus').notNull(),

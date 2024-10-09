@@ -25,7 +25,6 @@ export const qnoEnum: PgEnum<['Q1','Q2','Q3','Q4','NA']> = pgEnum('qNo', [
 
 export const journal = pgTable('journal', {
     id: text('id').primaryKey(),
-    serial_no:text('serial_no').notNull(),
     title:text('title').notNull(),
     teacherAdminId:text('teacherAdminId').notNull().references(()=>user.id),
     campus:campusEnum('campus').notNull(),
