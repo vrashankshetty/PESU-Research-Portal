@@ -55,6 +55,12 @@ export async function createUser(userData:User) {
     const {password,...expData}=userData;
 
     try {
+        const currUser = await db.query.user.findMany({
+            where:eq(user.empId,expData.empId)
+        })
+        if(currUser.length != 0){
+            throw new Error('User already exists!!')
+        }
         const data = await db.insert(user).values({
             id:generateRandomId(),
             password:hashedPassword,
@@ -67,3 +73,21 @@ export async function createUser(userData:User) {
     }
 }
 
+
+
+export async function checkUser(userData:User) {
+    const {password,...expData}=userData;
+
+    try {
+        const currUser = await db.query.user.findMany({
+            where:eq(user.empId,expData.empId)
+        })
+        if(currUser.length != 0){
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.log("err in rep",error)
+        errs(error);
+    }
+}

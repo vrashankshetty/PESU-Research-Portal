@@ -12,7 +12,7 @@ const Router = express.Router();
 
 
 
-Router.get('/',authenticateUser,async (req, res) => {
+Router.get('/',async (req, res) => {
     try {
         const userId = (req as any).user.id;
         const course = await getAllConference(userId)

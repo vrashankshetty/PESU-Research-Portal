@@ -1,7 +1,7 @@
 import express from 'express';
 import { catchError } from '../../utils/catch-error';
 import handleValidationError from '../../utils/handle-validation-error';
-import { createAccessToken, createRefreshToken, createUser, verifyLogin } from './repository';
+import { checkUser, createAccessToken, createRefreshToken, createUser, verifyLogin } from './repository';
 import { loginSchema, userSchema } from './schema';
 import cookie from 'cookie';
 
@@ -76,6 +76,12 @@ Router.post('/register', async (req, res) => {
             console.log("error",error)
             return handleValidationError(error, res);
         }
+
+        if(await checkUser(data)){
+            return  res.status(400).send({
+                message:'User already Exists!!'
+            });
+        }
         const userData = await createUser(data);
         res.status(201).send({
             message:'Created Successfully'
@@ -87,16 +93,16 @@ Router.post('/register', async (req, res) => {
 });
 
 
-Router.post('/logout', async (req, res) => {
-    try {
-        res.clearCookie('accessToken').status(200).send({
-            message: 'Successfully logged out',
-        });
-    } catch (error) {
-        console.log("catch error",error)
-        catchError(error, res);
-    }
-});
+// Router.post('/logout', async (req, res) => {
+//     try {
+//         res.clearCookie('accessToken').status(200).send({
+//             message: 'Successfully logged out',
+//         });
+//     } catch (error) {
+//         console.log("catch error",error)
+//         catchError(error, res);
+//     }
+// });
 
 
 
