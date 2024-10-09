@@ -28,7 +28,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 
 const formSchema = z.object({
-  serial_no: z.string().min(1, "Serial number is required"),
   title: z.string().min(1, "Title is required"),
   teacherIds: z.array(z.string()),
   campus: z.enum(["EC", "RR", "HSN"], {
@@ -70,7 +69,6 @@ export default function JournalForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      serial_no: "",
       title: "",
       teacherIds: [],
       campus: undefined,
@@ -119,7 +117,7 @@ export default function JournalForm() {
             "Your journal publication has been successfully submitted.",
           variant: "mine",
         });
-        form.reset(); // Reset the form after successful submission
+        form.reset();
       } else {
         throw new Error("Submission failed");
       }
@@ -145,20 +143,7 @@ export default function JournalForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                  control={form.control}
-                  name="serial_no"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Serial Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter Serial Number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="campus"

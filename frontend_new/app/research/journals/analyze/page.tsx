@@ -34,7 +34,6 @@ import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 
 type Journal = {
-  serial_no: string;
   title: string;
   teacherIds: string[];
   campus: string;
@@ -311,7 +310,6 @@ function JournalDashboard() {
       headers.join(","),
       ...filteredJournals.map((journal) =>
         [
-          journal.serial_no,
           `"${journal.title.replace(/"/g, '""')}"`,
           `"${journal.teacherIds.join(";")}"`,
           journal.campus,
@@ -560,7 +558,7 @@ function JournalDashboard() {
                   <tbody>
                     {filteredJournals.map((journal, index) => (
                       <tr key={index} className="bg-white border-b">
-                        <td className="px-6 py-4">{journal.serial_no}</td>
+                        <td className="px-6 py-4">{index + 1}</td>
                         <td className="px-6 py-4">{journal.title}</td>
                         <td className="px-6 py-4">{journal.campus}</td>
                         <td className="px-6 py-4">{journal.dept}</td>
@@ -602,7 +600,7 @@ function JournalDashboard() {
                     </CardHeader>
                     <CardContent>
                       <p>
-                        <strong>Serial No:</strong> {journal.serial_no}
+                        <strong>Serial No:</strong> {index + 1}
                       </p>
                       <p>
                         <strong>Campus:</strong> {journal.campus}
