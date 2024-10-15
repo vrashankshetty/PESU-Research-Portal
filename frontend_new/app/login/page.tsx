@@ -59,7 +59,7 @@ export default function LoginPage() {
 
       if (response.data.message === "Successfully logged in") {
         console.log("Setting cookies", response.data.token);
-        Cookie.set("accessToken", response.data.token, { expires: 1 });
+        Cookie.set("accessToken", response.data.token, { expires: 1, sameSite:'None' });
         router.push("/");
       }
     } catch (error) {
