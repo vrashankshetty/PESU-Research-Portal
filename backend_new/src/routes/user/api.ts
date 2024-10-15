@@ -11,6 +11,7 @@ const Router = express.Router();
 
 Router.get('/',async (req, res) => {
     try {
+        console.log("users",(req as any).user)
         const course = await getAllUsers();
         res.status(200).send(course);
     } catch (error) {

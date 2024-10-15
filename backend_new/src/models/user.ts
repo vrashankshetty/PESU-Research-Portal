@@ -4,7 +4,7 @@ const campusEnum: PgEnum<['EC', 'RR', 'HSN']> = pgEnum('campus', ['EC', 'RR', 'H
 
 const departmentEnum: PgEnum<['EC', 'CSE']> = pgEnum('dept', ['EC', 'CSE']);
 
-export const user = pgTable('user', {
+export const user = pgTable('users', {
     id: text('id').primaryKey(),
     empId: text('empId').notNull().unique(),
     password: text('password').notNull(),

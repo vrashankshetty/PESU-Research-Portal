@@ -4,6 +4,7 @@ import handleValidationError from '../../utils/handle-validation-error';
 import { checkUser, createAccessToken, createRefreshToken, createUser, verifyLogin } from './repository';
 import { loginSchema, userSchema } from './schema';
 import cookie from 'cookie';
+import authenticateUser from '../../middleware/authenticate-user';
 
 
 const Router = express.Router();
@@ -26,31 +27,31 @@ Router.post('/login', async (req, res) => {
         }
 
 
-        const accessToken = createAccessToken(user.id, user.empId);
-        const refreshToken = createRefreshToken(user.id, user.empId);
+        const accessToken = createAccessToken(user.id, user.empId,user.designation);
+        const refreshToken = createRefreshToken(user.id, user.empId,user.designation);
         const date = new Date();
 
         date.setFullYear(date.getFullYear() + 1);
 
-        // res.setHeader(
-        //     'Set-Cookie',
-        //     cookie.serialize('refreshToken', refreshToken, {
-        //         httpOnly: true,
-        //         expires: date,
-        //         sameSite: 'strict',
-        //         secure: false,
-        //         path: '/',
-        //         domain: 'localhost',
-        //     }),
-        //      );
-        // //Only for testing
-        // res.cookie("accessToken", accessToken, {
-        //         httpOnly: true,
-        //         secure: true,
-        //         sameSite: 'strict',
-        //         path: "/",
-        //         domain: 'localhost',
-        // })
+        res.setHeader(
+            'Set-Cookie',
+            cookie.serialize('refreshToken', refreshToken, {
+                httpOnly: true,
+                expires: date,
+                sameSite: 'strict',
+                secure: false,
+                path: '/',
+                domain: 'localhost',
+            }),
+             );
+        //Only for testing
+        res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                path: "/",
+                domain: 'localhost',
+        })
 
         res.status(200).send({
                 message: 'Successfully logged in',
@@ -59,6 +60,7 @@ Router.post('/login', async (req, res) => {
         });
 
     } catch (error) {
+        console.log("err",error)
         res.status(500).send('Something went wrong logging you in');
     }
 });
@@ -85,6 +87,19 @@ Router.post('/register', async (req, res) => {
         const userData = await createUser(data);
         res.status(201).send({
             message:'Created Successfully'
+        });
+    } catch (error) {
+        console.log("catch error",error)
+        catchError(error, res);
+    }
+});
+
+
+Router.get('/verifyToken',authenticateUser, async (req, res) => {
+    try {
+        const user = (req as any).user;
+        res.status(200).send({
+            user:user
         });
     } catch (error) {
         console.log("catch error",error)
