@@ -49,7 +49,7 @@ export default function LoginPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post(
-        "http://localhost:5500/api/v1/auth/login",
+        "http://10.2.80.90:8081/api/v1/auth/login",
         values,
         {
           withCredentials: true,

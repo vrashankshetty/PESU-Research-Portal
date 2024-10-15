@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
     cors({
         credentials: true,
-        origin: ['http://localhost:3000'],
+        origin: ['http://localhost:3000','http://10.2.80.90:8081'],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     }),
 );
