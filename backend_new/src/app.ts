@@ -14,10 +14,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+const allowedOrigins = ['http://localhost:3000', 'http://10.2.80.90:8081', 'http://10.2.80.90:8080'];
+
 app.use(
     cors({
         credentials: true,
-        origin: ['http://localhost:3000','http://10.2.80.90:8081','http://10.2.80.90:8080'],
+        origin: function (origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     }),
 );
