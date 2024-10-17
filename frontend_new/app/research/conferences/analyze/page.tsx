@@ -100,7 +100,7 @@ function ConferenceDashboard() {
     const fetchConferences = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5500/api/v1/conference",
+          "http://10.2.80.90:8081/api/v1/conference",
           { withCredentials: true }
         );
         setConferences(response.data);

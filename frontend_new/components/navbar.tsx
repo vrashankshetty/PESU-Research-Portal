@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-// import { deleteCookie, getCookie, getCookies } from "cookies-next";
 import Cookie from "js-cookie";
 import { Menu, X } from "lucide-react";
 
@@ -12,9 +11,6 @@ function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // const allCookies = getCookies();
-    // console.log("All cookies:", allCookies);
-
     const tokenFromCookie = Cookie.get("accessToken");
     console.log("Access Token:", tokenFromCookie);
 
@@ -35,14 +31,17 @@ function Navbar() {
   return (
     <header>
       <div className="bg-sky-800 text-white flex justify-between items-center cursor-pointer font-bold text-lg">
-        <div className="bg-white border-sky-800 rounded-r-full py-2 px-6">
-          <Link href="/">
-            <img
-              src="/PESU-logo.png"
-              alt="Logo"
-              className="w-24 h-auto md:w-28 md:h-auto"
-            />
-          </Link>
+        <div className="flex justify-start items-center">
+          <div className="bg-white border-sky-800 rounded-r-full py-2 px-6">
+            <Link href="/">
+              <img
+                src="/PESU-logo.png"
+                alt="Logo"
+                className="w-24 h-auto md:w-28 md:h-auto"
+              />
+            </Link>
+          </div>
+          <h1 className="px-6 text-xl">PESU NAAC Portal</h1>
         </div>
         <nav className="hidden md:block">
           <ul className="flex space-x-6 md:mx-4 items-center">

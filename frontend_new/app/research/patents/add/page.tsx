@@ -58,23 +58,10 @@ export default function PatentForm() {
 
   const { toast } = useToast();
 
-  // function onSubmit(values: z.infer<typeof formSchema>) {
-  //   console.log("Submitted", values);
-  //   toast({
-  //     title: "You submitted the following values:",
-  //     description: (
-  //       <pre className="mt-2 rounded-md p-4">
-  //         <code>{JSON.stringify(values, null, 2)}</code>
-  //       </pre>
-  //     ),
-  //     variant: "mine",
-  //   });
-  // }
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        "http://localhost:5500/api/v1/patent",
+        "http://10.2.80.90:8081/api/v1/patent",
         values,
         {
           withCredentials: true,

@@ -44,6 +44,27 @@ type Patent = {
   documentLink: string;
 };
 
+interface Teacher {
+  id: string;
+  empId: string;
+  password: string;
+  name: string;
+  phno: string;
+  dept: "EC" | "CSE";
+  campus: "EC" | "RR" | "HSN";
+  panNo: string;
+  qualification: string;
+  designation: string;
+  expertise: string;
+  dateofJoining: string;
+  totalExpBfrJoin: string;
+  googleScholarId: string;
+  sId: string;
+  oId: string;
+  profileImg?: string;
+  createdAt: string;
+}
+
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 function ImprovedPatentDashboard() {
@@ -57,6 +78,39 @@ function ImprovedPatentDashboard() {
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
+
+  const getFilteredTeachers = () => {
+    console.log(
+      filteredPatents,
+      teachers.filter((teacher) =>
+        filteredPatents.some((patent) => patent.teacherAdminId === teacher.id)
+      )
+    );
+    return teachers.filter((teacher) =>
+      filteredPatents.some((patent) => patent.teacherAdminId === teacher.id)
+    );
+  };
+
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await axios.get("http://10.2.80.90:8081/api/v1/user", {
+          withCredentials: true,
+        });
+        console.log(response.data);
+        setTeachers(response.data);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    };
+    fetchTeachers();
+  }, []);
+
+  useEffect(() => {
+    setFilteredTeachers(getFilteredTeachers());
+  }, [teachers, filteredPatents]);
 
   const updateQueryParams = useCallback(() => {
     const params = new URLSearchParams(searchParams);
@@ -81,7 +135,7 @@ function ImprovedPatentDashboard() {
     const fetchPatents = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5500/api/v1/patent",
+          "http://10.2.80.90:8081/api/v1/patent",
           { withCredentials: true }
         );
         console.log(response);
@@ -456,7 +510,7 @@ function ImprovedPatentDashboard() {
                 <table className="w-full text-sm text-left text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3">Teacher ID</th>
+                      <th className="px-6 py-3">Faculty</th>
                       <th className="px-6 py-3">Campus</th>
                       <th className="px-6 py-3">Department</th>
                       <th className="px-6 py-3">Patent Number</th>
@@ -467,29 +521,38 @@ function ImprovedPatentDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredPatents.map((patent, index) => (
-                      <tr key={index} className="bg-white border-b">
-                        <td className="px-6 py-4">{patent.teacherAdminId}</td>
-                        <td className="px-6 py-4">{patent.campus}</td>
-                        <td className="px-6 py-4">{patent.dept}</td>
-                        <td className="px-6 py-4">{patent.patentNumber}</td>
-                        <td className="px-6 py-4">{patent.patentTitle}</td>
-                        <td className="px-6 py-4">{patent.year}</td>
-                        <td className="px-6 py-4">
-                          {patent.isCapstone ? "Yes" : "No"}
-                        </td>
-                        <td className="px-6 py-4">
-                          <a
-                            href={patent.documentLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                          >
-                            View
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredPatents.map((patent, index) => {
+                      const teacher = filteredTeachers.find(
+                        (t) => t.id === patent.teacherAdminId
+                      );
+                      console.log(patent.teacherAdminId, filteredTeachers);
+
+                      return (
+                        <tr key={index} className="bg-white border-b">
+                          <td className="px-6 py-4">
+                            {teacher ? teacher.name : "Unknown"}
+                          </td>
+                          <td className="px-6 py-4">{patent.campus}</td>
+                          <td className="px-6 py-4">{patent.dept}</td>
+                          <td className="px-6 py-4">{patent.patentNumber}</td>
+                          <td className="px-6 py-4">{patent.patentTitle}</td>
+                          <td className="px-6 py-4">{patent.year}</td>
+                          <td className="px-6 py-4">
+                            {patent.isCapstone ? "Yes" : "No"}
+                          </td>
+                          <td className="px-6 py-4">
+                            <a
+                              href={patent.documentLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              View
+                            </a>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -499,42 +562,49 @@ function ImprovedPatentDashboard() {
             </TabsContent>
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredPatents.map((patent, index) => (
-                  <Card key={index}>
-                    <CardHeader>
-                      <CardTitle>{patent.patentTitle}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p>
-                        <strong>Teacher ID:</strong> {patent.teacherAdminId}
-                      </p>
-                      <p>
-                        <strong>Campus:</strong> {patent.campus}
-                      </p>
-                      <p>
-                        <strong>Department:</strong> {patent.dept}
-                      </p>
-                      <p>
-                        <strong>Patent Number:</strong> {patent.patentNumber}
-                      </p>
-                      <p>
-                        <strong>Year:</strong> {patent.year}
-                      </p>
-                      <p>
-                        <strong>Capstone:</strong>{" "}
-                        {patent.isCapstone ? "Yes" : "No"}
-                      </p>
-                      <a
-                        href={patent.documentLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        View Document
-                      </a>
-                    </CardContent>
-                  </Card>
-                ))}
+                {filteredPatents.map((patent, index) => {
+                  const teacher = filteredTeachers.find(
+                    (t) => t.id === patent.teacherAdminId
+                  );
+
+                  return (
+                    <Card key={index}>
+                      <CardHeader>
+                        <CardTitle>{patent.patentTitle}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p>
+                          <strong>Faculty:</strong>{" "}
+                          {teacher ? teacher.name : "Unknown"}
+                        </p>
+                        <p>
+                          <strong>Campus:</strong> {patent.campus}
+                        </p>
+                        <p>
+                          <strong>Department:</strong> {patent.dept}
+                        </p>
+                        <p>
+                          <strong>Patent Number:</strong> {patent.patentNumber}
+                        </p>
+                        <p>
+                          <strong>Year:</strong> {patent.year}
+                        </p>
+                        <p>
+                          <strong>Capstone:</strong>{" "}
+                          {patent.isCapstone ? "Yes" : "No"}
+                        </p>
+                        <a
+                          href={patent.documentLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          View Document
+                        </a>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </TabsContent>
           </Tabs>

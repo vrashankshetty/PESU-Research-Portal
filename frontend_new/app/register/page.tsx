@@ -90,7 +90,7 @@ export default function RegistrationPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post(
-        "http://localhost:5500/api/v1/auth/register",
+        "http://10.2.80.90:8081/api/v1/auth/register",
         values,
         {
           withCredentials: true,

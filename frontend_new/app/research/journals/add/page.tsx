@@ -100,7 +100,7 @@ export default function JournalForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        "http://localhost:5500/api/v1/journal",
+        "http://10.2.80.90:8081/api/v1/journal",
         values,
         {
           withCredentials: true,

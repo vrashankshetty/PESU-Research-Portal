@@ -101,7 +101,7 @@ function JournalDashboard() {
     const fetchJournals = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5500/api/v1/journal",
+          "http://10.2.80.90:8081/api/v1/journal",
           { withCredentials: true }
         );
         setJournals(response.data);
