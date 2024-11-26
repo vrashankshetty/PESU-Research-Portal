@@ -61,7 +61,7 @@ export default function LoginPage() {
         console.log("Setting cookies", response.data.token);
         Cookie.set("accessToken", response.data.token, { expires: 1,domain:'10.2.80.90'});
         Cookie.set("accessToken", response.data.token, { expires: 1,domain:'localhost'});
-        router.push("/");
+        router.push("http://10.2.80.90:8080/");
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -78,7 +78,7 @@ export default function LoginPage() {
         });
       }
     }
-  };
+  }
 
   return (
     <div className="flex items-center justify-center">

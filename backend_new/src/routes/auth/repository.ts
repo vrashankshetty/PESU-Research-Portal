@@ -29,20 +29,20 @@ export async function verifyLogin(empId: string, password_user: string) {
 
 
 
-export function createAccessToken(id: string, empId: string,designation: string) {
-    const payload = { id, empId, designation };
+export function createAccessToken(id: string, empId: string,designation: string,name:string) {
+    const payload = { id, empId, designation,name };
     const token = jwt.sign(payload, JWT_SECREY_KEY, { expiresIn: '1d' });
     return token;
 }
 
-export function createRefreshToken(id: string, empId:string,designation:string) {
-    const payload = { id, empId, designation};
+export function createRefreshToken(id: string, empId:string,designation:string,name:string) {
+    const payload = { id, empId, designation,name};
     const token = jwt.sign(payload, JWT_SECREY_KEY, { expiresIn: '360d' });
     return token;
 }
 
 export function verifyToken(token: string) {
-    return jwt.verify(token, JWT_SECREY_KEY) as { id: string; empId:string, designation: string};
+    return jwt.verify(token, JWT_SECREY_KEY) as { id: string; empId:string, designation: string,name:string};
 }
 
 

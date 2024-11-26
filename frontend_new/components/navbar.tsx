@@ -33,7 +33,7 @@ function Navbar() {
       <div className="bg-sky-800 text-white flex justify-between items-center cursor-pointer font-bold text-lg">
         <div className="flex justify-start items-center">
           <div className="bg-white border-sky-800 rounded-r-full py-2 px-6">
-            <Link href="/">
+            <Link href="http://10.2.80.90:8080/">
               <img
                 src="/PESU-logo.png"
                 alt="Logo"
