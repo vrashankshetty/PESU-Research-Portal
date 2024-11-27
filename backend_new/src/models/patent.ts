@@ -20,8 +20,8 @@ const departmentEnum: PgEnum<['EC','CSE']> = pgEnum('dept', [
 export const patent = pgTable('patent', {
     id: text('id').primaryKey(),
     teacherAdminId:text('teacherAdminId').notNull().references(()=>user.id),
-    campus:campusEnum('campus').notNull(),
-    dept:departmentEnum('dept').notNull(),
+    campus:text('campus').notNull(),
+    dept:text('dept').notNull(),
     patentNumber:text('patentNumber').notNull(),
     patentTitle:text('patentTitle').notNull(),
     isCapstone:boolean('isCapstone').default(false),

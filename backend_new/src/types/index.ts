@@ -10,8 +10,8 @@ export type Core =  'coreA' | 'coreB' | 'coreC' | 'scopus' | 'NA';
 export type Journal={
     title: string;
     teacherIds: string[]; 
-    campus: Campus;
-    dept: Department;
+    campus: string;
+    dept: string;
     journalName: string;
     month: string;
     year: string;
@@ -23,7 +23,7 @@ export type Journal={
     isUGC: boolean; 
     isScopus: boolean; 
     isWOS: boolean; 
-    qNo: QNo;
+    qNo: string;
     impactFactor: string; 
     isCapstone: boolean;
     isAffiliating: boolean; 
@@ -36,8 +36,8 @@ export type Journal={
 
 export type Conference={
     teacherIds: string[]; 
-    campus: Campus;
-    dept: Department;
+    campus: string;
+    dept: string;
     bookTitle: string;
     paperTitle: string;
     proceedings_conference_title: string;
@@ -49,7 +49,7 @@ export type Conference={
     is_affiliating_institution_same: boolean; 
     publisherName: string;
     impactFactor: string;
-    core:Core; 
+    core:string; 
     link_of_paper: string;
     isCapstone: boolean; 
     abstract: string;
@@ -61,8 +61,8 @@ export type Conference={
 
 export type Patent = {
     teacherIds:string[];
-    campus: Campus;
-    dept: Department;
+    campus: string;
+    dept: string;
     patentNumber: string;
     patentTitle: string;
     isCapstone: boolean;
@@ -76,8 +76,8 @@ export type User = {
     name: string;     
     password:string;        
     phno: string;            
-    dept: Department;       
-    campus: Campus;           
+    dept: string;       
+    campus: string;           
     panNo: string;            
     qualification: string;    
     designation: string;       

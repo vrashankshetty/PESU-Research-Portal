@@ -4,7 +4,7 @@ import Joi from 'joi';
 export const patentSchema = Joi.object({
     campus: Joi.string().required(), 
     teacherIds: Joi.array().items(Joi.string()).default([]),
-    dept: Joi.string().valid('EC','CSE').required(),
+    dept: Joi.string().required(),
     patentNumber: Joi.string().required(),
     patentTitle: Joi.string().required(),
     isCapstone: Joi.boolean().default(false),
