@@ -26,8 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
@@ -66,13 +64,14 @@ interface Teacher {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-function CounselingDashboard() {
+function InterSportsDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [patents, setPatents] = useState<Patent[]>([]);
   const [filteredPatents, setFilteredPatents] = useState<Patent[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
   const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus");
+  const [teamStatus, setTeamStatus] = useState<"team" | "individual">("team");
   const [yearRange, setYearRange] = useState({ start: "0", end: "0" });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
@@ -344,7 +343,7 @@ function CounselingDashboard() {
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Career Counseling Analysis Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Sports Analysis Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <Card>
@@ -374,26 +373,28 @@ function CounselingDashboard() {
           <CardHeader>
             <CardTitle>Analysis</CardTitle>
           </CardHeader>
-          <CardContent className="flex space-x-2">
-            <div className="flex-1">
-              <Label htmlFor="yearStart">Year</Label>
-              <Input
-                id="yearStart"
-                type="number"
-                min="0"
-                value={yearRange.start}
-                onChange={(e) =>
-                  setYearRange({ ...yearRange, start: e.target.value })
-                }
-              />
-            </div>
+          <CardContent>
+            <Select
+              value={teamStatus}
+              onValueChange={(value: "team" | "individual") =>
+                setTeamStatus(value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select team/individual" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="team">Team</SelectItem>
+                <SelectItem value="individual">Individual</SelectItem>
+              </SelectContent>
+            </Select>
           </CardContent>
         </Card>
       </div>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Counseling Analysis Chart</CardTitle>
+          <CardTitle>Sports Analysis Chart</CardTitle>
         </CardHeader>
         <CardContent className="h-[480px]">
           <div ref={chartRef}>{renderChart()}</div>
@@ -405,7 +406,7 @@ function CounselingDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Counseling Details</CardTitle>
+          <CardTitle>Sports Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="table" className="w-full">
@@ -419,8 +420,11 @@ function CounselingDashboard() {
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
                       <th className="px-6 py-3">Year</th>
-                      <th className="px-6 py-3">Name of the Activity</th>
-                      <th className="px-6 py-3">Number of students attended</th>
+                      <th className="px-6 py-3">Name of the award</th>
+                      <th className="px-6 py-3">Team / Individual</th>
+                      <th className="px-6 py-3">Inter-university / State / National / International</th>
+                      <th className="px-6 py-3">Name of the event</th>
+                      <th className="px-6 py-3">Name of the student</th>
                       <th className="px-6 py-3">Link to the relevant document</th>
                     </tr>
                   </thead>
@@ -521,7 +525,7 @@ function CounselingDashboard() {
 export default function PatentAnalyze() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <CounselingDashboard />
+      <InterSportsDashboard />
     </Suspense>
   );
 }

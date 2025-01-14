@@ -26,8 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
@@ -66,13 +64,14 @@ interface Teacher {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-function CounselingDashboard() {
+function HigherExamsDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [patents, setPatents] = useState<Patent[]>([]);
   const [filteredPatents, setFilteredPatents] = useState<Patent[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
   const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus");
+  const [examType, setExamType] = useState<"NET" | "SLET" | "GATE" | "GMAT" | "CAT" | "GRE" | "JAM" | "IELTS" | "TOEFL">("NET");
   const [yearRange, setYearRange] = useState({ start: "0", end: "0" });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
@@ -344,7 +343,7 @@ function CounselingDashboard() {
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Career Counseling Analysis Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Higher Examination Analysis Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <Card>
@@ -374,26 +373,35 @@ function CounselingDashboard() {
           <CardHeader>
             <CardTitle>Analysis</CardTitle>
           </CardHeader>
-          <CardContent className="flex space-x-2">
-            <div className="flex-1">
-              <Label htmlFor="yearStart">Year</Label>
-              <Input
-                id="yearStart"
-                type="number"
-                min="0"
-                value={yearRange.start}
-                onChange={(e) =>
-                  setYearRange({ ...yearRange, start: e.target.value })
-                }
-              />
-            </div>
+          <CardContent>
+            <Select
+              value={examType}
+              onValueChange={(value: "NET" | "SLET" | "GATE" | "GMAT" | "CAT" | "GRE" | "JAM" | "IELTS" | "TOEFL") =>
+                setExamType(value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select chart type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NET">NET</SelectItem>
+                <SelectItem value="SLET">SLET</SelectItem>
+                <SelectItem value="GATE">GATE</SelectItem>
+                <SelectItem value="GMAT">GMAT</SelectItem>
+                <SelectItem value="CAT">CAT</SelectItem>
+                <SelectItem value="GRE">GRE</SelectItem>
+                <SelectItem value="JAM">JAM</SelectItem>
+                <SelectItem value="IELTS">IELTS</SelectItem>
+                <SelectItem value="TOEFL">TOEFL</SelectItem>
+              </SelectContent>
+            </Select>
           </CardContent>
         </Card>
       </div>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Counseling Analysis Chart</CardTitle>
+          <CardTitle>Higher Examination Analysis Chart</CardTitle>
         </CardHeader>
         <CardContent className="h-[480px]">
           <div ref={chartRef}>{renderChart()}</div>
@@ -405,7 +413,7 @@ function CounselingDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Counseling Details</CardTitle>
+          <CardTitle>Higher Examination Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="table" className="w-full">
@@ -419,8 +427,9 @@ function CounselingDashboard() {
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
                       <th className="px-6 py-3">Year</th>
-                      <th className="px-6 py-3">Name of the Activity</th>
-                      <th className="px-6 py-3">Number of students attended</th>
+                      <th className="px-6 py-3">Registration number/roll number for the exam</th>
+                      <th className="px-6 py-3">Name of student selected</th>
+                      <th className="px-6 py-3">Name of the examination</th>
                       <th className="px-6 py-3">Link to the relevant document</th>
                     </tr>
                   </thead>
@@ -521,7 +530,7 @@ function CounselingDashboard() {
 export default function PatentAnalyze() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <CounselingDashboard />
+      <HigherExamsDashboard />
     </Suspense>
   );
 }

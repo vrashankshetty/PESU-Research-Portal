@@ -66,7 +66,7 @@ interface Teacher {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-function CounselingDashboard() {
+function HigherEducationDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [patents, setPatents] = useState<Patent[]>([]);
@@ -344,7 +344,7 @@ function CounselingDashboard() {
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Career Counseling Analysis Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Higher Education Analysis Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <Card>
@@ -393,7 +393,7 @@ function CounselingDashboard() {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Counseling Analysis Chart</CardTitle>
+          <CardTitle>Higher Education Analysis Chart</CardTitle>
         </CardHeader>
         <CardContent className="h-[480px]">
           <div ref={chartRef}>{renderChart()}</div>
@@ -405,7 +405,7 @@ function CounselingDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Counseling Details</CardTitle>
+          <CardTitle>Higher Education Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="table" className="w-full">
@@ -418,9 +418,10 @@ function CounselingDashboard() {
                 <table className="w-full text-sm text-left text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3">Year</th>
-                      <th className="px-6 py-3">Name of the Activity</th>
-                      <th className="px-6 py-3">Number of students attended</th>
+                      <th className="px-6 py-3">Name of student</th>
+                      <th className="px-6 py-3">Program graduated from</th>
+                      <th className="px-6 py-3">Name of institution admitted to</th>
+                      <th className="px-6 py-3">Name of programme admitted to</th>
                       <th className="px-6 py-3">Link to the relevant document</th>
                     </tr>
                   </thead>
@@ -521,7 +522,7 @@ function CounselingDashboard() {
 export default function PatentAnalyze() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <CounselingDashboard />
+      <HigherEducationDashboard />
     </Suspense>
   );
 }
