@@ -49,7 +49,7 @@ export default function LoginPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post(
-        "http://10.2.80.90:8081/api/v1/auth/login",
+        "localhost:5500/api/v1/auth/login",
         values,
         {
           withCredentials: true,
@@ -61,7 +61,7 @@ export default function LoginPage() {
         console.log("Setting cookies", response.data.token);
         Cookie.set("accessToken", response.data.token, { expires: 1,domain:'10.2.80.90'});
         Cookie.set("accessToken", response.data.token, { expires: 1,domain:'localhost'});
-        router.push("http://10.2.80.90:8080/");
+        router.push("localhost:5500/");
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
