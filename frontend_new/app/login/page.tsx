@@ -59,8 +59,14 @@ export default function LoginPage() {
 
       if (response.data.message === "Successfully logged in") {
         console.log("Setting cookies", response.data.token);
-        Cookie.set("accessToken", response.data.token, { expires: 1,domain:'10.2.80.90'});
-        Cookie.set("accessToken", response.data.token, { expires: 1,domain:'localhost'});
+        Cookie.set("accessToken", response.data.token, {
+          expires: 1,
+          domain: "10.2.80.90",
+        });
+        Cookie.set("accessToken", response.data.token, {
+          expires: 1,
+          domain: "localhost",
+        });
         router.push("localhost:5500/");
       }
     } catch (error) {
@@ -78,7 +84,7 @@ export default function LoginPage() {
         });
       }
     }
-  }
+  };
 
   return (
     <div className="flex items-center justify-center">
@@ -129,7 +135,9 @@ export default function LoginPage() {
               </Button>
               <p className="mt-2 text-center">
                 Don&apos;t have an account?{" "}
-                <Link href="/register" className="underline">Register now!</Link>
+                <Link href="/register" className="underline">
+                  Register now!
+                </Link>
               </p>
             </CardFooter>
           </form>
