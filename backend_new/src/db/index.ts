@@ -8,7 +8,7 @@ import * as schema from './schema';
 dotenv.config();
 
 const onRemote = process.env.NODE_ENV !== 'development';
-
+console.log('onRemote:', process.env.DB_URL);
 const sql = postgres(process.env.DB_URL as string);
 
 const db = drizzle(sql, { schema });

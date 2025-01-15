@@ -89,3 +89,57 @@ export type User = {
     oId: string;             
     profileImg?: string;      
   }
+
+
+  export type DepartmentConductedActivity = {
+    programTitle: string;
+    durationStartDate: Date;
+    durationEndDate: Date;
+    documentLink?: string;
+    year: string;
+};
+
+export type StudentCareerCounselling = {
+    year: string;
+    activityName: string;
+    numberOfStudents: number;
+    documentLink: string;
+};
+
+export type StudentEntranceExam = {
+    year: string;
+    registrationNumber: string;
+    studentName: string;
+    isNET: boolean;
+    isSLET: boolean;
+    isGATE: boolean;
+    isGMAT: boolean;
+    isCAT: boolean;
+    isGRE: boolean;
+    isJAM: boolean;
+    isIELTS: boolean;
+    isTOEFL: boolean;
+};
+
+export type StudentHigherStudies = {
+    studentName: string;
+    programGraduatedFrom: string;
+    institutionAdmittedTo: string;
+    programmeAdmittedTo: string;
+    year: string;
+};
+
+export type StudentSportsCultural = {
+    year: string;
+    eventDate: Date;
+    eventName: string;
+};
+
+export type DepartmentAttendedActivity = {
+    nameOfProgram: string;
+    noOfParticipants: number;
+    durationStartDate: Date;
+    durationEndDate: Date;
+    documentLink?: string;
+    year: string;
+};

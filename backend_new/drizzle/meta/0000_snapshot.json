@@ -1,9 +1,136 @@
 {
-  "id": "6832a5ac-ea70-4c2e-9191-ef7f737ac11d",
+  "id": "e9ce1e43-74ae-4e50-8e13-2330b43bcdff",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
+    "users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "empId": {
+          "name": "empId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phno": {
+          "name": "phno",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dept": {
+          "name": "dept",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "campus": {
+          "name": "campus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "panNo": {
+          "name": "panNo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "qualification": {
+          "name": "qualification",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "designation": {
+          "name": "designation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expertise": {
+          "name": "expertise",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dateofJoining": {
+          "name": "dateofJoining",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "totalExpBfrJoin": {
+          "name": "totalExpBfrJoin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "googleScholarId": {
+          "name": "googleScholarId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sId": {
+          "name": "sId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oId": {
+          "name": "oId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "profileImg": {
+          "name": "profileImg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_empId_unique": {
+          "name": "users_empId_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "empId"
+          ]
+        }
+      }
+    },
     "journal": {
       "name": "journal",
       "schema": "",
@@ -14,33 +141,27 @@
           "primaryKey": true,
           "notNull": true
         },
-        "serial_no": {
-          "name": "serial_no",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "title": {
           "name": "title",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "facultyNames": {
-          "name": "facultyNames",
-          "type": "text[]",
+        "teacherAdminId": {
+          "name": "teacherAdminId",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "campus": {
           "name": "campus",
-          "type": "campus",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "dept": {
           "name": "dept",
-          "type": "dept",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -92,12 +213,60 @@
           "primaryKey": false,
           "notNull": false
         },
-        "isListed": {
-          "name": "isListed",
+        "isUGC": {
+          "name": "isUGC",
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "isScopus": {
+          "name": "isScopus",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "isWOS": {
+          "name": "isWOS",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "qNo": {
+          "name": "qNo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'NA'"
+        },
+        "impactFactor": {
+          "name": "impactFactor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isCapstone": {
+          "name": "isCapstone",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "isAffiliating": {
+          "name": "isAffiliating",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "pageNumber": {
+          "name": "pageNumber",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         },
         "abstract": {
           "name": "abstract",
@@ -111,15 +280,36 @@
           "primaryKey": false,
           "notNull": false
         },
-        "domainExpertise": {
-          "name": "domainExpertise",
+        "domain": {
+          "name": "domain",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "journal_teacherAdminId_users_id_fk": {
+          "name": "journal_teacherAdminId_users_id_fk",
+          "tableFrom": "journal",
+          "tableTo": "users",
+          "columnsFrom": [
+            "teacherAdminId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -133,23 +323,11 @@
           "primaryKey": true,
           "notNull": true
         },
-        "serial_no": {
-          "name": "serial_no",
+        "teacherAdminId": {
+          "name": "teacherAdminId",
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "teacherName": {
-          "name": "teacherName",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "coAuthors": {
-          "name": "coAuthors",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
         },
         "totalAuthors": {
           "name": "totalAuthors",
@@ -158,21 +336,15 @@
           "notNull": false,
           "default": 0
         },
-        "facultyNames": {
-          "name": "facultyNames",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
         "campus": {
           "name": "campus",
-          "type": "campus",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "dept": {
           "name": "dept",
-          "type": "dept",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -212,6 +384,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "pageNumber": {
+          "name": "pageNumber",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
         "issn": {
           "name": "issn",
           "type": "text",
@@ -236,6 +415,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "core": {
+          "name": "core",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'NA'"
         },
         "link_of_paper": {
           "name": "link_of_paper",
@@ -262,15 +448,222 @@
           "primaryKey": false,
           "notNull": false
         },
-        "domainExpertise": {
-          "name": "domainExpertise",
+        "domain": {
+          "name": "domain",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "conference_teacherAdminId_users_id_fk": {
+          "name": "conference_teacherAdminId_users_id_fk",
+          "tableFrom": "conference",
+          "tableTo": "users",
+          "columnsFrom": [
+            "teacherAdminId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "journalUser": {
+      "name": "journalUser",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "journalId": {
+          "name": "journalId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "journalUser_journalId_journal_id_fk": {
+          "name": "journalUser_journalId_journal_id_fk",
+          "tableFrom": "journalUser",
+          "tableTo": "journal",
+          "columnsFrom": [
+            "journalId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "journalUser_userId_users_id_fk": {
+          "name": "journalUser_userId_users_id_fk",
+          "tableFrom": "journalUser",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "patentUser": {
+      "name": "patentUser",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "patentId": {
+          "name": "patentId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "patentUser_patentId_patent_id_fk": {
+          "name": "patentUser_patentId_patent_id_fk",
+          "tableFrom": "patentUser",
+          "tableTo": "patent",
+          "columnsFrom": [
+            "patentId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "patentUser_userId_users_id_fk": {
+          "name": "patentUser_userId_users_id_fk",
+          "tableFrom": "patentUser",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "conferenceUser": {
+      "name": "conferenceUser",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "conferenceId": {
+          "name": "conferenceId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "conferenceUser_conferenceId_conference_id_fk": {
+          "name": "conferenceUser_conferenceId_conference_id_fk",
+          "tableFrom": "conferenceUser",
+          "tableTo": "conference",
+          "columnsFrom": [
+            "conferenceId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "conferenceUser_userId_users_id_fk": {
+          "name": "conferenceUser_userId_users_id_fk",
+          "tableFrom": "conferenceUser",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -284,21 +677,21 @@
           "primaryKey": true,
           "notNull": true
         },
-        "teacherName": {
-          "name": "teacherName",
+        "teacherAdminId": {
+          "name": "teacherAdminId",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "campus": {
           "name": "campus",
-          "type": "campus",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "dept": {
           "name": "dept",
-          "type": "dept",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -314,6 +707,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "isCapstone": {
+          "name": "isCapstone",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
         "year": {
           "name": "year",
           "type": "text",
@@ -325,15 +725,46 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "patent_teacherAdminId_users_id_fk": {
+          "name": "patent_teacherAdminId_users_id_fk",
+          "tableFrom": "patent",
+          "tableTo": "users",
+          "columnsFrom": [
+            "teacherAdminId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     }
   },
   "enums": {
+    "qNo": {
+      "name": "qNo",
+      "values": {
+        "Q1": "Q1",
+        "Q2": "Q2",
+        "Q3": "Q3",
+        "Q4": "Q4",
+        "NA": "NA"
+      }
+    },
     "campus": {
       "name": "campus",
       "values": {
@@ -342,12 +773,21 @@
         "HSN": "HSN"
       }
     },
+    "coreEnum": {
+      "name": "coreEnum",
+      "values": {
+        "coreA": "coreA",
+        "coreB": "coreB",
+        "coreC": "coreC",
+        "scopus": "scopus",
+        "NA": "NA"
+      }
+    },
     "dept": {
       "name": "dept",
       "values": {
         "EC": "EC",
-        "RR": "RR",
-        "HSN": "HSN"
+        "CSE": "CSE"
       }
     }
   },
