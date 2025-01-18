@@ -32,6 +32,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
 
 type ConductedEvent = {
   year: string;
@@ -69,7 +70,7 @@ function ConductedEventDashboard() {
     const fetchEvents = async () => {
       try {
         const response = await axios.get(
-          "http://10.2.80.90:8081/api/v1/conducted",
+          `${backendUrl}/api/v1/conducted`,
           { withCredentials: true }
         );
         setEvents(response.data);

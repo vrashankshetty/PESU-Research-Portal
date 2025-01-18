@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
+import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   empId: z.string().min(6, { message: "EMP ID must be at least 6 characters" }),
@@ -90,7 +91,7 @@ export default function RegistrationPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post(
-        "http://10.2.80.90:8081/api/v1/auth/register",
+        `${backendUrl}/api/v1/auth/register`,
         values,
         {
           withCredentials: true,
@@ -106,6 +107,7 @@ export default function RegistrationPage() {
         router.push("/login");
       }
     } catch (error) {
+      console.log("error", error);
       if (axios.isAxiosError(error) && error.response) {
         toast({
           variant: "destructive",

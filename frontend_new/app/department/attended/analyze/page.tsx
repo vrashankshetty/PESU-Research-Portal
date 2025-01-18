@@ -32,6 +32,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
 
 // 1. Update Type Definition
 type Attended = {
@@ -67,7 +68,7 @@ function AttendedDashboard() {
     const fetchAttended = async () => {
       try {
         const response = await axios.get(
-          "http://10.2.80.90:8081/api/v1/attended",
+          `${backendUrl}/api/v1/attended`,
           { withCredentials: true }
         );
         setAttended(response.data);

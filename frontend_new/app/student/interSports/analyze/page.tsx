@@ -29,6 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
 
 type Patent = {
   teacherAdminId: string;
@@ -94,7 +95,7 @@ function InterSportsDashboard() {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        const response = await axios.get("http://10.2.80.90:8081/api/v1/user", {
+        const response = await axios.get(`${backendUrl}/api/v1/user`, {
           withCredentials: true,
         });
         console.log(response.data);
@@ -133,7 +134,7 @@ function InterSportsDashboard() {
     const fetchPatents = async () => {
       try {
         const response = await axios.get(
-          "http://10.2.80.90:8081/api/v1/patent",
+          `${backendUrl}/api/v1/patent`,
           { withCredentials: true }
         );
         console.log(response);

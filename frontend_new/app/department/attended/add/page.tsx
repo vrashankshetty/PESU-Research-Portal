@@ -20,6 +20,7 @@ import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
+import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   year: z.string().regex(/^\d{4}$/, "Year must be a 4-digit number"),
@@ -66,7 +67,7 @@ export default function AttendedForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        "http://10.2.80.90:8081/api/v1/attended",
+        `${backendUrl}/api/v1/attended`,
         values,
         {
           withCredentials: true,

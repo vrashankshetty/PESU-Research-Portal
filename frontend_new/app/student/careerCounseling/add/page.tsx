@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
+import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   link: z.string().min(1, "Link to relevant documents is required"),
@@ -40,7 +41,7 @@ export default function CareerCounselingForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        "http://localhost:5500/api/v1/journal",
+        `${backendUrl}/api/v1/studentCareerCounselling`,
         values,
         {
           withCredentials: true,

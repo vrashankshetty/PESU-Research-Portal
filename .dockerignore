@@ -1,0 +1,13 @@
+# General exclusions
+node_modules
+npm-debug.log
+.DS_Store
+.env
+
+# Backend-specific exclusions
+backend_new/node_modules
+
+# Frontend-specific exclusions
+frontend_new/node_modules
+frontend_new/.next
+frontend_new/out

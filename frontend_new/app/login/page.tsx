@@ -26,7 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import Cookie from "js-cookie";
 import Link from "next/link";
-
+import { backendUrl } from "@/config";
 const formSchema = z.object({
   empId: z.string().min(6, { message: "EMP ID must be at least 6 characters" }),
   password: z
@@ -49,7 +49,7 @@ export default function LoginPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post(
-        "localhost:5500/api/v1/auth/login",
+        `${backendUrl}/api/v1/auth/login`,
         values,
         {
           withCredentials: true,
@@ -67,7 +67,7 @@ export default function LoginPage() {
           expires: 1,
           domain: "localhost",
         });
-        router.push("localhost:5500/");
+        router.push(`/`);
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

@@ -1,0 +1,21 @@
+# Use Node.js base image
+FROM node:23.3.0-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY backend_new/package*.json ./
+
+# Install dependencies
+RUN npm install 
+
+# Copy application files
+COPY backend_new/ .
+
+
+# Expose port (change this to your backend's listening port)
+EXPOSE 5500
+
+# Run the server
+CMD ["npm", "run","dev"]

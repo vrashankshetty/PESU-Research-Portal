@@ -25,6 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
+import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   teacherIds: z.array(z.string()),
@@ -61,7 +62,7 @@ export default function PatentForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        "http://10.2.80.90:8081/api/v1/patent",
+        `${backendUrl}/api/v1/patent`,
         values,
         {
           withCredentials: true,
