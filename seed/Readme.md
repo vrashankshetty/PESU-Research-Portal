@@ -17,7 +17,12 @@ This project is a Python script that performs a specific task.
 
     Replace `<api_url>` with the URL of the API endpoint you want to send the data to.
 
-6. The script will process the data from the Excel file and send it to the specified API endpoint.
+Example: 
 
-7. Check the console output for any error messages or success notifications.
+    ```shell
+    python default_users.py ./default_users.xlsx http://localhost:5500/api/v1/auth/register
+    ```
+2. The script will process the data from the Excel file and send it to the specified API endpoint.
+
+3. Check the console output for any error messages or success notifications.
 
