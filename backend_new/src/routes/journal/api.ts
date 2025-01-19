@@ -18,7 +18,9 @@ const Router = express.Router();
 Router.get('/',async (req, res) => {
     try {
         const userId = (req as any).user.id;
-        const course = await getAllJournal(userId);
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
+        const course = await getAllJournal(userId,role,accessTo);
         res.status(200).send(course);
     } catch (error) {
         console.log("error",error)
@@ -30,7 +32,9 @@ Router.get('/:id', async (req, res) => {
     try {
         const id = req.params.id;
         const userId = (req as any).user.id;
-        const course = await getEachJournal(id,userId)
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
+        const course = await getEachJournal(id,userId,role,accessTo)
         if(!course){
             return res.status(404).json({
                 message:"Not Found"

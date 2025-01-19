@@ -9,8 +9,38 @@ import { conferenceUser } from '../../models/conferenceUser';
 
 
 
-export async function getEachConference(id: string,userId:string) {
+export async function getEachConference(id: string,userId:string,role:string,accessTo:string) {
     try {
+        if(role === 'admin' && (accessTo === 'all' || accessTo === 'research')){
+            const conf = await db.query.conferenceUser.findFirst({
+                where:and(eq(conferenceUser.conferenceId,id)),
+                with:{
+                    conference:{
+                        with:{
+                            teacherAdmin:{
+                                columns:{
+                                    password:false,
+                                }
+                            },
+                            teachers:{
+                               with:{
+                                    user:{
+                                        columns:{
+                                            password:false
+                                        }
+                                    },
+                               },
+                               orderBy:desc(conferenceUser.createdAt)
+                            }
+                        }
+                    }
+                }
+            })
+            if(conf?.conference){
+                return conf;
+            }
+            return null;
+        }
         const conf = await db.query.conferenceUser.findFirst({
             where:and(eq(conferenceUser.conferenceId,id),eq(conferenceUser.userId,userId)),
             with:{
@@ -45,8 +75,15 @@ export async function getEachConference(id: string,userId:string) {
 }
 
 
-export async function getAllConference(userId:string) {
+export async function getAllConference(userId:string,role:string,accessTo:string) {
     try {
+        if(role === 'admin' && (accessTo === 'all' || accessTo === 'research')){
+            const journals =  await db.query.conference.findMany({
+                orderBy:desc(conferenceUser.createdAt)
+             })
+            const formattedconf= journals.map((s)=>({addedAt:s.createdAt,...s}))
+            return formattedconf;
+        }
         const journals =  await db.query.conferenceUser.findMany({
             where:eq(conferenceUser.userId,userId),
             columns:{

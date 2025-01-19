@@ -10,8 +10,38 @@ import { user } from '../../models/user';
 
 
 
-export async function getEachJournal(id: string,userId:string) {
+export async function getEachJournal(id: string,userId:string,role:string,accessTo:string) {
     try {
+        if(role === 'admin' && (accessTo === 'all' || accessTo === 'research')){
+            const journal = await db.query.journalUser.findFirst({
+                where:and(eq(journalUser.journalId,id)),
+                with:{
+                    journal:{
+                        with:{
+                            teacherAdmin:{
+                                columns:{
+                                    password:false,
+                                }
+                            },
+                            teachers:{
+                               with:{
+                                    user:{
+                                        columns:{
+                                            password:false
+                                        }
+                                    },
+                               },
+                               orderBy:desc(journalUser.createdAt)
+                            }
+                        }
+                    }
+                }
+            })
+            if(journal?.journal){
+                return journal;
+            }
+            return null;
+        }
         const journal = await db.query.journalUser.findFirst({
             where:and(eq(journalUser.journalId,id),eq(journalUser.userId,userId)),
             with:{
@@ -46,8 +76,16 @@ export async function getEachJournal(id: string,userId:string) {
 }
 
 
-export async function getAllJournal(userId:string) {
+export async function getAllJournal(userId:string,role:string,accessTo:string) {
     try {
+        if(role === 'admin' && (accessTo === 'all' || accessTo === 'research')){
+            const journals =  await db.query.journal.findMany({
+                orderBy:desc(journalUser.createdAt)
+             })
+            const formattedconf= journals.map((s)=>({addedAt:s.createdAt,...s}))
+            return formattedconf;
+        }
+        
         const journals =  await db.query.journalUser.findMany({
             where:eq(journalUser.userId,userId),
             columns:{

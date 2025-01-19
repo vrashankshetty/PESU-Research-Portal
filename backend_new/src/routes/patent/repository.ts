@@ -10,8 +10,38 @@ import { user } from '../../models/user';
 
 
 
-export async function getEachPatent(id: string,userId:string) {
+export async function getEachPatent(id: string,userId:string,role:string,accessTo:string) {
     try {
+        if(role === 'admin' && (accessTo === 'all' || accessTo === 'research')){
+            const patent = await db.query.patentUser.findFirst({
+                where:and(eq(patentUser.patentId,id)),
+                with:{
+                    patent:{
+                        with:{
+                            teacherAdmin:{
+                                columns:{
+                                    password:false,
+                                }
+                            },
+                            teachers:{
+                               with:{
+                                    user:{
+                                        columns:{
+                                            password:false
+                                        }
+                                    },
+                               },
+                               orderBy:desc(patentUser.createdAt)
+                            }
+                        }
+                    }
+                }
+            })
+            if(patent?.patent){
+                return patent;
+            }
+            return null;
+        }
         const patent = await db.query.patentUser.findFirst({
             where:and(eq(patentUser.patentId,id),eq(patentUser.userId,userId)),
             with:{
@@ -46,8 +76,16 @@ export async function getEachPatent(id: string,userId:string) {
 }
 
 
-export async function getAllPatent(userId:string) {
+export async function getAllPatent(userId:string,role:string,accessTo:string) {
     try {
+        if(role === 'admin' && (accessTo === 'all' || accessTo === 'research')){
+            const journals =  await db.query.patent.findMany({
+                orderBy:desc(patentUser.createdAt)
+             })
+            const formattedconf= journals.map((s)=>({addedAt:s.createdAt,...s}))
+            return formattedconf;
+        }
+        
         const patents =  await db.query.patentUser.findMany({
             where:eq(patentUser.userId,userId),
             columns:{

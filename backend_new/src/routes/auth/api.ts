@@ -27,8 +27,8 @@ Router.post('/login', async (req, res) => {
         }
 
 
-        const accessToken = createAccessToken(user.id, user.empId,user.designation,user.name);
-        const refreshToken = createRefreshToken(user.id, user.empId,user.designation,user.name);
+        const accessToken = createAccessToken(user.id, user.empId,user.designation,user.name,user.role,user.accessTo);
+        const refreshToken = createRefreshToken(user.id, user.empId,user.designation,user.name,user.role,user.accessTo);
         const date = new Date();
 
         date.setFullYear(date.getFullYear() + 1);
