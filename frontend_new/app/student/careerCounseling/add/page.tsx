@@ -19,20 +19,20 @@ import axios from "axios";
 import { backendUrl } from "@/config";
 
 const formSchema = z.object({
-  link: z.string().min(1, "Link to relevant documents is required"),
-  noOfStudents: z.string().min(1, "The no. of students that attended/participated is required"),
-  yearOfEvent: z.string().min(1, "Year of the counseling is required"),
-  nameOfTheActivity: z.string().min(1, "Name of the activity is required"),
+  documentLink: z.string().min(1, "Link to relevant documents is required"),
+  numberOfStudents: z.string().min(1, "The no. of students that attended/participated is required"),
+  year: z.string().min(1, "Year of the counseling is required"),
+  activityName: z.string().min(1, "Name of the activity is required"),
 });
 
 export default function CareerCounselingForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      link: "",
-      noOfStudents: "",
-      yearOfEvent: "",
-      nameOfTheActivity: "",
+      year: "",
+      activityName: "",
+      numberOfStudents: "",
+      documentLink: "",
     },
   });
 
@@ -63,11 +63,11 @@ export default function CareerCounselingForm() {
         throw new Error("Submission failed");
       }
     } catch (error) {
-      console.error("Error submitting record publication:", error);
+      console.error("Error submitting record:", error);
       toast({
         title: "Submission Error",
         description:
-          "There was an error submitting your record publication. Please try again.",
+          "There was an error submitting your record. Please try again.",
         variant: "destructive",
       });
     }
@@ -78,7 +78,7 @@ export default function CareerCounselingForm() {
       <Card className="w-full max-w-6xl bg-white/90 backdrop-blur-sm shadow-xl">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            Graduated Students who have progressed to Higher Education
+            Career Counseling Offered
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -86,7 +86,7 @@ export default function CareerCounselingForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="yearOfEvent"
+                name="year"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Year of the activity</FormLabel>
@@ -99,7 +99,7 @@ export default function CareerCounselingForm() {
               />
               <FormField
                 control={form.control}
-                name="nameOfTheActivity"
+                name="activityName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name of the Activity conducted by the HEI to offer guidance for competitive examinations & career counseling offered by the institution</FormLabel>
@@ -113,7 +113,7 @@ export default function CareerCounselingForm() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
-                  name="noOfStudents"
+                  name="numberOfStudents"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Number of students attended / participated</FormLabel>
@@ -127,7 +127,7 @@ export default function CareerCounselingForm() {
               </div>
               <FormField
                 control={form.control}
-                name="link"
+                name="documentLink"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Link to relevant documents</FormLabel>
