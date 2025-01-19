@@ -19,7 +19,7 @@ This project is a Python script that performs a specific task.
 
 Example: 
 
-    ```shell
+    ```
     python default_users.py ./default_users.xlsx http://localhost:5500/api/v1/auth/register
     ```
 2. The script will process the data from the Excel file and send it to the specified API endpoint.
