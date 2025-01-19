@@ -64,15 +64,11 @@ function CounselingDashboard() {
     fetchCareerCounsels();
   }, [startYear, endYear]);
 
-  useEffect(() => {
-    
-  },[])
-
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
         const link = document.createElement("a");
-        link.download = "data.png";
+        link.download = "CareerCounsels.png";
         link.href = canvas.toDataURL();
         link.click();
       });
@@ -99,7 +95,7 @@ function CounselingDashboard() {
       if (link.download !== undefined) {
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
-        link.setAttribute("download", "data.csv");
+        link.setAttribute("download", "CareerCounsels.csv");
         link.style.visibility = "hidden";
         document.body.appendChild(link);
         link.click();
