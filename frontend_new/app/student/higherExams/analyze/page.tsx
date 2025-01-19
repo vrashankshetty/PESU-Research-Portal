@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef, Suspense } from "react";
 import axios from "axios";
 import {
   BarChart,
@@ -26,174 +25,130 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import { backendUrl } from "@/config";
 
-type Patent = {
-  teacherAdminId: string;
-  campus: "EC" | "RR" | "HSN";
-  dept: "EC" | "CSE";
-  patentNumber: string;
-  patentTitle: string;
-  isCapstone: boolean;
+interface EntranceExams {
   year: string;
-  documentLink: string;
-};
-
-interface Teacher {
-  id: string;
-  empId: string;
-  password: string;
-  name: string;
-  phno: string;
-  dept: "EC" | "CSE";
-  campus: "EC" | "RR" | "HSN";
-  panNo: string;
-  qualification: string;
-  designation: string;
-  expertise: string;
-  dateofJoining: string;
-  totalExpBfrJoin: string;
-  googleScholarId: string;
-  sId: string;
-  oId: string;
-  profileImg?: string;
-  createdAt: string;
+  registrationNumber: string;
+  studentName: string,
+  isNET: boolean;
+  isSLET: boolean;
+  isGATE: boolean;
+  isGMAT: boolean;
+  isCAT: boolean;
+  isGRE: boolean;
+  isJAM: boolean;
+  isIELTS: boolean;
+  isTOEFL: boolean;
 }
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-function HigherExamsDashboard() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [patents, setPatents] = useState<Patent[]>([]);
-  const [filteredPatents, setFilteredPatents] = useState<Patent[]>([]);
+function EntranceExamsDashboard() {
+  const [entranceExams, setEntranceExams] = useState<EntranceExams[] | null>(null);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
-  const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus");
-  const [examType, setExamType] = useState<"NET" | "SLET" | "GATE" | "GMAT" | "CAT" | "GRE" | "JAM" | "IELTS" | "TOEFL">("NET");
-  const [yearRange, setYearRange] = useState({ start: "0", end: "0" });
-  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
-  const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
+  const [startYear, setStartYear] = useState<number>(2000);
+  const [endYear, setEndYear] = useState<number>(new Date().getFullYear());
   const chartRef = useRef<HTMLDivElement>(null);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
-
-  const getFilteredTeachers = () => {
-    console.log(
-      filteredPatents,
-      teachers.filter((teacher) =>
-        filteredPatents.some((patent) => patent.teacherAdminId === teacher.id)
-      )
-    );
-    return teachers.filter((teacher) =>
-      filteredPatents.some((patent) => patent.teacherAdminId === teacher.id)
-    );
-  };
 
   useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await axios.get(`${backendUrl}/api/v1/user`, {
-          withCredentials: true,
-        });
-        console.log(response.data);
-        setTeachers(response.data);
-      } catch (error) {
-        console.error("Error fetching teachers:", error);
-      }
-    };
-    fetchTeachers();
-  }, []);
-
-  useEffect(() => {
-    setFilteredTeachers(getFilteredTeachers());
-  }, [teachers, filteredPatents]);
-
-  const updateQueryParams = useCallback(() => {
-    const params = new URLSearchParams(searchParams);
-    params.set("chartType", chartType);
-    params.set("metric", metric);
-    params.set("yearStart", yearRange.start);
-    params.set("yearEnd", yearRange.end);
-    params.set("campuses", selectedCampuses.join(","));
-    params.set("depts", selectedDepts.join(","));
-    router.push(`?${params.toString()}`);
-  }, [
-    chartType,
-    metric,
-    yearRange,
-    selectedCampuses,
-    selectedDepts,
-    router,
-    searchParams,
-  ]);
-
-  useEffect(() => {
-    const fetchPatents = async () => {
+    const fetchHigherStudyDetails = async () => {
       try {
         const response = await axios.get(
-          `${backendUrl}/api/v1/patent`,
+          `${backendUrl}/api/v1/studentEntranceExam?startYear=${startYear}&endYear=${endYear}`,
           { withCredentials: true }
         );
-        console.log(response);
-        setPatents(response.data);
+        console.log(response.data);
+        setEntranceExams(response.data);
       } catch (error) {
-        console.error("Error fetching patents:", error);
+        console.error("Error fetching career counsels:", error);
       }
     };
-    fetchPatents();
-  }, []);
+    fetchHigherStudyDetails();
+  }, [startYear, endYear]);
 
-  useEffect(() => {
-    setChartType(
-      (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
-    );
-    setMetric(
-      (searchParams.get("metric") as "campus" | "dept" | "year") || "campus"
-    );
-    setYearRange({
-      start: searchParams.get("yearStart") || "0",
-      end: searchParams.get("yearEnd") || "0",
-    });
-    setSelectedCampuses(
-      searchParams.get("campuses")?.split(",").filter(Boolean) || []
-    );
-    setSelectedDepts(
-      searchParams.get("depts")?.split(",").filter(Boolean) || []
-    );
-  }, [searchParams]);
+  const downloadChartAsPNG = () => {
+    if (chartRef.current) {
+      html2canvas(chartRef.current).then((canvas) => {
+        const link = document.createElement("a");
+        link.download = "EntranceExams.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  };
 
-  useEffect(() => {
-    const filtered = patents.filter((patent) => {
-      const yearInRange =
-        parseInt(patent.year) >= parseInt(yearRange.start) &&
-        parseInt(patent.year) <= parseInt(yearRange.end);
-      const campusMatch =
-        selectedCampuses.length === 0 ||
-        selectedCampuses.includes(patent.campus);
-      const deptMatch =
-        selectedDepts.length === 0 || selectedDepts.includes(patent.dept);
-      return yearInRange && campusMatch && deptMatch;
-    });
-    setFilteredPatents(filtered);
-    updateQueryParams();
-  }, [patents, yearRange, selectedCampuses, selectedDepts, updateQueryParams]);
+  const downloadTableAsCSV = () => {
+    if (entranceExams) {
+      const headers = [
+        "Year",
+        "Registration number/roll number for the exam",
+        "Name of student selected",
+        "Examinations Passed",
+      ];
+  
+      const csvContent = [
+        headers.join(","),
+        ...entranceExams.map((entry) => {
+          const exams = [
+            entry.isNET && "NET",
+            entry.isSLET && "SLET",
+            entry.isGATE && "GATE",
+            entry.isGMAT && "GMAT",
+            entry.isCAT && "CAT",
+            entry.isGRE && "GRE",
+            entry.isJAM && "JAM",
+            entry.isIELTS && "IELTS",
+            entry.isTOEFL && "TOEFL",
+          ].filter(Boolean).join(" ");
+          
+          return [entry.year, entry.registrationNumber, entry.studentName, exams].join(",");
+        }),
+      ].join("\n");
+  
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "EntranceExams.csv");
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  };
+  
 
   const getChartData = () => {
-    const data: { [key: string]: number } = {};
-    filteredPatents.forEach((patent) => {
-      const key = patent[metric];
-      data[key] = (data[key] || 0) + 1;
-    });
-    return Object.entries(data).map(([name, value]) => ({ name, value }));
+    const yearCount: Record<string, number> = {};
+    if (entranceExams) {
+        entranceExams.forEach((entry) => {
+            const year = entry.year;
+            yearCount[year] = (yearCount[year] || 0) + 1;
+        });
+  
+        return Object.entries(yearCount).map(([year, entries]) => ({
+            year,
+            entries,
+        }));
+    }
+    return [];
   };
+  
 
   const renderChart = () => {
     const data = getChartData();
 
-    if (data.length === 0) {
+    console.log({OtherWorld: data});
+
+    if (data && data.length === 0) {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <p className="text-lg font-semibold">No Matching Data Available</p>
@@ -206,25 +161,18 @@ function HigherExamsDashboard() {
         return (
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={data} barSize={24} barGap={8}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(255, 255, 255, 0.8)",
-                  border: "none",
-                  borderRadius: "4px",
-                }}
-              />
-              <Legend />
-              <Bar dataKey="value" fill="#8884d8">
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Bar>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="year" axisLine={false} tickLine={false} />
+                <YAxis axisLine={false} tickLine={false} />
+                <Tooltip
+                    contentStyle={{
+                    background: "rgba(255, 255, 255, 0.8)",
+                    border: "none",
+                    borderRadius: "4px",
+                    }}
+                />
+                <Legend />
+                <Bar dataKey="entries" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -232,25 +180,25 @@ function HigherExamsDashboard() {
         return (
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} />
-              <Tooltip
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="year" axisLine={false} tickLine={false} />
+            <YAxis axisLine={false} tickLine={false} />
+            <Tooltip
                 contentStyle={{
-                  background: "rgba(255, 255, 255, 0.8)",
-                  border: "none",
-                  borderRadius: "4px",
+                background: "rgba(255, 255, 255, 0.8)",
+                border: "none",
+                borderRadius: "4px",
                 }}
-              />
-              <Legend />
-              <Line
+            />
+            <Legend />
+            <Line
                 type="monotone"
-                dataKey="value"
+                dataKey="entries"
                 stroke="#8884d8"
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
-              />
+            />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -258,95 +206,41 @@ function HigherExamsDashboard() {
         return (
           <ResponsiveContainer width="100%" height={400}>
             <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={150}
-                fill="#8884d8"
-                dataKey="value"
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-              >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(255, 255, 255, 0.8)",
-                  border: "none",
-                  borderRadius: "4px",
-                }}
-              />
-              <Legend />
-            </PieChart>
+                <Tooltip
+                    contentStyle={{
+                    background: "rgba(255, 255, 255, 0.8)",
+                    border: "none",
+                    borderRadius: "4px",
+                    }}
+                />
+                <Legend />
+                <Pie
+                  data={data}
+                  dataKey="entries"
+                  nameKey="year"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  labelLine={false}
+                  fill="#8884d8"
+                  label
+                >
+                  {data.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+
           </ResponsiveContainer>
         );
     }
   };
 
-  const downloadChartAsPNG = () => {
-    if (chartRef.current) {
-      html2canvas(chartRef.current).then((canvas) => {
-        const link = document.createElement("a");
-        link.download = "data.png";
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
-  };
-
-  const downloadTableAsCSV = () => {
-    const headers = [
-      "Teacher ID",
-      "Campus",
-      "Department",
-      "Patent Number",
-      "Patent Title",
-      "Year",
-      "Capstone",
-      "Document Link",
-    ];
-    const csvContent = [
-      headers.join(","),
-      ...filteredPatents.map((patent) =>
-        [
-          patent.teacherAdminId,
-          patent.campus,
-          patent.dept,
-          patent.patentNumber,
-          `"${patent.patentTitle.replace(/"/g, '""')}"`,
-          patent.year,
-          patent.isCapstone ? "Yes" : "No",
-          patent.documentLink,
-        ].join(",")
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", "data.csv");
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
-
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Higher Examination Analysis Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Entrance Exams Analysis Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Visualization</CardTitle>
@@ -354,9 +248,7 @@ function HigherExamsDashboard() {
           <CardContent>
             <Select
               value={chartType}
-              onValueChange={(value: "bar" | "line" | "pie") =>
-                setChartType(value)
-              }
+              onValueChange={(value: "bar" | "line" | "pie") => setChartType(value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select chart type" />
@@ -374,35 +266,34 @@ function HigherExamsDashboard() {
           <CardHeader>
             <CardTitle>Analysis</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Select
-              value={examType}
-              onValueChange={(value: "NET" | "SLET" | "GATE" | "GMAT" | "CAT" | "GRE" | "JAM" | "IELTS" | "TOEFL") =>
-                setExamType(value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select chart type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NET">NET</SelectItem>
-                <SelectItem value="SLET">SLET</SelectItem>
-                <SelectItem value="GATE">GATE</SelectItem>
-                <SelectItem value="GMAT">GMAT</SelectItem>
-                <SelectItem value="CAT">CAT</SelectItem>
-                <SelectItem value="GRE">GRE</SelectItem>
-                <SelectItem value="JAM">JAM</SelectItem>
-                <SelectItem value="IELTS">IELTS</SelectItem>
-                <SelectItem value="TOEFL">TOEFL</SelectItem>
-              </SelectContent>
-            </Select>
+          <CardContent className="flex space-x-2">
+            <div className="flex-1">
+                <Label htmlFor="yearStart">Start Year</Label>
+                <Input
+                    id="yearStart"
+                    type="number"
+                    min="0"
+                    value={startYear}
+                    onChange={(e) => setStartYear(e.target.valueAsNumber)}
+                />
+            </div>
+            <div className="flex-1">
+                <Label htmlFor="yearStart">End Year</Label>
+                <Input
+                    id="yearStart"
+                    type="number"
+                    min="0"
+                    value={endYear}
+                    onChange={(e) => setEndYear(e.target.valueAsNumber)}
+                />
+            </div>
           </CardContent>
         </Card>
       </div>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Higher Examination Analysis Chart</CardTitle>
+          <CardTitle>Entrance Exams Analysis Chart</CardTitle>
         </CardHeader>
         <CardContent className="h-[480px]">
           <div ref={chartRef}>{renderChart()}</div>
@@ -414,7 +305,7 @@ function HigherExamsDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Higher Examination Details</CardTitle>
+          <CardTitle>Entrance Exams Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="table" className="w-full">
@@ -430,43 +321,42 @@ function HigherExamsDashboard() {
                       <th className="px-6 py-3">Year</th>
                       <th className="px-6 py-3">Registration number/roll number for the exam</th>
                       <th className="px-6 py-3">Name of student selected</th>
-                      <th className="px-6 py-3">Name of the examination</th>
-                      <th className="px-6 py-3">Link to the relevant document</th>
+                      <th className="px-6 py-3">Qualifying examination</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredPatents.map((patent, index) => {
-                      const teacher = filteredTeachers.find(
-                        (t) => t.id === patent.teacherAdminId
-                      );
-                      console.log(patent.teacherAdminId, filteredTeachers);
-
-                      return (
-                        <tr key={index} className="bg-white border-b">
-                          <td className="px-6 py-4">
-                            {teacher ? teacher.name : "Unknown"}
-                          </td>
-                          <td className="px-6 py-4">{patent.campus}</td>
-                          <td className="px-6 py-4">{patent.dept}</td>
-                          <td className="px-6 py-4">{patent.patentNumber}</td>
-                          <td className="px-6 py-4">{patent.patentTitle}</td>
-                          <td className="px-6 py-4">{patent.year}</td>
-                          <td className="px-6 py-4">
-                            {patent.isCapstone ? "Yes" : "No"}
-                          </td>
-                          <td className="px-6 py-4">
-                            <a
-                              href={patent.documentLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
-                            >
-                              View
-                            </a>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {entranceExams && entranceExams.length > 0 ? (
+                      entranceExams.map((entry, index) => {
+                        const exams = [
+                          entry.isNET && "NET",
+                          entry.isSLET && "SLET",
+                          entry.isGATE && "GATE",
+                          entry.isGMAT && "GMAT",
+                          entry.isCAT && "CAT",
+                          entry.isGRE && "GRE",
+                          entry.isJAM && "JAM",
+                          entry.isIELTS && "IELTS",
+                          entry.isTOEFL && "TOEFL",
+                        ]
+                          .filter(Boolean)
+                          .join(", ");
+                        
+                        return (
+                          <tr key={index}>
+                            <td className="px-6 py-3">{entry.year}</td>
+                            <td className="px-6 py-3">{entry.registrationNumber}</td>
+                            <td className="px-6 py-3">{entry.studentName}</td>
+                            <td className="px-6 py-3">{exams}</td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="text-center py-4">
+                          No data available
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -475,52 +365,53 @@ function HigherExamsDashboard() {
               </Button>
             </TabsContent>
             <TabsContent value="cards">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredPatents.map((patent, index) => {
-                  const teacher = filteredTeachers.find(
-                    (t) => t.id === patent.teacherAdminId
-                  );
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
+              {entranceExams && entranceExams.length > 0 ? (
+                entranceExams.map((entry, index) => {
+                  const exams = [
+                    entry.isNET && "NET",
+                    entry.isSLET && "SLET",
+                    entry.isGATE && "GATE",
+                    entry.isGMAT && "GMAT",
+                    entry.isCAT && "CAT",
+                    entry.isGRE && "GRE",
+                    entry.isJAM && "JAM",
+                    entry.isIELTS && "IELTS",
+                    entry.isTOEFL && "TOEFL",
+                  ].filter(Boolean);
 
                   return (
-                    <Card key={index}>
-                      <CardHeader>
-                        <CardTitle>{patent.patentTitle}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p>
-                          <strong>Faculty:</strong>{" "}
-                          {teacher ? teacher.name : "Unknown"}
-                        </p>
-                        <p>
-                          <strong>Campus:</strong> {patent.campus}
-                        </p>
-                        <p>
-                          <strong>Department:</strong> {patent.dept}
-                        </p>
-                        <p>
-                          <strong>Patent Number:</strong> {patent.patentNumber}
-                        </p>
-                        <p>
-                          <strong>Year:</strong> {patent.year}
-                        </p>
-                        <p>
-                          <strong>Capstone:</strong>{" "}
-                          {patent.isCapstone ? "Yes" : "No"}
-                        </p>
-                        <a
-                          href={patent.documentLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          View Document
-                        </a>
-                      </CardContent>
-                    </Card>
+                    <div
+                      key={index}
+                      className="flex flex-col gap-2 align-bottom p-3 rounded-md bg-gray-100"
+                    >
+                      <div className="flex justify-start items-center gap-2">
+                        <div className="text-xl font-sans">{entry.studentName}</div>
+                        <div className="bg-blue-200 h-max text-xs text-blue-700 rounded-lg px-1 py-[0.1rem]">
+                          {entry.year}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        {exams.map((exam, examIndex) => (
+                          <div
+                            key={examIndex}
+                            className="bg-green-200 text-green-700 text-xs rounded-lg px-2 py-[0.1rem]"
+                          >
+                            {exam}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   );
-                })}
-              </div>
-            </TabsContent>
+                })
+              ) : (
+                <div>
+                  <div className="text-center py-4">No data available</div>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
           </Tabs>
         </CardContent>
       </Card>
@@ -531,7 +422,7 @@ function HigherExamsDashboard() {
 export default function PatentAnalyze() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <HigherExamsDashboard />
+      <EntranceExamsDashboard />
     </Suspense>
   );
 }
