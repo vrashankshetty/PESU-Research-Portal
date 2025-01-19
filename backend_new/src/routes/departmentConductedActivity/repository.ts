@@ -9,8 +9,14 @@ import { departmentAttendedActivity } from '../../models/departmentAttendedActiv
 
 
 
-export async function getEachActivity(id: string,userId:string) {
+export async function getEachActivity(id: string,userId:string,role:string,accessTo:string) {
     try {
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'department')){
+            const activity = await db.query.departmentConductedActivity.findFirst({
+                where: and(eq(departmentConductedActivity.id, id)),
+            });
+            return activity;
+        }
         const activity = await db.query.departmentConductedActivity.findFirst({
             where: and(eq(departmentConductedActivity.id, id),eq(departmentConductedActivity.userId, userId)),
         });
@@ -20,7 +26,7 @@ export async function getEachActivity(id: string,userId:string) {
     }
 }
 
-export async function getAllActivities(userId:string,query:any) {
+export async function getAllActivities(userId:string,query:any,role:string,accessTo:string) {
     try {
         const {
             durationStartDate,
@@ -29,6 +35,30 @@ export async function getAllActivities(userId:string,query:any) {
             programTitle
         } = query;
 
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'department')){
+            const activities = await db.query.departmentConductedActivity.findMany({
+                orderBy: desc(departmentConductedActivity.createdAt)
+            });
+
+            const filteredActivities = activities.filter(activity => {
+                let isValid = true;
+                if (durationStartDate && new Date(activity.createdAt) < new Date(durationStartDate)) {
+                    isValid = false;
+                }
+                if (durationEndDate && new Date(activity.createdAt) > new Date(durationEndDate)) {
+                    isValid = false;
+                }
+                if (year && activity.year !== year) {
+                    isValid = false;
+                }
+                if (programTitle && activity.programTitle !== programTitle) {
+                    isValid = false;
+                }
+                return isValid;
+            });
+
+            return filteredActivities;
+        }
         const activities = await db.query.departmentConductedActivity.findMany({
             where:eq(departmentConductedActivity.userId, userId),
             orderBy: desc(departmentAttendedActivity.createdAt)
