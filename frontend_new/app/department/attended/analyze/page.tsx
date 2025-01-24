@@ -26,23 +26,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import { backendUrl } from "@/config";
+import { DateRange } from "react-day-picker";
+import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
+import { format } from "date-fns";
 
-// 1. Update Type Definition
 type Attended = {
-  year: string;
-  numberOfParticipants: number;
-  teacherName: string;
+  id: string;
+  userId: string;
   programTitle: string;
-  durationFrom: string;
-  durationTo: string;
-  documentLink: string;
+  durationStartDate: string;
+  durationEndDate: string;
+  documentLink: string | null;
+  year: string;
+  createdAt: string;
 };
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
@@ -53,23 +53,20 @@ function AttendedDashboard() {
   const [attended, setAttended] = useState<Attended[]>([]);
   const [filteredAttended, setFilteredAttended] = useState<Attended[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
-  const [metric, setMetric] = useState<"year" | "numberOfParticipants">("year"); // 2. Modify Metrics
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
-  const [selectedYears, setSelectedYears] = useState<string[]>([]);
-
-  // 1. Add State for Participants Filtering
-  const [minParticipants, setMinParticipants] = useState<number | "">("");
-  const [maxParticipants, setMaxParticipants] = useState<number | "">("");
-
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  });
   const chartRef = useRef<HTMLDivElement>(null);
 
-  // 3. Change API Endpoint
   useEffect(() => {
     const fetchAttended = async () => {
       try {
         const response = await axios.get(
-          `${backendUrl}/api/v1/attended`,
-          { withCredentials: true }
+          `${backendUrl}/api/v1/departmentAttendedActivity`,
+          {
+            withCredentials: true,
+          }
         );
         setAttended(response.data);
       } catch (error) {
@@ -82,61 +79,34 @@ function AttendedDashboard() {
   const updateQueryParams = useCallback(() => {
     const params = new URLSearchParams(searchParams);
     params.set("chartType", chartType);
-    params.set("metric", metric);
-    params.set("yearStart", yearRange.start);
-    params.set("yearEnd", yearRange.end);
-    params.set("years", selectedYears.join(","));
-    params.set("minParticipants", minParticipants.toString());
-    params.set("maxParticipants", maxParticipants.toString());
-    router.push(`?${params.toString()}`);
-  }, [
-    chartType,
-    metric,
-    yearRange,
-    selectedYears,
-    minParticipants,
-    maxParticipants,
-    router,
-    searchParams,
-  ]);
+    if (dateRange?.from) params.set("dateStart", dateRange.from.toISOString());
+    if (dateRange?.to) params.set("dateEnd", dateRange.to.toISOString());
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [chartType, dateRange, router, searchParams]);
 
-  // 4. Update Filtering Logic
   useEffect(() => {
     const filtered = attended.filter((event) => {
-      const yearInRange =
-        parseInt(event.year) >= parseInt(yearRange.start) &&
-        parseInt(event.year) <= parseInt(yearRange.end);
-      const yearMatch =
-        selectedYears.length === 0 || selectedYears.includes(event.year);
+      const eventStartDate = new Date(event.durationStartDate);
+      const eventEndDate = new Date(event.durationEndDate);
 
-      // 2. Update Participants Filtering
-      const minMatch =
-        minParticipants === "" || event.numberOfParticipants >= minParticipants;
-      const maxMatch =
-        maxParticipants === "" || event.numberOfParticipants <= maxParticipants;
+      if (!dateRange?.from || !dateRange?.to) return true;
 
-      return yearInRange && yearMatch && minMatch && maxMatch;
+      return eventStartDate >= dateRange.from && eventEndDate <= dateRange.to;
     });
+
     setFilteredAttended(filtered);
     updateQueryParams();
-  }, [
-    attended,
-    yearRange,
-    selectedYears,
-    minParticipants,
-    maxParticipants,
-    updateQueryParams,
-  ]);
+  }, [attended, dateRange, updateQueryParams]);
 
-  // 5. Adjust Chart Metrics
   const getChartData = () => {
     const data: { [key: string]: number } = {};
     filteredAttended.forEach((event) => {
-      const key =
-        metric === "year" ? event.year : event.numberOfParticipants.toString();
-      data[key] = (data[key] || 0) + 1;
+      const monthYear = format(new Date(event.durationStartDate), "MMM yyyy");
+      data[monthYear] = (data[monthYear] || 0) + 1;
     });
-    return Object.entries(data).map(([name, value]) => ({ name, value }));
+    return Object.entries(data)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   };
 
   const renderChart = () => {
@@ -235,11 +205,9 @@ function AttendedDashboard() {
     const headers = [
       "Serial No",
       "Year",
-      "Number of Participants",
-      "Teacher Name",
       "Program Title",
-      "Duration From",
-      "Duration To",
+      "Duration Start",
+      "Duration End",
       "Document Link",
     ];
     const csvContent = [
@@ -248,11 +216,9 @@ function AttendedDashboard() {
         [
           index + 1,
           event.year,
-          event.numberOfParticipants,
-          `"${event.teacherName.replace(/"/g, '""')}"`,
           `"${event.programTitle.replace(/"/g, '""')}"`,
-          event.durationFrom,
-          event.durationTo,
+          event.durationStartDate,
+          event.durationEndDate,
           event.documentLink,
         ].join(",")
       ),
@@ -275,7 +241,7 @@ function AttendedDashboard() {
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Attended Programs Analysis</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Visualization</CardTitle>
@@ -301,130 +267,10 @@ function AttendedDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Analysis Metric</CardTitle>
+            <CardTitle>Date Range Filter</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select
-              value={metric}
-              onValueChange={(value: "year" | "numberOfParticipants") =>
-                setMetric(value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select metric" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="year">Year</SelectItem>
-                <SelectItem value="numberOfParticipants">
-                  Number of Participants
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Year Range</CardTitle>
-          </CardHeader>
-          <CardContent className="flex space-x-2">
-            <div className="flex-1">
-              <Label htmlFor="yearStart">Start</Label>
-              <Input
-                id="yearStart"
-                type="number"
-                min="2000"
-                max="2099"
-                value={yearRange.start}
-                onChange={(e) =>
-                  setYearRange({ ...yearRange, start: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex-1">
-              <Label htmlFor="yearEnd">End</Label>
-              <Input
-                id="yearEnd"
-                type="number"
-                min="2000"
-                max="2099"
-                value={yearRange.end}
-                onChange={(e) =>
-                  setYearRange({ ...yearRange, end: e.target.value })
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Year Filter</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4">
-              {Array.from(new Set(attended.map((event) => event.year))).map(
-                (year) => (
-                  <div key={year} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`year-${year}`}
-                      checked={selectedYears.includes(year)}
-                      onCheckedChange={(checked) => {
-                        setSelectedYears(
-                          checked
-                            ? [...selectedYears, year]
-                            : selectedYears.filter((y) => y !== year)
-                        );
-                      }}
-                    />
-                    <Label htmlFor={`year-${year}`}>{year}</Label>
-                  </div>
-                )
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 3. Replace Participants Filter with Min/Max Inputs */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Participants Filter</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col space-y-4">
-              <div>
-                <Label htmlFor="minParticipants">Minimum Participants</Label>
-                <Input
-                  id="minParticipants"
-                  type="number"
-                  min="0"
-                  value={minParticipants}
-                  onChange={(e) =>
-                    setMinParticipants(
-                      e.target.value === "" ? "" : parseInt(e.target.value)
-                    )
-                  }
-                  placeholder="e.g., 10"
-                />
-              </div>
-              <div>
-                <Label htmlFor="maxParticipants">Maximum Participants</Label>
-                <Input
-                  id="maxParticipants"
-                  type="number"
-                  min="0"
-                  value={maxParticipants}
-                  onChange={(e) =>
-                    setMaxParticipants(
-                      e.target.value === "" ? "" : parseInt(e.target.value)
-                    )
-                  }
-                  placeholder="e.g., 100"
-                />
-              </div>
-            </div>
+            <DatePickerWithRange date={dateRange} setDate={setDateRange} />
           </CardContent>
         </Card>
       </div>
@@ -458,35 +304,37 @@ function AttendedDashboard() {
                     <tr>
                       <th className="px-6 py-3">Serial No</th>
                       <th className="px-6 py-3">Year</th>
-                      <th className="px-6 py-3">Participants</th>
-                      <th className="px-6 py-3">Teacher Name</th>
                       <th className="px-6 py-3">Program Title</th>
-                      <th className="px-6 py-3">Duration From</th>
-                      <th className="px-6 py-3">Duration To</th>
+                      <th className="px-6 py-3">Duration Start</th>
+                      <th className="px-6 py-3">Duration End</th>
                       <th className="px-6 py-3">Document Link</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredAttended.map((event, index) => (
-                      <tr key={index} className="bg-white border-b">
+                      <tr key={event.id} className="bg-white border-b">
                         <td className="px-6 py-4">{index + 1}</td>
                         <td className="px-6 py-4">{event.year}</td>
-                        <td className="px-6 py-4">
-                          {event.numberOfParticipants}
-                        </td>
-                        <td className="px-6 py-4">{event.teacherName}</td>
                         <td className="px-6 py-4">{event.programTitle}</td>
-                        <td className="px-6 py-4">{event.durationFrom}</td>
-                        <td className="px-6 py-4">{event.durationTo}</td>
                         <td className="px-6 py-4">
-                          <a
-                            href={event.documentLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                          >
-                            View
-                          </a>
+                          {new Date(
+                            event.durationStartDate
+                          ).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4">
+                          {new Date(event.durationEndDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4">
+                          {event.documentLink && (
+                            <a
+                              href={event.documentLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              View
+                            </a>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -500,38 +348,30 @@ function AttendedDashboard() {
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredAttended.map((event, index) => (
-                  <Card key={index}>
+                  <Card key={event.id}>
                     <CardHeader>
                       <CardTitle>{event.programTitle}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p>
-                        <strong>Serial No:</strong> {index + 1}
-                      </p>
-                      <p>
                         <strong>Year:</strong> {event.year}
                       </p>
                       <p>
-                        <strong>Participants:</strong>{" "}
-                        {event.numberOfParticipants}
+                        <strong>Duration:</strong>{" "}
+                        {new Date(event.durationStartDate).toLocaleDateString()}{" "}
+                        to{" "}
+                        {new Date(event.durationEndDate).toLocaleDateString()}
                       </p>
-                      <p>
-                        <strong>Teacher Name:</strong> {event.teacherName}
-                      </p>
-                      <p>
-                        <strong>Duration From:</strong> {event.durationFrom}
-                      </p>
-                      <p>
-                        <strong>Duration To:</strong> {event.durationTo}
-                      </p>
-                      <a
-                        href={event.documentLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        View Document
-                      </a>
+                      {event.documentLink && (
+                        <a
+                          href={event.documentLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          View Document
+                        </a>
+                      )}
                     </CardContent>
                   </Card>
                 ))}

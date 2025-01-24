@@ -24,15 +24,10 @@ import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   year: z.string().regex(/^\d{4}$/, "Year must be a 4-digit number"),
-  teacherName: z.string().min(1, "Teacher name is required"),
   programTitle: z.string().min(1, "Program title is required"),
-  durationFrom: z
-    .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, "From date must be in DD-MM-YYYY format"),
-  durationTo: z
-    .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, "To date must be in DD-MM-YYYY format"),
-  documentLink: z.string().url("Please enter a valid URL"),
+  durationStartDate: z.string().min(1, "Start date is required"),
+  durationEndDate: z.string().min(1, "End date is required"),
+  documentLink: z.string().url("Please enter a valid URL").optional(),
 });
 
 export default function AttendedForm() {
@@ -45,10 +40,9 @@ export default function AttendedForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       year: "",
-      teacherName: "",
       programTitle: "",
-      durationFrom: "",
-      durationTo: "",
+      durationStartDate: "",
+      durationEndDate: "",
       documentLink: "",
     },
   });
@@ -57,17 +51,17 @@ export default function AttendedForm() {
 
   useEffect(() => {
     if (dateRange?.from) {
-      form.setValue("durationFrom", format(dateRange.from, "dd-MM-yyyy"));
+      form.setValue("durationStartDate", format(dateRange.from, "yyyy-MM-dd"));
     }
     if (dateRange?.to) {
-      form.setValue("durationTo", format(dateRange.to, "dd-MM-yyyy"));
+      form.setValue("durationEndDate", format(dateRange.to, "yyyy-MM-dd"));
     }
   }, [dateRange, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        `${backendUrl}/api/v1/attended`,
+        `${backendUrl}/api/v1/departmentAttendedActivity`,
         values,
         {
           withCredentials: true,
@@ -110,34 +104,19 @@ export default function AttendedForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Year</FormLabel>
-                      <FormControl>
-                        <Input placeholder="YYYY" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="teacherName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name of Teacher</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter Teacher Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year</FormLabel>
+                    <FormControl>
+                      <Input placeholder="YYYY" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="programTitle"
@@ -161,10 +140,10 @@ export default function AttendedForm() {
                     }}
                   />
                   <FormMessage>
-                    {form.formState.errors.durationFrom?.message}
+                    {form.formState.errors.durationStartDate?.message}
                   </FormMessage>
                   <FormMessage>
-                    {form.formState.errors.durationTo?.message}
+                    {form.formState.errors.durationEndDate?.message}
                   </FormMessage>
                 </div>
               </div>
@@ -173,7 +152,7 @@ export default function AttendedForm() {
                 name="documentLink"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Link to Relevant Document</FormLabel>
+                    <FormLabel>Link to Relevant Document (Optional)</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://example.com/document"

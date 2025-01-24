@@ -33,6 +33,55 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { backendUrl } from "@/config";
 
+const departmentExpertiseMap = {
+  "CSE": [
+    "ML/AI",
+    "DATA SCIENCE",
+    "IOT",
+    "NETWORKS",
+    "MICROPROCESSORS",
+    "MICROCONTROLLERS",
+    "DEEP LEARNING",
+    "COMPUTER VISION",
+    "CYBERSECURITY",
+    "CLOUD COMPUTING",
+    "WEB DEVELOPMENT",
+    "BIG DATA AND DATA ANALYTICS",
+    "DATA MINING",
+  ],
+  "ECE": [
+    "DIGITAL VLSI",
+    "ANALOG VLSI",
+    "SIGNAL PROCESSING",
+    "EMBEDDED SYSTEMS",
+    "COMMUNICATION ENGINEERING",
+  ],
+  "Science & Humanities": [
+    "ADVANCED MATERIALS",
+    "FLUID DYNAMICS",
+    "GEOMETRIC FUNCTION THEORY",
+    "GRAPH THEORY",
+    "OPERATIONS RESEARCH",
+    "QUANTUM AND NANO DEVICES/ QUANTUM COMPUTING",
+    "MATERIALS AND MANUFACTURING",
+  ],
+  "Commerce & Management": [
+    "ACCOUNTS",
+    "HUMAN RESOURCE",
+    "MARKETING",
+    "FINANCE",
+    "ECONOMICS",
+  ],
+  "Pharmaceutical Sciences": [
+    "PHARMACEUTICAL CHEMISTRY",
+    "PHARMACEUTICS",
+    "PHARMACOLOGY",
+    "PHARMACOGNOSY",
+    "PHARMACEUTICAL ANALYSIS",
+    "PHARMACY PRACTICE",
+  ],
+} as const;
+
 const formSchema = z.object({
   empId: z.string().min(6, { message: "EMP ID must be at least 6 characters" }),
   password: z
@@ -42,8 +91,14 @@ const formSchema = z.object({
   phno: z
     .string()
     .regex(/^\d{10}$/, { message: "Phone number must be 10 digits" }),
-  dept: z.enum(["EC", "CSE"]),
-  campus: z.enum(["EC", "RR", "HSN"]),
+  dept: z.enum([
+    "CSE",
+    "ECE",
+    "Science & Humanities",
+    "Commerce & Management",
+    "Pharmaceutical Sciences",
+  ]),
+  campus: z.enum(["EC", "RR", "HN"]),
   panNo: z
     .string()
     .regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, { message: "Invalid PAN number format" }),
@@ -56,9 +111,7 @@ const formSchema = z.object({
   totalExpBfrJoin: z
     .string()
     .min(1, { message: "Total experience is required" }),
-  googleScholarId: z
-    .string()
-    .min(1, { message: "Google Scholar ID is required" }),
+  googleScholarId: z.string(),
   sId: z.string().min(1, { message: "SID is required" }),
   oId: z.string().min(1, { message: "OID is required" }),
 });
@@ -74,8 +127,8 @@ export default function RegistrationPage() {
       password: "",
       name: "",
       phno: "",
-      dept: "EC",
-      campus: "EC",
+      dept: "CSE",
+      campus: "RR",
       panNo: "",
       qualification: "",
       designation: "",
@@ -206,7 +259,10 @@ export default function RegistrationPage() {
                     <FormItem>
                       <FormLabel>Department</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.setValue("expertise", "");
+                        }}
                         defaultValue={field.value}
                       >
                         <FormControl>
@@ -215,8 +271,11 @@ export default function RegistrationPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="EC">EC</SelectItem>
-                          <SelectItem value="CSE">CSE</SelectItem>
+                          {Object.keys(departmentExpertiseMap).map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -299,12 +358,26 @@ export default function RegistrationPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Expertise</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter your area of expertise"
-                          {...field}
-                        />
-                      </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your area of expertise" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {departmentExpertiseMap[form.getValues("dept")] &&
+                            departmentExpertiseMap[form.getValues("dept")].map(
+                              (expertise) => (
+                                <SelectItem key={expertise} value={expertise}>
+                                  {expertise}
+                                </SelectItem>
+                              )
+                            )}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

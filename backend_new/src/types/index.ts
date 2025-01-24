@@ -91,14 +91,6 @@ export type User = {
   }
 
 
-  export type DepartmentConductedActivity = {
-    programTitle: string;
-    durationStartDate: Date;
-    durationEndDate: Date;
-    documentLink?: string;
-    year: string;
-};
-
 export type StudentCareerCounselling = {
     year: string;
     activityName: string;
@@ -135,9 +127,18 @@ export type StudentSportsCultural = {
     eventName: string;
 };
 
-export type DepartmentAttendedActivity = {
+export type DepartmentConductedActivity = {
     nameOfProgram: string;
     noOfParticipants: number;
+    durationStartDate: Date;
+    durationEndDate: Date;
+    documentLink?: string;
+    year: string;
+};
+
+
+export type DepartmentAttendedActivity = {
+    programTitle: string;
     durationStartDate: Date;
     durationEndDate: Date;
     documentLink?: string;

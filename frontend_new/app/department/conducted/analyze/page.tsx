@@ -26,21 +26,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import { backendUrl } from "@/config";
+import { DateRange } from "react-day-picker";
+import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
 
 type ConductedEvent = {
+  id: string;
+  userId: string;
+  nameOfProgram: string;
+  noOfParticipants: number;
+  durationStartDate: string;
+  durationEndDate: string;
+  documentLink: string;
   year: string;
-  eventName: string;
-  participantCount: number;
-  durationFrom: string;
-  durationTo: string;
-  activityReport: string;
+  createdAt: string;
 };
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
@@ -51,27 +53,28 @@ function ConductedEventDashboard() {
   const [events, setEvents] = useState<ConductedEvent[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<ConductedEvent[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
-  const [metric, setMetric] = useState<"year" | "eventName">("year");
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
-  const [selectedYears, setSelectedYears] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  });
   const chartRef = useRef<HTMLDivElement>(null);
 
   const updateQueryParams = useCallback(() => {
     const params = new URLSearchParams(searchParams);
     params.set("chartType", chartType);
-    params.set("metric", metric);
-    params.set("yearStart", yearRange.start);
-    params.set("yearEnd", yearRange.end);
-    params.set("years", selectedYears.join(","));
-    router.push(`?${params.toString()}`);
-  }, [chartType, metric, yearRange, selectedYears, router, searchParams]);
+    if (dateRange?.from) params.set("dateStart", dateRange.from.toISOString());
+    if (dateRange?.to) params.set("dateEnd", dateRange.to.toISOString());
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [chartType, dateRange, router, searchParams]);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get(
-          `${backendUrl}/api/v1/conducted`,
-          { withCredentials: true }
+          `${backendUrl}/api/v1/departmentConductedActivity`,
+          {
+            withCredentials: true,
+          }
         );
         setEvents(response.data);
       } catch (error) {
@@ -85,36 +88,45 @@ function ConductedEventDashboard() {
     setChartType(
       (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
     );
-    setMetric((searchParams.get("metric") as "year" | "eventName") || "year");
-    setYearRange({
-      start: searchParams.get("yearStart") || "2000",
-      end: searchParams.get("yearEnd") || "2024",
-    });
-    setSelectedYears(
-      searchParams.get("years")?.split(",").filter(Boolean) || []
-    );
+    const startDate = searchParams.get("dateStart");
+    const endDate = searchParams.get("dateEnd");
+
+    if (startDate && endDate) {
+      setDateRange({
+        from: new Date(startDate),
+        to: new Date(endDate),
+      });
+    }
   }, [searchParams]);
 
   useEffect(() => {
     const filtered = events.filter((event) => {
-      const yearInRange =
-        parseInt(event.year) >= parseInt(yearRange.start) &&
-        parseInt(event.year) <= parseInt(yearRange.end);
-      const yearMatch =
-        selectedYears.length === 0 || selectedYears.includes(event.year);
-      return yearInRange && yearMatch;
+      const eventStartDate = new Date(event.durationStartDate);
+      const eventEndDate = new Date(event.durationEndDate);
+
+      if (!dateRange?.from || !dateRange?.to) return true;
+
+      return eventStartDate >= dateRange.from && eventEndDate <= dateRange.to;
     });
     setFilteredEvents(filtered);
     updateQueryParams();
-  }, [events, yearRange, selectedYears, updateQueryParams]);
+  }, [events, dateRange, updateQueryParams]);
 
   const getChartData = () => {
     const data: { [key: string]: number } = {};
     filteredEvents.forEach((event) => {
-      const key = event[metric];
+      const key = new Date(event.durationStartDate).toLocaleDateString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "short",
+        }
+      );
       data[key] = (data[key] || 0) + 1;
     });
-    return Object.entries(data).map(([name, value]) => ({ name, value }));
+    return Object.entries(data)
+      .sort((a, b) => (new Date(a[0]) > new Date(b[0]) ? 1 : -1))
+      .map(([name, value]) => ({ name, value }));
   };
 
   const renderChart = () => {
@@ -212,22 +224,22 @@ function ConductedEventDashboard() {
   const downloadTableAsCSV = () => {
     const headers = [
       "Year",
-      "Event Name",
-      "Participant Count",
-      "Duration From",
-      "Duration To",
-      "Activity Report",
+      "Program Name",
+      "Participants",
+      "Start Date",
+      "End Date",
+      "Document Link",
     ];
     const csvContent = [
       headers.join(","),
       ...filteredEvents.map((event) =>
         [
           event.year,
-          `"${event.eventName.replace(/"/g, '""')}"`,
-          event.participantCount,
-          event.durationFrom,
-          event.durationTo,
-          event.activityReport,
+          `"${event.nameOfProgram.replace(/"/g, '""')}"`,
+          event.noOfParticipants,
+          new Date(event.durationStartDate).toLocaleDateString(),
+          new Date(event.durationEndDate).toLocaleDateString(),
+          event.documentLink,
         ].join(",")
       ),
     ].join("\n");
@@ -251,7 +263,7 @@ function ConductedEventDashboard() {
         Conducted Events Analysis Dashboard
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Visualization</CardTitle>
@@ -277,109 +289,10 @@ function ConductedEventDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Analysis Metric</CardTitle>
+            <CardTitle>Date Range Filter</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select
-              value={metric}
-              onValueChange={(value: "year" | "eventName") => setMetric(value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select metric" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="year">Year</SelectItem>
-                <SelectItem value="eventName">Event Name</SelectItem>
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Year Range</CardTitle>
-          </CardHeader>
-          <CardContent className="flex space-x-2">
-            <div className="flex-1">
-              <Label htmlFor="yearStart">Start</Label>
-              <Input
-                id="yearStart"
-                type="number"
-                min="2000"
-                max="2099"
-                value={yearRange.start}
-                onChange={(e) =>
-                  setYearRange({ ...yearRange, start: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex-1">
-              <Label htmlFor="yearEnd">End</Label>
-              <Input
-                id="yearEnd"
-                type="number"
-                min="2000"
-                max="2099"
-                value={yearRange.end}
-                onChange={(e) =>
-                  setYearRange({ ...yearRange, end: e.target.value })
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Year Filter</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4">
-              {[
-                "2000",
-                "2001",
-                "2002",
-                "2003",
-                "2004",
-                "2005",
-                "2006",
-                "2007",
-                "2008",
-                "2009",
-                "2010",
-                "2011",
-                "2012",
-                "2013",
-                "2014",
-                "2015",
-                "2016",
-                "2017",
-                "2018",
-                "2019",
-                "2020",
-                "2021",
-                "2022",
-                "2023",
-                "2024",
-              ].map((year) => (
-                <div key={year} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`year-${year}`}
-                    checked={selectedYears.includes(year)}
-                    onCheckedChange={(checked) => {
-                      setSelectedYears(
-                        checked
-                          ? [...selectedYears, year]
-                          : selectedYears.filter((y) => y !== year)
-                      );
-                    }}
-                  />
-                  <Label htmlFor={`year-${year}`}>{year}</Label>
-                </div>
-              ))}
-            </div>
+            <DatePickerWithRange date={dateRange} setDate={setDateRange} />
           </CardContent>
         </Card>
       </div>
@@ -412,29 +325,35 @@ function ConductedEventDashboard() {
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
                       <th className="px-6 py-3">Year</th>
-                      <th className="px-6 py-3">Event Name</th>
-                      <th className="px-6 py-3">Participant Count</th>
-                      <th className="px-6 py-3">Duration From</th>
-                      <th className="px-6 py-3">Duration To</th>
-                      <th className="px-6 py-3">Activity Report</th>
+                      <th className="px-6 py-3">Program Name</th>
+                      <th className="px-6 py-3">Participants</th>
+                      <th className="px-6 py-3">Start Date</th>
+                      <th className="px-6 py-3">End Date</th>
+                      <th className="px-6 py-3">Document</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredEvents.map((event, index) => (
                       <tr key={index} className="bg-white border-b">
                         <td className="px-6 py-4">{event.year}</td>
-                        <td className="px-6 py-4">{event.eventName}</td>
-                        <td className="px-6 py-4">{event.participantCount}</td>
-                        <td className="px-6 py-4">{event.durationFrom}</td>
-                        <td className="px-6 py-4">{event.durationTo}</td>
+                        <td className="px-6 py-4">{event.nameOfProgram}</td>
+                        <td className="px-6 py-4">{event.noOfParticipants}</td>
+                        <td className="px-6 py-4">
+                          {new Date(
+                            event.durationStartDate
+                          ).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4">
+                          {new Date(event.durationEndDate).toLocaleDateString()}
+                        </td>
                         <td className="px-6 py-4">
                           <a
-                            href={event.activityReport}
+                            href={event.documentLink}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                           >
-                            View Report
+                            View Document
                           </a>
                         </td>
                       </tr>
@@ -451,31 +370,32 @@ function ConductedEventDashboard() {
                 {filteredEvents.map((event, index) => (
                   <Card key={index}>
                     <CardHeader>
-                      <CardTitle>{event.eventName}</CardTitle>
+                      <CardTitle>{event.nameOfProgram}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p>
                         <strong>Year:</strong> {event.year}
                       </p>
                       <p>
-                        <strong>Participant Count:</strong>{" "}
-                        {event.participantCount}
+                        <strong>Participants:</strong> {event.noOfParticipants}
                       </p>
                       <p>
-                        <strong>Duration From:</strong> {event.durationFrom}
+                        <strong>Start Date:</strong>{" "}
+                        {new Date(event.durationStartDate).toLocaleDateString()}
                       </p>
                       <p>
-                        <strong>Duration To:</strong> {event.durationTo}
+                        <strong>End Date:</strong>{" "}
+                        {new Date(event.durationEndDate).toLocaleDateString()}
                       </p>
                       <p>
-                        <strong>Activity Report:</strong>{" "}
+                        <strong>Document:</strong>{" "}
                         <a
-                          href={event.activityReport}
+                          href={event.documentLink}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline"
                         >
-                          View Report
+                          View Document
                         </a>
                       </p>
                     </CardContent>

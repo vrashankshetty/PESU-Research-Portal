@@ -1,8 +1,4 @@
-import { PgEnum, pgEnum, pgTable, text, date, timestamp } from 'drizzle-orm/pg-core';
-
-const campusEnum: PgEnum<['EC', 'RR', 'HSN']> = pgEnum('campus', ['EC', 'RR', 'HSN']);
-
-const departmentEnum: PgEnum<['EC', 'CSE']> = pgEnum('dept', ['EC', 'CSE']);
+import { pgTable, text, date, timestamp } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('users', {
     id: text('id').primaryKey(),

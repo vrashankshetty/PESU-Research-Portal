@@ -2,8 +2,7 @@ import Joi from 'joi';
 
 
 export const departmentAttendedActivitySchema = Joi.object({
-  nameOfProgram: Joi.string().required(),
-  noOfParticipants: Joi.number().integer().required(),
+  programTitle: Joi.string().required(),
   durationStartDate: Joi.date().required(),
   durationEndDate: Joi.date().required(),
   documentLink: Joi.string().allow('').default(""),
