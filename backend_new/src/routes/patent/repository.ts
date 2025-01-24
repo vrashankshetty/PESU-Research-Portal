@@ -1,5 +1,5 @@
 
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray } from 'drizzle-orm';
 import db from '../../db';
 import { patent } from '../../models/patent';
 import { errs } from '../../utils/catch-error';
@@ -7,7 +7,6 @@ import { Patent } from '../../types';
 import { generateRandomId } from '../../utils/generate-id';
 import { patentUser } from '../../models/patentUser';
 import { user } from '../../models/user';
-
 
 
 export async function getEachPatent(id: string,userId:string,role:string,accessTo:string) {
@@ -229,3 +228,73 @@ export async function deletePatent(id:string,userId:string) {
         errs(error);
     }
 }
+
+
+
+
+export async function seedPatent(patentData: Patent,name:string) {
+    let patentId = '';
+    const { teacherIds, ...expData } = patentData;
+    console.log("uname",name)
+    try {
+        const user1 = await db.query.user.findFirst({
+            where: ilike(user.name,`%${name}%`)
+        })
+        console.log("user1",user1)
+        if(!user1){
+            throw new Error('User not found');
+        }
+
+         const [insertedPatent] = await db.insert(patent).values({
+            id: generateRandomId(),
+            teacherAdminId:user1.id,
+            ...patentData,
+            campus:user1.campus,
+            dept:user1.dept,
+        }).returning();
+
+
+        if (!insertedPatent?.id) {
+            throw new Error('Error creating Patent');
+        }
+
+        patentId = insertedPatent.id;
+
+        teacherIds.push(name);
+
+        const newteacherIds = [...new Set(teacherIds)];
+        console.log("newteacherIds",newteacherIds)
+        if (newteacherIds.length > 0) {
+            await Promise.all(
+                newteacherIds.map(async (tId) => {
+                    const user1 = await db.query.user.findFirst({
+                        where: ilike(user.name,`%${tId}%`)
+                    })
+        
+                    if (!user1) {
+                        throw new Error('User not found');
+                    }
+        
+                    await db.insert(patentUser).values({
+                        id: generateRandomId(),
+                        userId: user1.id,
+                        patentId,
+                    }).returning();
+                })
+            );
+        }
+
+        return { message: 'Successful' };
+
+    } catch (error) {
+        if (patentId) {
+            await Promise.all([
+                db.delete(patent).where(eq(patent.id, patentId)),
+                db.delete(patentUser).where(eq(patentUser.patentId, patentId))
+            ]);
+        }
+        console.log(error);
+        errs(error); 
+    }
+}
+

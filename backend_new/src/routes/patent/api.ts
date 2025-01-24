@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPatent, deletePatent, getAllPatent, getEachPatent, updatePatent } from './repository';
+import { createPatent, deletePatent, getAllPatent, getEachPatent, seedPatent, updatePatent } from './repository';
 import { catchError } from '../../utils/catch-error';
 import { patentSchema } from './schema';
 import handleValidationError from '../../utils/handle-validation-error';
@@ -102,6 +102,28 @@ Router.delete('/:id', async (req, res) => {
             return res.status(200).send(patentData?.data);
         }
         return res.status(403).send(patentData?.data)
+    } catch (error) {
+        catchError(error, res);
+    }
+});
+
+
+
+Router.post('/seed', async (req, res) => {
+    try {
+        const data = req.body;
+        const {name,...rest} =data;
+        const { error } = patentSchema.validate(
+            rest,
+            { abortEarly: false },
+        );
+        if (error) {
+            console.log("error",error)
+            return handleValidationError(error, res);
+        }
+        
+        const patentData = await seedPatent(rest,name);
+        res.status(201).send(patentData);
     } catch (error) {
         catchError(error, res);
     }

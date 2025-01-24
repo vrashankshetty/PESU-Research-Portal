@@ -6,14 +6,16 @@ from datetime import datetime
 import numpy as np
 import json
 
+# Check if the necessary arguments are passed
 if len(sys.argv) != 3:
     print("Usage: python seed.py <path_to_excel_file> <api_url>")
     sys.exit(1)
 
+# Get the Excel file path and API URL from the command-line arguments
 excel_file = sys.argv[1]
 api_url = sys.argv[2]
 
-
+# Check if the file exists
 if not os.path.isfile(excel_file):
     print(f"Error: File '{excel_file}' not found!")
     sys.exit(1)
@@ -33,22 +35,21 @@ data['password'] = data['password']
 data['panNo'] = data['panNo']
 data['phno'] = data['phno'].fillna('').astype(str)
 data['designation'] = data['designation']
-data['dept'] = "Computer Science and Engineering"
-data['campus'] = data['campus']
-data['qualification'] = data['qualification']
-data['expertise'] = data['expertise']
-data['dateofJoining'] = data['dateofJoining']
-data['totalExpBfrJoin'] = data['totalExpBfrJoin']
-data['googleScholarId'] = data['googleScholarId']
-data['role'] = data['role']
-data['accessTo'] = data['accessTo']
-data['sId'] = data['sId']
-data['oId'] = data['oId']
-data['profileImg'] = data['profileImg']
+data['dept'] = data['dept']
+data['campus'] = 'EC'
+data['qualification'] = 'to_be_filled'
+data['expertise'] = 'to_be_filled'
+data['dateofJoining'] = pd.to_datetime(data['dateofJoining'], dayfirst=True, errors='coerce').fillna(datetime.today().date())
+data['dateofJoining'] = data['dateofJoining'].apply(lambda x: x.isoformat() if pd.notnull(x) else None)
+data['totalExpBfrJoin'] = '5'
+data['googleScholarId'] = '0001'
+data['sId'] = '0001'
+data['oId'] = '0001'
+data['profileImg'] = 'https://static.vecteezy.com/system/resources/previews/005/129/844/non_2x/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg'
 
 # Select only the required fields
 fields = ['empId','name', 'password', 'campus', 'qualification', 'expertise', 'panNo', 'phno', 'designation','dept',
-          'dateofJoining', 'totalExpBfrJoin', 'googleScholarId','role','accessTo','sId', 'oId', 'profileImg']
+          'dateofJoining', 'totalExpBfrJoin', 'googleScholarId', 'sId', 'oId', 'profileImg']
 
 # Create a list of dictionaries with only these fields
 data_list = data[fields].to_dict(orient='records')
@@ -63,7 +64,7 @@ print(data_list)
 # print(data_dicts)
 # Send data to the API
 # Save the transformed data_list to a new CSV file
-output_csv = "./transformed_data.csv"
+output_csv = "transformed_data.csv"
 
 # Convert data_list back to a DataFrame
 transformed_data = pd.DataFrame(data_list)

@@ -1,11 +1,12 @@
 
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray } from 'drizzle-orm';
 import db from '../../db';
 import { errs } from '../../utils/catch-error';
 import { Conference } from '../../types';
 import { generateRandomId } from '../../utils/generate-id';
 import { conference } from '../../models/conference';
 import { conferenceUser } from '../../models/conferenceUser';
+import { user } from '../../models/user';
 
 
 
@@ -229,5 +230,70 @@ export async function deleteConference(id:string,userId:string) {
     } catch (error) {
         console.log(error)
         errs(error);
+    }
+}
+
+
+
+export async function seedConference(patentData: Conference,name:string) {
+    let patentId = '';
+    const { teacherIds, ...expData } = patentData;
+    try {
+        const user1 = await db.query.user.findFirst({
+            where: ilike(user.name,`%${name}%`)
+        })
+        if(!user1){
+            throw new Error('User not found');
+        }
+
+         const [insertedPatent] = await db.insert(conference).values({
+            id: generateRandomId(),
+            teacherAdminId:user1.id,
+            ...patentData,
+            campus:user1.campus,
+            dept:user1.dept,
+        }).returning();
+
+
+        if (!insertedPatent?.id) {
+            throw new Error('Error creating Patent');
+        }
+
+        patentId = insertedPatent.id;
+
+        teacherIds.push(name);
+        console.log("name",name)
+        const newteacherIds = [...new Set(teacherIds)];
+        if (newteacherIds.length > 0) {
+            await Promise.all(
+                newteacherIds.map(async (tId) => {
+                    const user1 = await db.query.user.findFirst({
+                        where: ilike(user.name,`%${tId}%`)
+                    })
+        
+                    if (!user1) {
+                        throw new Error('User not found');
+                    }
+        
+                    await db.insert(conferenceUser).values({
+                        id: generateRandomId(),
+                        userId: user1.id,
+                        conferenceId:patentId,
+                    }).returning();
+                })
+            );
+        }
+
+        return { message: 'Successful' };
+
+    } catch (error) {
+        if (patentId) {
+            await Promise.all([
+                db.delete(conference).where(eq(conference.id, patentId)),
+                db.delete(conferenceUser).where(eq(conferenceUser.conferenceId, patentId))
+            ]);
+        }
+        console.log(error);
+        errs(error); 
     }
 }

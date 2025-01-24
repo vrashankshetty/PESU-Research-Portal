@@ -1,5 +1,5 @@
 
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray } from 'drizzle-orm';
 import db from '../../db';
 import { journal } from '../../models/journal';
 import { errs } from '../../utils/catch-error';
@@ -229,3 +229,70 @@ export async function deleteJournal(id:string,userId:string) {
         errs(error);
     }
 }
+
+
+
+export async function seedJournal(patentData: Journal,name:string) {
+    let patentId = '';
+    const { teacherIds, ...expData } = patentData;
+    try {
+        const user1 = await db.query.user.findFirst({
+            where: ilike(user.name,`%${name}%`)
+        })
+        if(!user1){
+            throw new Error('User not found');
+        }
+
+         const [insertedPatent] = await db.insert(journal).values({
+            id: generateRandomId(),
+            teacherAdminId:user1.id,
+            ...patentData,
+            campus:user1.campus,
+            dept:user1.dept,
+        }).returning();
+
+
+        if (!insertedPatent?.id) {
+            throw new Error('Error creating Patent');
+        }
+
+        patentId = insertedPatent.id;
+
+        teacherIds.push(name);
+
+        const newteacherIds = [...new Set(teacherIds)];
+        console.log("name",name)
+        if (newteacherIds.length > 0) {
+            await Promise.all(
+                newteacherIds.map(async (tId) => {
+                    const user1 = await db.query.user.findFirst({
+                        where: ilike(user.name,`%${tId}%`)
+                    })
+                    
+                    if (!user1) {
+                        throw new Error('User not found');
+                    }
+        
+                    await db.insert(journalUser).values({
+                        id: generateRandomId(),
+                        userId: user1.id,
+                        journalId:patentId,
+                    }).returning();
+                })
+            );
+        }
+
+        return { message: 'Successful' };
+
+    } catch (error) {
+        if (patentId) {
+            await Promise.all([
+                db.delete(journal).where(eq(journal.id, patentId)),
+                db.delete(journalUser).where(eq(journalUser.journalId, patentId))
+            ]);
+        }
+        console.log(error);
+        errs(error); 
+    }
+}
+

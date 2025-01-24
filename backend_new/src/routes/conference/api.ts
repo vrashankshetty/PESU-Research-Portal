@@ -1,5 +1,5 @@
 import express from 'express';
-import { createConference,updateConference,deleteConference,getAllConference,getEachConference } from './repository';
+import { createConference,updateConference,deleteConference,getAllConference,getEachConference, seedConference } from './repository';
 import { catchError } from '../../utils/catch-error';
 import { conferenceSchema } from './schema';
 import handleValidationError from '../../utils/handle-validation-error';
@@ -100,6 +100,29 @@ Router.delete('/:id', async (req, res) => {
         }
         return res.status(403).send(confData?.data)
     } catch (error) {
+        catchError(error, res);
+    }
+});
+
+
+
+Router.post('/seed',async (req, res) => {
+    try {
+        const data = req.body;
+        const {name,...rest}=data;
+        const { error } = conferenceSchema.validate(
+            rest,
+            { abortEarly: false },
+        );
+        if (error) {
+            console.log("error",error)
+            return handleValidationError(error, res);
+        }
+        
+        const journalData = await seedConference(rest,name);
+        res.status(201).send(journalData);
+    } catch (error) {
+        console.log("catch error",error)
         catchError(error, res);
     }
 });

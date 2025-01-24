@@ -23,7 +23,7 @@ app.use(
     }),
 );
 app.use(errorHandler);
-app.use(rateLimiter);
+// app.use(rateLimiter);
 
 app.use('/api/v1', routes);
 export default app;

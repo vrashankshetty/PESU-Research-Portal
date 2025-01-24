@@ -1,0 +1,52 @@
+Unnamed: 0,Unnamed: 1,*Note: Please enter the details in all the columns. Once the accepted paper is published kindly enter the DOI,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6,Unnamed: 7,Unnamed: 8,Unnamed: 9,Unnamed: 10,Unnamed: 11,Unnamed: 12,Unnamed: 13,Unnamed: 14,Unnamed: 15
+,,,,,,,,,,,,,,,
+Sno,title,Faculty Name,centre name,Month & Year of Publication,Publication Type(Journal/Conference/ Book Chapter),Title of the Paper/Book/Book chapter,Journal Name/Book /Conference ,Presented/    Published,Total number of authors,Q1/Q2/Q3/Q4/Scopus /WOS Indexed/Not Applicable,Impact Factor,DOI/ link of the paper,Capstone/ Noncapstone,Authors,Remarks
+1,,Dr. Bharathi R,CodMaV,13th Jan 2024,Conference,Automated Gym Exercise Form Checker: Deep-Learning Based Pose Estimation,SmartCom 2024- SPRINGER Conference,Published,5,Scopus,,https://doi.org/10.1007/978-981-97-1320-2_7,Capstone,"Sudhir Manivannan, Yuvan Pradhan,Zain Muhammed, H. Pooja, R. Bharathi",
+2,,Dr. Sandesh B J  and Dr. Bharathi R,CodMaV,13th Jan 2024,Conference,Player Performance Analysis,SmartCom 2024- SPRINGER Conference,Published ,5,Scopus,,https://doi.org/10.1007/978-981-97-1329-5_27,Non Capstone,,
+3,,Dr. Arti Arya,C3I,2024-01-01 00:00:00,Journal,Ensemble of Multimodal Deep Learning Models for Violin Bowing Techniques Classification,Journal of Advances in Information Technology,Published,5,SCOPUS(Q2),0.32,https://doi.org/10.12720/jait.15.1.40-48,Non Capstone ,"Zain Muhammed, Nagamanoj Karunakaran, Pranamya P Bhat, Arti Arya",
+4,,Dr. L Kamatchi Priya,C3I,2024,Conference,A Hybrid Model Approach for Advanced Disease Identification in Precision Agriculture,"International Conference on Computing and Machine Learning (CML 2024)
+Lecture Notes in Networks and Systems (LNNS)",Published,5,,,10.1109/InC460750.2024.10649143,Capstone ,"Hemanth, Mayank, vignesh, Nagesh, Kamatchi  Priya L",
+5,,Dr. Alpha Vijayan                ,C3I,Accepted on 8th Jan 2024,Journal,Intellectual Play with Kids:Building an interactive toy by using LSTM model,"International Conference on Engineering & Technology (ICET-24)"" taking place in Hyderabad - India on 10th February 2024.",Published,5,Scopus,,efaidnbmnnnibpcajpcglclefindmkaj/https://romanpub.com/resources/ijaet20v5-4-2023-143.pdf,Capstone,"Reema Ayeli
+Monika K.M
+Dhanush
+Murali Raghevendra
+Alpha Vijayan",
+6,,Dr. Alpha Vijayan                ,C3I,Accepted on 19th Jan 2024,Conference,Realistic Face Image Generation With Age and Ethnicity prediction for criminal identification,"International Conference on Computer, Cybernetics and Education (ICCCE-2024)” 23rd & 24th on February 2024 in Jakarta, Indonesia organized by Institute for Educational Research and Publication (IFERP) Indonesia Society.",Presented,5,,,,Capstone,"Adarsh Puranik K
+Suraj P Bhadania
+K Vasanth Karthik
+Yogitha C Shekhar
+Alpha Vijayan",
+7,,Dr. Alpha Vijayan,C3I,Accepted on 17 Feb 2024,Conference,Unlocking Imagination: Story Generation from Autistic Childrens’ artwork using a fusion of Computer Vision and NLP,"International Conference on Health Informatics, Intelligent Systems and Networking Technologies Organized by the Department of Computer Science and Engineering, Manipal Institute of Technology, Manipal, Karnataka, India on March 14 and 15, 2024- (HINT 24) ;  Lecture Notes in Networks and Systems (LNNS)",Presented,5,,,,Capstone,"Shriya Harish 
+Safiya Nawar
+Chaitra B N
+Rohan Amin
+Alpha Vijayan",
+8,,Dr. Alpha Vijayan,C3I,Accepted on 18 Feb 2024,Conference,Real-time Pothole Detection Android Smartphone Application for Road Maintenance,"International Conference on Data Intelligence & Secure Computing (DISC 2024), Organized by Department of Computer Science and Engineering,School of Computing,Amrita Vishwa Vidyapeetham, Chennai,Tamil Nadu, India",Presented,5,,,,Capstone,"Aayudh Bhattacharya
+Adarsh Sanjeev Nair
+Anamika Dey
+Arihan Awasthi
+Alpha Vijayan",
+9,,Dr. Sarasvathi V,CCNCS,2024-02-01 00:00:00,Conference,End to End Encrypted Messaging Application using ORDEX,"International Conference on Data Intelligence & Secure Computing (DISC 2024), Organized by Department of Computer Science and Engineering,School of Computing,Amrita Vishwa Vidyapeetham, Chennai,Tamil Nadu, India",Presented,5,Scopus,,,Capstone,"Vishwas M, V Raghav Loknath, Vishwa Mehul Mehta, Vinti Agrawal, Sarasvathi V",
+10,,Dr. Sarasvathi V,CCNCS,"28th June, 2024",Conference,Augmented Reality Visualization of Menu Items using Image Reconstruction,"2024 the 8th International Conference on Virtual and Augmented Reality Simulations (ICVARS 2024), Melbourne, Australia, March 14-16, 2024",Published,5,Scopus,,https://doi.org/10.1145/3657547.3657554,Capstone,"Yashwith D Alva, Namrata Shrikant Janawade, Avani Jain, V Nimish Bhasu, Sarasvathi V,",
+11,,Dr. Sarasvathi V,CCNCS,"Presented on 16th Feb ,2024",Conference,Framework for Brute-Force attack detection using Federated Learning,"BROADNETS 2024 - 14th International Conference on Broadband Communications, Networks, and Systems, February 16-17, 2024,Vardhaman College of Engineering,Hyderabad, India",Presented,5,Scopus,,,Capstone,"Chethana Datta J, Ananya S, Mukund Deepak,
+Nishanth Mungara, and Sarasvathi V",
+12,,Dr. Sarasvathi V,CCNCS,"Presented on 16th Feb,2024",Conference,Real Time Phishing Detection using Lexical Analysis and Visual Similarity,"BROADNETS 2024 - 14th International Conference on Broadband Communications, Networks, and Systems, February 16-17, 2024,Vardhaman College of Engineering,Hyderabad, India",Presented,5,Scopus,,,Capstone,"Gnanesh A, Dasa A Deepesh, Bhargav Hegde,
+Shreehari Vyasamudri and Sarasvathi V",
+13,,Dr. Sarasvathi V,CCNCS,"10th June,2024",Conference,A Federated Learning Approach for Disease Prediction and Remedies Recommendation,9th International conference for convergence in technology ,Published,5,Scopus,,https://doi.org/10.1109/I2CT61223.2024.10544309,Capstone,"Sehag A, Varshini Jayasankar, Setti Durga Poojitha, Shreyas Sai Raman, Sarasvathi V",
+14,,Dr. Prajwala Ranganath Talanki,CodMaV,Presented on 12th Jan 2024,Conference,Importance of Drug Features in Drug-Drug Interaction : A Comparative Study,2024 Springer International Conference on Multi-Strategy Learning Environment ICMSLE-2024.,Published ,5,scopus,,https://doi.org/10.1007/978-981-97-1488-9_36,Capstone,"Naveen,Chethana,Shivangi,Sanjana and Prajwala",
+15,,Dr. Prajwala Ranganath Talanki,CodMaV,Accepted on 6th feb 2024,Conference,A comprehensive analysis of PCOS,9th International conference for convergence in technology ,Published ,4,scopus,,10.1109/I2CT61223.2024.10543283,Non Capstone,"Medha ,sheetal,Rickvi and Prajwala",
+16,,Dr. Prajwala Ranganath Talanki,CodMaV,accepted on 12th feb 2024,Conference,Crop Combination And Market Prediction using ML methods,9th International conference for convergence in technology ,Published ,5,scopus,,10.1109/I2CT61223.2024.10543457,Capstone,"Tarun, sreenidhi,Ashwathy,Dinesh and Prajwala",
+17,,Dr. Arti Arya,C3I,2024-08-01 00:00:00,Conference,A Distinctive Ensemble Approach for Unbiased Movie Recommendations using Variants of Graph Convolution Networks,"10th International Conference on Computer Technology Applications (ICCTA), Vienna, Austria",Published,2,SCOPUS,,https://doi.org/10.1145/3674558.3674599,Non Capstone,Priyansh Mathur and Arti Arya,
+18,,Dr. Arti Arya,C3I,2024-06-01 00:00:00,Conference,"A Hybrid Approach for Happy Emotion Analysis through Partition and Voronoi-density based Clustering and DistilBERT
+","IEEE 9th International Conference for Convergence in Technology, Pune, India( SCOPUS and WoS Indexed)",Published,3,SCOPUS and WoS,,10.1109/I2CT61223.2024.10543658,Non Capstone,"Kaashika A, Hasika, Arti Arya",
+19,,Dr. Arti Arya,C3I,2024-06-01 00:00:00,Conference,"An Empirical Study of Financial BERT Models for Sentiment Analysis and Cryptocurrency Price Correlation
+","IEEE 9th International Conference for Convergence in Technology, Pune, India( SCOPUS and WoS Indexed)",Published,2,SCOPUS and WoS,,10.1109/I2CT61223.2024.10543560,Non Capstone,"Harini, Arti Arya",
+20,,Dr. Arti Arya,C3I,2024-06-01 00:00:00,Conference,"Ensemble of Graph Neural Networks for Enhanced Financial Fraud Detection
+","IEEE 9th International Conference for Convergence in Technology, Pune, India( SCOPUS and WoS Indexed)",Published,5,SCOPUS and WoS,,10.1109/I2CT61223.2024.10543898,Non Capstone,"Abhishek C, Arti Arya, Nikhil M, L N Sriranga, Rohith Reddy",
+21,,"Dr. Arti Arya, Dr. Richa Sharma",C3I,2024-02-01 00:00:00,Journal,Multilevel Troll Classification of Twitter Data Using Machine Learning Techniques,International Journal of Computer Theory and Engineering( SCOPUS ),Published,6,SCOPUS(Q4),0.13,10.7763/IJCTE.2024.V16.1350,Capstone,"Susan Mathew K* , Deborah Alex, Nidhi Deshpande, Richa Sharma, Arti Arya, and D. P. Balendra",
+22,,Animesh Giri,CCNCS,2024-07-01 00:00:00,Conference,Techniques used in time series databases and their internals,"2024 the 9th International Conference on Big Data Analytics (ICBDA)
+March 16-18, 2024 @ Waseda University, Tokyo, Japan",Published,5,IEEE - Scopus Indexed ,,10.1109/ICBDA61153.2024.10607196,Capstone,"P K Navin Shrinivas, Mohamed Ayaan, Anirudh Rowjee, Vishal CE, Animesh Giri,",
+23,,Animesh Giri,CCNCS,Presented and under Publication,Conference ,"Exploring LLMs as a means for conducting Bias-free technical Interviews
+",2024 Intelligent Systems and Machine Learning Conference,Presented ,5,IEEE - Scopus Indexed ,,,Capstone,"Manodnya K H, Dishita Mahendrakar, Aadithya Vamshi V, ANIMESH GIRI and Pranay B V",
+24,,J Ruby Dinakar,CodMaV,Presented on 23rd March 2024,Conference ,Smart Traffic Management and Control System Using Deep Learning,Twelth international conference on contemporary engineering and technology ICCET 2024,Presented,5,SCOPUS,,,Capstone,"Abhay KP, Bhavik M, Narendra M, Saket CS, Ruby Dinakar",
+25,,Dr. Pooja Agarwal,C3I,Accepted in Feb 2024,Conference,Fostering Resilience: Machine Learning Models for Student Stress Prediction in Education,"U. Ananthanagu and P. Agarwal, ""Fostering Resilience: Machine Learning Models for Student Stress Prediction in Education,"" 2024 IEEE 9th International Conference for Convergence in Technology (I2CT), Pune, India, 2024, pp. 1-5.",Published,2,Scopus,,10.1109/I2CT61223.2024.10543492,Non Capstone,Pooja Agarwal and Ananthanagu,

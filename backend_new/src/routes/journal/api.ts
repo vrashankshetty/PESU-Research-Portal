@@ -1,5 +1,5 @@
 import express from 'express';
-import { createJournal, deleteJournal, getAllJournal, getEachJournal, updateJournal } from './repository';
+import { createJournal, deleteJournal, getAllJournal, getEachJournal, seedJournal, updateJournal } from './repository';
 import { catchError } from '../../utils/catch-error';
 import { journalSchema } from './schema';
 import handleValidationError from '../../utils/handle-validation-error';
@@ -104,6 +104,30 @@ Router.delete('/:id', async (req, res) => {
         catchError(error, res);
     }
 });
+
+
+
+Router.post('/seed',async (req, res) => {
+    try {
+        const data = req.body;
+        const {name,...rest}=data;
+        const { error } = journalSchema.validate(
+            rest,
+            { abortEarly: false },
+        );
+        if (error) {
+            console.log("error",error)
+            return handleValidationError(error, res);
+        }
+        
+        const journalData = await seedJournal(rest,name);
+        res.status(201).send(journalData);
+    } catch (error) {
+        console.log("catch error",error)
+        catchError(error, res);
+    }
+});
+
 
 
 export default Router;
