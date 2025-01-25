@@ -27,6 +27,7 @@ import axios from "axios";
 import Cookie from "js-cookie";
 import Link from "next/link";
 import { backendUrl } from "@/config";
+import { useAuth } from "@/context/auth";
 const formSchema = z.object({
   empId: z.string().min(6, { message: "EMP ID must be at least 6 characters" }),
   password: z
@@ -38,6 +39,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
+  const {setIsLoggedIn } = useAuth();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -67,7 +69,13 @@ export default function LoginPage() {
           expires: 1,
           domain: "localhost",
         });
-        router.push(`/`);
+        toast({
+          variant: "mine",
+          title: "Successfully Logged In",
+          description:"Welcome to the PES portal",
+        });
+        setIsLoggedIn(true)
+        window.location.href = '/'; 
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

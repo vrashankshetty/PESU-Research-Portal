@@ -33,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import { backendUrl } from "@/config";
+import Cookie from 'js-cookie';
 
 type Conference = {
   teacherIds: string[];
@@ -85,7 +86,7 @@ function ConferenceDashboard() {
     params.set("campuses", selectedCampuses.join(","));
     params.set("depts", selectedDepts.join(","));
     params.set("cores", selectedCores.join(","));
-    router.push(`?${params.toString()}`);
+    router.replace(`?${params.toString()}`);
   }, [
     chartType,
     metric,
@@ -100,6 +101,7 @@ function ConferenceDashboard() {
   useEffect(() => {
     const fetchConferences = async () => {
       try {
+        console.log("Cookies",Cookie.get("accessToken"));
         const response = await axios.get(
           `${backendUrl}/api/v1/conference`,
           { withCredentials: true }
@@ -135,6 +137,7 @@ function ConferenceDashboard() {
     );
   }, [searchParams]);
 
+  
   useEffect(() => {
     const filtered = conferences.filter((conference) => {
       const yearInRange =

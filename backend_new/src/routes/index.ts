@@ -17,9 +17,9 @@ import authenticateUser from '../middleware/authenticate-user';
 const router = express.Router();
 
 router.use('/user',authenticateUser,user);
-router.use('/journal', journal);
-router.use('/conference',conference);
-router.use('/patent',patent);
+router.use('/journal',authenticateUser,journal);
+router.use('/conference',authenticateUser,conference);
+router.use('/patent',authenticateUser,patent);
 router.use('/auth',auth);
 router.use('/departmentConductedActivity',authenticateUser,departmentConductedActivity);
 router.use('/departmentAttendedActivity',authenticateUser,departmentAttendedActivity);

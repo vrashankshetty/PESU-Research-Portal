@@ -1,10 +1,13 @@
 import express from 'express';
 import { catchError } from '../../utils/catch-error';
 import handleValidationError from '../../utils/handle-validation-error';
-import { checkUser, createAccessToken, createRefreshToken, createUser, verifyLogin } from './repository';
+import { checkUser, createAccessToken, createRefreshToken, createUser, verifyLogin, verifyToken } from './repository';
 import { loginSchema, userSchema } from './schema';
 import cookie from 'cookie';
 import authenticateUser from '../../middleware/authenticate-user';
+import db from '../../db';
+import { user } from '../../models/user';
+import { eq } from 'drizzle-orm';
 
 
 const Router = express.Router();
@@ -33,25 +36,25 @@ Router.post('/login', async (req, res) => {
 
         date.setFullYear(date.getFullYear() + 1);
 
-        res.setHeader(
-            'Set-Cookie',
-            cookie.serialize('refreshToken', refreshToken, {
-                httpOnly: true,
-                expires: date,
-                sameSite: 'strict',
-                secure: false,
-                path: '/',
-                domain: 'localhost',
-            }),
-             );
-        //Only for testing
-        res.cookie("accessToken", accessToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                path: "/",
-                domain: 'localhost',
-        })
+        // res.setHeader(
+        //     'Set-Cookie',
+        //     cookie.serialize('refreshToken', refreshToken, {
+        //         httpOnly: true,
+        //         expires: date,
+        //         sameSite: 'strict',
+        //         secure: false,
+        //         path: '/',
+        //         domain: 'localhost',
+        //     }),
+        //      );
+        // //Only for testing
+        // // res.cookie("accessToken", accessToken, {
+        // //         httpOnly: true,
+        // //         secure: true,
+        // //         sameSite: 'strict',
+        // //         path: "/",
+        // //         domain: 'localhost',
+        // // })
 
         res.status(200).send({
                 message: 'Successfully logged in',
@@ -95,11 +98,25 @@ Router.post('/register', async (req, res) => {
 });
 
 
-Router.get('/verifyToken',authenticateUser, async (req, res) => {
+Router.post('/verifyToken', async (req, res) => {
     try {
-        const user = (req as any).user;
+        const data= req.body;
+        const access_token = data.access_token;
+        console.log("token..",data)
+        if (!access_token) {
+            throw new Error('Unauthorized');
+        }
+        
+        const userTokenData = verifyToken(access_token);
+        console.log("userData from token",userTokenData)
+        if (userTokenData) {
+            const result = await db.select().from(user).where(eq(user.id, userTokenData.id));
+            if (result.length === 0) {
+                throw new Error('Account has been deleted');
+            }
+        }
         res.status(200).send({
-            user:user
+           message:"Token verified"
         });
     } catch (error) {
         console.log("catch error",error)

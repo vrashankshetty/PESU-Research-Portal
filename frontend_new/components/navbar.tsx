@@ -5,24 +5,28 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import Cookie from "js-cookie";
 import { Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/auth";
 
 function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const{isLoggedIn,setIsLoggedIn}=useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const router = useRouter();
+  const accessToken = Cookie.get("accessToken");
   useEffect(() => {
-    const tokenFromCookie = Cookie.get("accessToken");
-    console.log("Access Token:", tokenFromCookie);
-
-    if (tokenFromCookie) {
+    if (accessToken) {
       setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
-  }, []);
+  }, []); 
 
   const handleLogout = () => {
-    Cookie.remove("accessToken");
+    Cookie.remove("accessToken", { path: '/' });  // Specify path
     setIsLoggedIn(false);
+    window.location.href = '/login';  // Use window.location instead of router
   };
+  
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

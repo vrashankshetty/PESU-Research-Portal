@@ -44,7 +44,7 @@ data['role'] = data['role']
 data['accessTo'] = data['accessTo']
 data['sId'] = data['sId']
 data['oId'] = data['oId']
-data['profileImg'] = data['profileImg']
+data['profileImg'] = 'https://static.vecteezy.com/system/resources/previews/005/129/844/non_2x/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg'
 
 # Select only the required fields
 fields = ['empId','name', 'password', 'campus', 'qualification', 'expertise', 'panNo', 'phno', 'designation','dept',
@@ -53,25 +53,12 @@ fields = ['empId','name', 'password', 'campus', 'qualification', 'expertise', 'p
 # Create a list of dictionaries with only these fields
 data_list = data[fields].to_dict(orient='records')
 
-# Print the resulting list
+
 print(data_list)
 
-# print(data)
 
-# Convert DataFrame to list of dictionaries
-# data_dicts = data.to_dict('records')
-# print(data_dicts)
-# Send data to the API
-# Save the transformed data_list to a new CSV file
-output_csv = "./transformed_data.csv"
-
-# Convert data_list back to a DataFrame
-transformed_data = pd.DataFrame(data_list)
-
-# Write the DataFrame to a CSV file
 try:
-    transformed_data.to_csv(output_csv, index=False, encoding='utf-8')
-    print(f"Transformed data has been written to '{output_csv}' successfully.")
+    print(f"Transformed data successfully.")
 except Exception as e:
     print(f"Error writing data to CSV file: {e}")
 
