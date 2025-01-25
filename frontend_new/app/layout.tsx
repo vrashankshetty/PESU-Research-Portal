@@ -18,7 +18,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "PESU Research Portal",
-  description: "A portal to allow faculty to update and analyze their publications and patents",
+  description:
+    "A portal to allow faculty to update and analyze their publications and patents",
 };
 
 export default function RootLayout({
@@ -46,7 +47,7 @@ export default function RootLayout({
           <Toaster />
           <footer className="bg-sky-800 text-white py-4">
             <div className="container mx-auto px-4 text-center">
-              © 2024 Research Center. All rights reserved.
+              © {new Date().getFullYear()} Research Center. All rights reserved.
             </div>
           </footer>
         </div>

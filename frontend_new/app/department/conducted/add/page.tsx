@@ -24,15 +24,15 @@ import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   year: z.string().regex(/^\d{4}$/, "Year must be a 4-digit number"),
-  eventName: z.string().min(1, "Workshop/seminar name is required"),
-  participantCount: z.string().regex(/^\d+$/, "Please enter a valid number"),
-  durationFrom: z
+  nameOfProgram: z.string().min(1, "Program name is required"),
+  noOfParticipants: z.string().regex(/^\d+$/, "Please enter a valid number"),
+  durationStartDate: z
     .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, "From date must be in DD-MM-YYYY format"),
-  durationTo: z
+    .regex(/^\d{2}-\d{2}-\d{4}$/, "Start date must be in DD-MM-YYYY format"),
+  durationEndDate: z
     .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, "To date must be in DD-MM-YYYY format"),
-  activityReport: z.string().url("Please enter a valid URL"),
+    .regex(/^\d{2}-\d{2}-\d{4}$/, "End date must be in DD-MM-YYYY format"),
+  documentLink: z.string().url("Please enter a valid URL"),
 });
 
 export default function ConductedForm() {
@@ -45,11 +45,11 @@ export default function ConductedForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       year: "",
-      eventName: "",
-      participantCount: "",
-      durationFrom: "",
-      durationTo: "",
-      activityReport: "",
+      nameOfProgram: "",
+      noOfParticipants: "",
+      durationStartDate: "",
+      durationEndDate: "",
+      documentLink: "",
     },
   });
 
@@ -57,18 +57,18 @@ export default function ConductedForm() {
 
   useEffect(() => {
     if (dateRange?.from) {
-      form.setValue("durationFrom", format(dateRange.from, "dd-MM-yyyy"));
+      form.setValue("durationStartDate", format(dateRange.from, "dd-MM-yyyy"));
     }
     if (dateRange?.to) {
-      form.setValue("durationTo", format(dateRange.to, "dd-MM-yyyy"));
+      form.setValue("durationEndDate", format(dateRange.to, "dd-MM-yyyy"));
     }
   }, [dateRange, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    console.log(values);
     try {
       const response = await axios.post(
-        `${backendUrl}/api/v1/conducted`,
+        `${backendUrl}/api/v1/departmentConductedActivity`,
         values,
         {
           withCredentials: true,
@@ -127,7 +127,7 @@ export default function ConductedForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="participantCount"
+                  name="noOfParticipants"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Number of Participants</FormLabel>
@@ -144,13 +144,13 @@ export default function ConductedForm() {
               </div>
               <FormField
                 control={form.control}
-                name="eventName"
+                name="nameOfProgram"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name of Workshop/Seminar</FormLabel>
+                    <FormLabel>Name of Program</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter workshop/seminar name"
+                        placeholder="Enter program name"
                         {...field}
                       />
                     </FormControl>
@@ -167,19 +167,23 @@ export default function ConductedForm() {
                       setDateRange(range);
                     }}
                   />
-                  <FormMessage>{form.formState.errors.durationFrom?.message}</FormMessage>
-                  <FormMessage>{form.formState.errors.durationTo?.message}</FormMessage>
+                  <FormMessage>
+                    {form.formState.errors.durationStartDate?.message}
+                  </FormMessage>
+                  <FormMessage>
+                    {form.formState.errors.durationEndDate?.message}
+                  </FormMessage>
                 </div>
               </div>
               <FormField
                 control={form.control}
-                name="activityReport"
+                name="documentLink"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Link to Activity Report</FormLabel>
+                    <FormLabel>Link to Document</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="https://example.com/report"
+                        placeholder="https://example.com/document"
                         {...field}
                       />
                     </FormControl>

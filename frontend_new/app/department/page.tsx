@@ -12,13 +12,13 @@ type DepartmentOption = {
 
 const departmentOptions: DepartmentOption[] = [
   {
-    title: "Conducted - 3.3.2",
+    title: "Conducted Events",
     description: "Add or analyze details of conducted events",
     href: "conducted",
     icon: <NotebookPen className="h-8 w-8" />,
   },
   {
-    title: "Attended - 6.3.4",
+    title: "Attended Events",
     description: "Add or analyze details of attended events",
     href: "attended",
     icon: <CalendarCheck2 className="h-8 w-8" />,

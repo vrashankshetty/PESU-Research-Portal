@@ -56,8 +56,8 @@ Router.post('/',async (req, res) => {
             return handleValidationError(error, res);
         }
         
-        const confData = await createActivity(data,userId);
-        res.status(201).send(confData);
+        const activityData = await createActivity(data,userId);
+        res.status(201).send(activityData);
     } catch (error) {
         console.log("catch error",error)
         catchError(error, res);
@@ -78,11 +78,11 @@ Router.put('/:id', async (req, res) => {
             return handleValidationError(error, res);
         }
 
-        const confData = await updateActivity(data,id,userId);
-        if(confData?.status === 404){
-            return res.status(404).send(confData?.message);
+        const activityData = await updateActivity(data,id,userId);
+        if(activityData?.status === 404){
+            return res.status(404).send(activityData?.message);
         }
-        res.status(200).send(confData?.message);
+        res.status(200).send(activityData?.message);
     } catch (error) {
         catchError(error, res);
     }
@@ -93,11 +93,11 @@ Router.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
         const userId = (req as any).user.id;
-        const confData = await deleteActivity(id,userId);
-        if(confData?.status === 404){
-            return res.status(404).send(confData?.message);
+        const activityData = await deleteActivity(id,userId);
+        if(activityData?.status === 404){
+            return res.status(404).send(activityData?.message);
         }
-        return res.status(200).send(confData?.message)
+        return res.status(200).send(activityData?.message)
     } catch (error) {
         catchError(error, res);
     }
