@@ -86,7 +86,7 @@ function JournalDashboard() {
     params.set("campuses", selectedCampuses.join(","));
     params.set("depts", selectedDepts.join(","));
     params.set("qNos", selectedQNos.join(","));
-    router.push(`?${params.toString()}`);
+    router.replace(`?${params.toString()}`);
   }, [
     chartType,
     metric,

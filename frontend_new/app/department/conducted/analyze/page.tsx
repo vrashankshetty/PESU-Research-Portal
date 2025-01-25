@@ -62,8 +62,8 @@ function ConductedEventDashboard() {
   const updateQueryParams = useCallback(() => {
     const params = new URLSearchParams(searchParams);
     params.set("chartType", chartType);
-    if (dateRange?.from) params.set("dateStart", dateRange.from.toISOString());
-    if (dateRange?.to) params.set("dateEnd", dateRange.to.toISOString());
+    params.set("dateStart", dateRange?.from?.toISOString() || "");
+    params.set("dateEnd", dateRange?.to?.toISOString() || "");
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [chartType, dateRange, router, searchParams]);
 
@@ -103,10 +103,17 @@ function ConductedEventDashboard() {
     const filtered = events.filter((event) => {
       const eventStartDate = new Date(event.durationStartDate);
       const eventEndDate = new Date(event.durationEndDate);
-
-      if (!dateRange?.from || !dateRange?.to) return true;
-
-      return eventStartDate >= dateRange.from && eventEndDate <= dateRange.to;
+      // console.log(eventStartDate, dateRange.from, eventEndDate, dateRange.to);
+      if(dateRange?.from && dateRange?.to){
+        return eventStartDate >= dateRange.from && eventEndDate <= dateRange.to
+      }
+      if(dateRange?.from){
+          return eventStartDate >= dateRange.from 
+      }
+      if(dateRange?.to){
+          return eventEndDate <= dateRange.to
+      }
+      return true;
     });
     setFilteredEvents(filtered);
     updateQueryParams();

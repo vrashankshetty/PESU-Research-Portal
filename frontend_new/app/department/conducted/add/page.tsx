@@ -86,6 +86,7 @@ export default function ConductedForm() {
           variant: "mine",
         });
         form.reset();
+        setDateRange({ from: undefined, to: undefined });
       } else {
         throw new Error("Submission failed");
       }

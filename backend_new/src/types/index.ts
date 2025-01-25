@@ -118,6 +118,7 @@ export type StudentHigherStudies = {
     programGraduatedFrom: string;
     institutionAdmittedTo: string;
     programmeAdmittedTo: string;
+    documentLink?: string;
     year: string;
 };
 

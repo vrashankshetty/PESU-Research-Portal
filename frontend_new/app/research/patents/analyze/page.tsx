@@ -121,7 +121,7 @@ function ImprovedPatentDashboard() {
     params.set("yearEnd", yearRange.end);
     params.set("campuses", selectedCampuses.join(","));
     params.set("depts", selectedDepts.join(","));
-    router.push(`?${params.toString()}`);
+    router.replace(`?${params.toString()}`);
   }, [
     chartType,
     metric,

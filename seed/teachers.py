@@ -29,13 +29,13 @@ except Exception as e:
     sys.exit(1)
 print(data)
 # Transform data
-data['empId']=data['empId']
+data['empId'] = data['empId']
 data['name'] = data['name']
-data['password'] = data['password']
+data['password'] = data['empId'].apply(lambda x: x.split('@')[0] if '@' in x else x)
 data['panNo'] = data['panNo']
 data['phno'] = data['phno'].fillna('').astype(str)
 data['designation'] = data['designation']
-data['dept'] = data['dept']
+data['dept'] = 'CSE'
 data['campus'] = 'EC'
 data['qualification'] = 'to_be_filled'
 data['expertise'] = 'to_be_filled'
@@ -43,8 +43,6 @@ data['dateofJoining'] = pd.to_datetime(data['dateofJoining'], dayfirst=True, err
 data['dateofJoining'] = data['dateofJoining'].apply(lambda x: x.isoformat() if pd.notnull(x) else None)
 data['totalExpBfrJoin'] = '5'
 data['googleScholarId'] = '0001'
-data['role'] = data['role']
-data['accessTo'] = data['accessTo']
 data['sId'] = '0001'
 data['oId'] = '0001'
 data['profileImg'] = 'https://static.vecteezy.com/system/resources/previews/005/129/844/non_2x/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg'

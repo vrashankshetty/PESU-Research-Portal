@@ -10,6 +10,7 @@ export const studentHigherStudies = pgTable('studentHigherStudies', {
     programGraduatedFrom: text('programGraduatedFrom').notNull(),
     institutionAdmittedTo: text('institutionAdmittedTo').notNull(),
     programmeAdmittedTo: text('programmeAdmittedTo').notNull(),
+    documentLink: text('documentLink'),
     year: text('year').notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
