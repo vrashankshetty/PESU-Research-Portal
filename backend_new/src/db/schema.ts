@@ -11,3 +11,5 @@ export * from '../models/studentSportsCultural';
 export * from '../models/studentCareerCounselling'
 export * from '../models/studentEntranceExam';
 export * from '../models/studentHigherStudies';
+export * from  '../models/interSports';
+export * from  '../models/intraSports'

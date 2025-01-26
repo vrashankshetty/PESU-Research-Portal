@@ -12,6 +12,8 @@ import studentCareerCounselling from './studentCareerCounselling/api'
 import studentEntranceExam from './studentEntranceExam/api'
 import studentHigherStudies from './studentHigherStudies/api'
 import studentSportsCultural from './studentSportsCultural/api'
+import interSports from './interSports/api';
+import intraSports from './intraSports/api';
 import authenticateUser from '../middleware/authenticate-user';
 
 const router = express.Router();
@@ -27,5 +29,7 @@ router.use('/studentCareerCounselling',authenticateUser,studentCareerCounselling
 router.use('/studentEntranceExam',authenticateUser,studentEntranceExam);
 router.use('/studentHigherStudies',authenticateUser,studentHigherStudies);
 router.use('/studentSportsCultural',authenticateUser,studentSportsCultural);
-
+router.use('/interSports',authenticateUser,interSports);
+router.use('/intraSports',authenticateUser,intraSports);
+router.use('/studentSportsCultural',authenticateUser,studentSportsCultural);
 export default router;

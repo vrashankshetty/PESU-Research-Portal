@@ -145,3 +145,31 @@ export type DepartmentAttendedActivity = {
     documentLink?: string;
     year: string;
 };
+
+
+
+
+
+export type InterSports = {
+    nameOfStudent: string;
+    nameOfEvent: string;
+    link: string;
+    nameOfUniv: string;
+    yearOfEvent: string;
+    teamOrIndi:string;
+    level: string;
+    nameOfAward: string;
+};
+
+
+export type IntraSports = {
+    event: string;
+    startDate: Date;
+    endDate: Date;
+    link: string;
+    yearOfEvent:string;
+};
+
+
+
+
