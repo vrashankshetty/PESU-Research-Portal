@@ -15,10 +15,11 @@ import studentSportsCultural from './studentSportsCultural/api'
 import interSports from './interSports/api';
 import intraSports from './intraSports/api';
 import authenticateUser from '../middleware/authenticate-user';
-
+import home from './home/api'
 const router = express.Router();
 
 router.use('/user',authenticateUser,user);
+router.use('/home',home);
 router.use('/journal',authenticateUser,journal);
 router.use('/conference',authenticateUser,conference);
 router.use('/patent',authenticateUser,patent);
