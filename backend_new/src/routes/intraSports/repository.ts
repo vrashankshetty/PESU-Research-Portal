@@ -69,6 +69,8 @@ export async function createActivity(activityData: IntraSports) {
          await db.insert(intraSports).values({
             id: generateRandomId(),
             ...activityData,
+            startDate: new Date(activityData.startDate),
+            endDate: new Date(activityData.endDate),
         }).returning();
 
         return { message: 'Successful' };

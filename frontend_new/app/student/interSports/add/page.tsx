@@ -35,7 +35,7 @@ const formSchema = z.object({
   }),
   level: z.enum(["Inter-University", "State", "National", "International"], {
     required_error: "Please select a option",
-}),
+  }),
   nameOfAward: z.enum(["Runner-Up", "Winners"], {
     required_error: "Please select a option",
   }),
@@ -61,7 +61,7 @@ export default function InterSportsForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        "http://localhost:5500/api/v1/journal",
+        "http://localhost:5500/api/v1/interSports",
         values,
         {
           withCredentials: true,
