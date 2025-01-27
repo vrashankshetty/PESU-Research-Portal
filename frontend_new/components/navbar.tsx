@@ -37,7 +37,7 @@ function Navbar() {
   const handleLogout = () => {
     Cookie.remove("accessToken", { path: "/" });
     setIsLoggedIn(false);
-    router.push("/login");
+    window.location.href = '/login'; 
   };
 
   const toggleMobileMenu = () => {
