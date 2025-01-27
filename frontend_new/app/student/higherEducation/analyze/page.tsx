@@ -56,7 +56,6 @@ function HigherStudiesDashboard() {
           `${backendUrl}/api/v1/studentHigherStudies?startYear=${startYear}&endYear=${endYear}`,
           { withCredentials: true }
         );
-        console.log(response.data);
         setHigherStudies(response.data);
       } catch (error) {
         console.error("Error fetching career counsels:", error);
@@ -125,8 +124,6 @@ function HigherStudiesDashboard() {
 
   const renderChart = () => {
     const data = getChartData();
-
-    console.log({OtherWorld: data});
 
     if (data && data.length === 0) {
       return (
@@ -334,16 +331,25 @@ function HigherStudiesDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
                 {higherStudies && higherStudies.length > 0 ? (
                     higherStudies.map((entry, index) => (
-                        <div key={index} className="flex justify-between align-bottom p-3 rounded-md bg-gray-100">
-                          <div className="flex flex-col gap-2">
-                            <div className="text-xl font-sans">{entry.studentName}</div>
-                            <div className="flex justify-start gap-2 text-xs">
-                                <div className="bg-blue-200 text-blue-700 rounded-lg px-1 py-[0.1rem]">{entry.year}</div>
-                                <div className="bg-orange-200 text-orange-700 rounded-lg px-1 py-[0.1rem]">{entry.programGraduatedFrom} PESU</div>
-                            </div>
-                          </div>
-                          <div className="bg-red-200 text-red-700 rounded-lg px-1 py-[0.1rem] h-max">{entry.institutionAdmittedTo}</div>
-                        </div>
+                      <Card key={index}>
+                        <CardHeader>
+                          <CardTitle>{entry.studentName}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p>
+                            <strong>Year: </strong>{entry.year}
+                          </p>
+                          <p>
+                            <strong>Institution of Admittance: </strong> {entry.institutionAdmittedTo}
+                          </p>
+                          <p>
+                            <strong>Program of Admittance: </strong> {entry.programmeAdmittedTo}
+                          </p>
+                          <p>
+                            <strong>Program graduated from: </strong> {entry.programGraduatedFrom}
+                          </p>
+                        </CardContent>
+                      </Card>
                     ))
                 ) : (
                     <div>

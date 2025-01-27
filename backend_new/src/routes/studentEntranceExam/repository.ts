@@ -36,12 +36,15 @@ export async function getAllActivities(query: any) {
             isTOEFL
         } = query;
 
+        const boolConvert = (val: any) => val === 'true' ? true : val === 'false' ? false : undefined;
+
         const activities = await db.query.studentEntranceExam.findMany({
             orderBy: desc(studentEntranceExam.createdAt)
         });
 
         const filteredActivities = activities.filter(activity => {
             let isValid = true;
+
             if (startYear && activity.year < startYear) {
                 isValid = false;
             }
@@ -54,31 +57,31 @@ export async function getAllActivities(query: any) {
             if (studentName && activity.studentName !== studentName) {
                 isValid = false;
             }
-            if (isNET !== undefined && activity.isNET !== isNET) {
+            if (isNET !== undefined && activity.isNET !== boolConvert(isNET)) {
                 isValid = false;
             }
-            if (isSLET !== undefined && activity.isSLET !== isSLET) {
+            if (isSLET !== undefined && activity.isSLET !== boolConvert(isSLET)) {
                 isValid = false;
             }
-            if (isGATE !== undefined && activity.isGATE !== isGATE) {
+            if (isGATE !== undefined && activity.isGATE !== boolConvert(isGATE)) {
                 isValid = false;
             }
-            if (isGMAT !== undefined && activity.isGMAT !== isGMAT) {
+            if (isGMAT !== undefined && activity.isGMAT !== boolConvert(isGMAT)) {
                 isValid = false;
             }
-            if (isCAT !== undefined && activity.isCAT !== isCAT) {
+            if (isCAT !== undefined && activity.isCAT !== boolConvert(isCAT)) {
                 isValid = false;
             }
-            if (isGRE !== undefined && activity.isGRE !== isGRE) {
+            if (isGRE !== undefined && activity.isGRE !== boolConvert(isGRE)) {
                 isValid = false;
             }
-            if (isJAM !== undefined && activity.isJAM !== isJAM) {
+            if (isJAM !== undefined && activity.isJAM !== boolConvert(isJAM)) {
                 isValid = false;
             }
-            if (isIELTS !== undefined && activity.isIELTS !== isIELTS) {
+            if (isIELTS !== undefined && activity.isIELTS !== boolConvert(isIELTS)) {
                 isValid = false;
             }
-            if (isTOEFL !== undefined && activity.isTOEFL !== isTOEFL) {
+            if (isTOEFL !== undefined && activity.isTOEFL !== boolConvert(isTOEFL)) {
                 isValid = false;
             }
             return isValid;
@@ -90,6 +93,7 @@ export async function getAllActivities(query: any) {
         errs(error);
     }
 }
+
 
 
 export async function createActivity(activityData: StudentEntranceExam) {
