@@ -1,65 +1,96 @@
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { GraduationCap, BookOpen, Award, FileText, Building2, FlaskConical } from 'lucide-react';
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Award, BookOpen, FileText, MoveRight, Users } from "lucide-react";
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { backendUrl } from "@/config";
 
 export default function Home() {
-  // Example statistics - replace with actual data fetching
-  const stats = [
-    {
-      title: "Teachers",
-      value: "150+",
-      icon: GraduationCap,
-      description: "Active faculty members"
-    },
-    {
-      title: "Journals",
-      value: "200+",
-      icon: BookOpen,
-      description: "Published research papers"
-    },
-    {
-      title: "Conferences",
-      value: "80+",
-      icon: FileText,
-      description: "Papers presented"
-    },
-    {
-      title: "Patents",
-      value: "25+",
-      icon: Award,
-      description: "Registered patents"
-    },
-    {
-      title: "Dept Activities",
-      value: "120+",
-      icon: Building2,
-      description: "Academic events"
-    },
-    {
-      title: "Research Projects",
-      value: "45+",
-      icon: FlaskConical,
-      description: "Ongoing projects"
-    }
-  ];
+  const [stats, setStats] = useState({
+    conferences: 0,
+    patents: 0,
+    journals: 0,
+    activities: 0,
+  });
+
+  useEffect(() => {
+    axios
+      .get(`${backendUrl}/api/v1/home`)
+      .then((response) => {
+        const data = response.data;
+        setStats({
+          conferences: data.conferences,
+          patents: data.patents,
+          journals: data.journals,
+          activities: data.dept_attended + data.dept_conducted,
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching stats:", error);
+      });
+  }, []);
 
   return (
-    <div className="p-8  bg-white/90 backdrop-blur-sm shadow-xl">
-      <h1 className="text-3xl font-bold text-center mb-8 text-sky-800">Welcome to NAAC Portal</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xl font-semibold">{stat.title}</CardTitle>
-              <stat.icon className="h-6 w-6 text-sky-800" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-sky-800">{stat.value}</div>
-              <p className="text-sm text-gray-600 mt-2">{stat.description}</p>
-            </CardContent>
-          </Card>
-        ))}
+    <div className="bg-gradient-to-b from-black/40 to-black/60 rounded-lg">
+      <div className="relative z-10 pt-12 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center mb-8 space-y-6">
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
+            Welcome to PESU Research Portal
+          </h1>
+          <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
+            Discover groundbreaking research, patents, and academic achievements
+            from our community of innovative minds shaping the future of
+            education and technology.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="group relative overflow-hidden rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 p-6 transition-all duration-300 hover:bg-white/20 hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <Award className="h-12 w-12 text-white mb-4" />
+            <h3 className="font-semibold text-2xl text-white mb-2">
+              Conferences
+            </h3>
+            <p className="text-3xl font-bold text-white">{stats.conferences}</p>
+            <p className="text-sm text-gray-300 mt-1">Publications</p>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 p-6 transition-all duration-300 hover:bg-white/20 hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <FileText className="h-12 w-12 text-white mb-4" />
+            <h3 className="font-semibold text-2xl text-white mb-2">Patents</h3>
+            <p className="text-3xl font-bold text-white">{stats.patents}</p>
+            <p className="text-sm text-gray-300 mt-1">Registered</p>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 p-6 transition-all duration-300 hover:bg-white/20 hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <BookOpen className="h-12 w-12 text-white mb-4" />
+            <h3 className="font-semibold text-2xl text-white mb-2">Journals</h3>
+            <p className="text-3xl font-bold text-white">{stats.journals}</p>
+            <p className="text-sm text-gray-300 mt-1">Published</p>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 p-6 transition-all duration-300 hover:bg-white/20 hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <Users className="h-12 w-12 text-white mb-4" />
+            <h3 className="font-semibold text-2xl text-white mb-2">
+              Activities
+            </h3>
+            <p className="text-3xl font-bold text-white">{stats.activities}</p>
+            <p className="text-sm text-gray-300 mt-1">Conducted</p>
+          </div>
+        </div>
+
+        <div className="text-center mb-8">
+          <Link href="/login">
+            <Button className="bg-sky-800 hover:bg-sky-800/90 px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+              Get Started <MoveRight className="w-6 h-6 ml-2" />
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
