@@ -45,6 +45,7 @@ interface EntranceExams {
   isJAM: boolean;
   isIELTS: boolean;
   isTOEFL: boolean;
+  documentLink: string;
 }
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
@@ -90,6 +91,7 @@ function EntranceExamsDashboard() {
         "Registration number/roll number for the exam",
         "Name of student selected",
         "Examinations Passed",
+        "Link to the relevant document",
       ];
   
       const csvContent = [
@@ -107,7 +109,7 @@ function EntranceExamsDashboard() {
             entry.isTOEFL && "TOEFL",
           ].filter(Boolean).join(" ");
           
-          return [entry.year, entry.registrationNumber, entry.studentName, exams].join(",");
+          return [entry.year, entry.registrationNumber, entry.studentName, exams, entry.documentLink].join(",");
         }),
       ].join("\n");
   
@@ -347,6 +349,7 @@ function EntranceExamsDashboard() {
                       <th className="px-6 py-3">Registration number/roll number for the exam</th>
                       <th className="px-6 py-3">Name of student selected</th>
                       <th className="px-6 py-3">Qualifying examination</th>
+                      <th className="px-6 py-3">Link to the relevant document</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -372,6 +375,16 @@ function EntranceExamsDashboard() {
                             <td className="px-6 py-3">{entry.registrationNumber}</td>
                             <td className="px-6 py-3">{entry.studentName}</td>
                             <td className="px-6 py-3">{exams}</td>
+                            <td className="px-6 py-3">
+                            <a
+                              href={entry.documentLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500"
+                            >
+                              Document
+                            </a>
+                          </td>
                           </tr>
                         );
                       })
@@ -420,6 +433,14 @@ function EntranceExamsDashboard() {
                         <p>
                           <strong>Exams:</strong> {exams.join(", ")}
                         </p>
+                        <a
+                            href={entry.documentLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View Documents
+                          </a>
                       </CardContent>
                     </Card>
                   );

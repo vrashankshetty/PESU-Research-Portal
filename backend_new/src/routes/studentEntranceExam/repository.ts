@@ -33,7 +33,8 @@ export async function getAllActivities(query: any) {
             isGRE,
             isJAM,
             isIELTS,
-            isTOEFL
+            isTOEFL,
+            documentLink
         } = query;
 
         const boolConvert = (val: any) => val === 'true' ? true : val === 'false' ? false : undefined;
@@ -82,6 +83,9 @@ export async function getAllActivities(query: any) {
                 isValid = false;
             }
             if (isTOEFL !== undefined && activity.isTOEFL !== boolConvert(isTOEFL)) {
+                isValid = false;
+            }
+            if (documentLink !== undefined && activity.documentLink !== documentLink) {
                 isValid = false;
             }
             return isValid;

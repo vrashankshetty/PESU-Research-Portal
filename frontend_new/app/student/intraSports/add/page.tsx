@@ -155,7 +155,7 @@ export default function IntraSportsForm() {
                   <FormItem>
                     <FormLabel>Enter the year of the event</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex. 2023-24" {...field} />
+                      <Input placeholder="Ex. 2023" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
