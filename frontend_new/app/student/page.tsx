@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Users, Lightbulb, Medal, PenTool, BookCopyIcon } from "lucide-react";
+import {
+  BookOpen,
+  Lightbulb,
+  Medal,
+  PenTool,
+  BookCopyIcon,
+  SquarePlus,
+  Search,
+} from "lucide-react";
 
 type StudentOption = {
   title: string;
@@ -13,31 +21,36 @@ type StudentOption = {
 const studentOptions: StudentOption[] = [
   {
     title: "Intra University events",
-    description: "Add or analyze sports and cultural events / competitions organised by the Institution",
+    description:
+      "Add or analyze sports and cultural events / competitions organised by the Institution",
     href: "intraSports",
     icon: <BookOpen className="h-8 w-8" />,
   },
   {
     title: "Inter University Medals",
-    description: "Add or analyze awards/medals won by students in sports/cultural activities at inter-university/state/national/international events",
+    description:
+      "Add or analyze awards/medals won by students in sports/cultural activities at inter-university/state/national/international events",
     href: "interSports",
     icon: <Medal className="h-8 w-8" />,
   },
   {
     title: "Higher Education",
-    description: "Add or analyze graduated students who have progressed to higher education",
+    description:
+      "Add or analyze graduated students who have progressed to higher education",
     href: "higherEducation",
     icon: <BookCopyIcon className="h-8 w-8" />,
   },
   {
     title: "Competitive Exams",
-    description: "Add or analyze students qualifying in state/ national/ international level examinations",
+    description:
+      "Add or analyze students qualifying in state/ national/ international level examinations",
     href: "higherExams",
     icon: <PenTool className="h-8 w-8" />,
   },
   {
     title: "Career Counseling",
-    description: "Add or analyze students benefited by career counseling and guidance for competitive examinations offered by the Institution",
+    description:
+      "Add or analyze students benefited by career counseling and guidance for competitive examinations offered by the Institution",
     href: "careerCounseling",
     icon: <Lightbulb className="h-8 w-8" />,
   },
@@ -51,7 +64,7 @@ export default function Student() {
         <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">
           Student
         </h1>
-        <div className="grid gap-6 md:grid-cols-4">
+        <div className="grid gap-6 lg:grid-cols-3">
           {studentOptions.map((option) => (
             <Card
               key={option.title}
@@ -65,12 +78,13 @@ export default function Student() {
                 <p className="text-gray-600 mb-4">{option.description}</p>
                 <Link href={`/student/${option.href}/add`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    Add {option.title}
+                    <SquarePlus className="h-6 w-6 ml-2" />
+                    Add Data
                   </Button>
                 </Link>
                 <Link href={`/student/${option.href}/analyze`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    Analyze {option.title}
+                    <Search className="h-6 w-6 ml-2" /> View, Update & Analyze
                   </Button>
                 </Link>
               </CardContent>

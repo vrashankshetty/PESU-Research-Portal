@@ -33,6 +33,7 @@ import { backendUrl } from "@/config";
 import { DateRange } from "react-day-picker";
 import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
 import { format } from "date-fns";
+import { Pencil } from "lucide-react";
 
 type Attended = {
   id: string;
@@ -315,6 +316,7 @@ function AttendedDashboard() {
                       <th className="px-6 py-3">Duration Start</th>
                       <th className="px-6 py-3">Duration End</th>
                       <th className="px-6 py-3">Document Link</th>
+                      <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -332,7 +334,7 @@ function AttendedDashboard() {
                           {new Date(event.durationEndDate).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4">
-                          {event.documentLink && (
+                          {event.documentLink ? (
                             <a
                               href={event.documentLink}
                               target="_blank"
@@ -341,7 +343,23 @@ function AttendedDashboard() {
                             >
                               View
                             </a>
+                          ) : (
+                            <div>N/A</div>
                           )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <Button
+                            onClick={() =>
+                              router.push(
+                                `/department/attended/edit/${event.id}`
+                              )
+                            }
+                            variant="outline"
+                            size="sm"
+                          >
+                            Edit
+                            <Pencil className="h-4 w-4 ml-2" />
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -356,8 +374,18 @@ function AttendedDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredAttended.map((event, index) => (
                   <Card key={event.id}>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle>{event.programTitle}</CardTitle>
+                      <Button
+                        onClick={() =>
+                          router.push(`/department/attended/edit/${event.id}`)
+                        }
+                        variant="outline"
+                        size="sm"
+                      >
+                        Edit
+                        <Pencil className="h-4 w-4 ml-2" />
+                      </Button>
                     </CardHeader>
                     <CardContent>
                       <p>
