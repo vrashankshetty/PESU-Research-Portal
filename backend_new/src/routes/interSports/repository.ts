@@ -1,11 +1,9 @@
-
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import db from '../../db';
 import { errs } from '../../utils/catch-error';
 import { generateRandomId } from '../../utils/generate-id';
 import { InterSports } from '../../types';
 import { interSports } from '../../models/interSports';
-
 
 export async function getEachActivity(id: string) {
     try {
@@ -33,7 +31,7 @@ export async function getAllActivities(query: any) {
         } = query;
 
         const activities = await db.query.interSports.findMany({
-            orderBy: desc(interSports.createdAt)
+            orderBy: desc(interSports.createdAt),
         });
 
         const filteredActivities = activities.filter(activity => {
@@ -70,40 +68,45 @@ export async function getAllActivities(query: any) {
 
         return filteredActivities;
     } catch (error) {
-        console.log("err in repo", error);
+        console.log('err in repo', error);
         errs(error);
     }
 }
 
-
 export async function createActivity(activityData: InterSports) {
     try {
-         await db.insert(interSports).values({
-            id: generateRandomId(),
-            ...activityData,
-        }).returning();
+        await db
+            .insert(interSports)
+            .values({
+                id: generateRandomId(),
+                ...activityData,
+            })
+            .returning();
 
         return { message: 'Successful' };
-
     } catch (error) {
         console.log(error);
         errs(error);
     }
 }
 
-export async function updateActivity(activityData: InterSports, id: string,) {
+export async function updateActivity(activityData: InterSports, id: string) {
     try {
         const uptData = await db.query.interSports.findFirst({
-            where: and(eq(interSports.id, id))
+            where: and(eq(interSports.id, id)),
         });
 
         if (!uptData) {
             return { status: 404, message: 'Not Found' };
         }
 
-        const [updatedActivity] = await db.update(interSports).set({
-            ...activityData,
-        }).where(eq(interSports.id, id)).returning();
+        const [updatedActivity] = await db
+            .update(interSports)
+            .set({
+                ...activityData,
+            })
+            .where(eq(interSports.id, id))
+            .returning();
 
         if (!updatedActivity?.id) {
             throw new Error('Error updating Activity');
@@ -111,7 +114,7 @@ export async function updateActivity(activityData: InterSports, id: string,) {
 
         return { message: 'Update successful' };
     } catch (error) {
-        console.log("error", error);
+        console.log('error', error);
         errs(error);
     }
 }
@@ -119,7 +122,7 @@ export async function updateActivity(activityData: InterSports, id: string,) {
 export async function deleteActivity(id: string) {
     try {
         const getData = await db.query.interSports.findFirst({
-            where: eq(interSports.id, id)
+            where: eq(interSports.id, id),
         });
         if (!getData) {
             return { status: 404, message: 'Not Found' };

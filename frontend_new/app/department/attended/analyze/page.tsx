@@ -89,14 +89,14 @@ function AttendedDashboard() {
       const eventStartDate = new Date(event.durationStartDate);
       const eventEndDate = new Date(event.durationEndDate);
 
-      if(dateRange?.from && dateRange?.to){
-        return eventStartDate >= dateRange.from && eventEndDate <= dateRange.to
+      if (dateRange?.from && dateRange?.to) {
+        return eventStartDate >= dateRange.from && eventEndDate <= dateRange.to;
       }
-      if(dateRange?.from){
-          return eventStartDate >= dateRange.from 
+      if (dateRange?.from) {
+        return eventStartDate >= dateRange.from;
       }
-      if(dateRange?.to){
-          return eventEndDate <= dateRange.to
+      if (dateRange?.to) {
+        return eventEndDate <= dateRange.to;
       }
       return true;
     });

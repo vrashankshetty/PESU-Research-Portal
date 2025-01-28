@@ -4,32 +4,28 @@ import handleValidationError from '../../utils/handle-validation-error';
 import { createActivity, deleteActivity, getAllActivities, getEachActivity, updateActivity } from './repository';
 import { interSportsSchema } from './schema';
 
-
 const Router = express.Router();
 
-
-
-Router.get('/',async (req, res) => {
+Router.get('/', async (req, res) => {
     try {
         const query = req.query;
-        const course = await getAllActivities(query)
+        const course = await getAllActivities(query);
         res.status(200).send(course);
     } catch (error) {
-        console.log("error",error)
+        console.log('error', error);
         catchError(error, res);
     }
 });
-
 
 Router.get('/:id', async (req, res) => {
     try {
         const id = req.params.id;
         // const userId = (req as any).user.id;
-        const course = await getEachActivity(id)
-        if(!course){
+        const course = await getEachActivity(id);
+        if (!course) {
             return res.status(404).json({
-                message:"Not Found"
-            })
+                message: 'Not Found',
+            });
         }
         res.status(200).send(course);
     } catch (error) {
@@ -37,43 +33,36 @@ Router.get('/:id', async (req, res) => {
     }
 });
 
-Router.post('/',async (req, res) => {
+Router.post('/', async (req, res) => {
     try {
         const data = req.body;
         // const userId = (req as any).user.id;
-        const { error } = interSportsSchema.validate(
-            data,
-            { abortEarly: false },
-        );
+        const { error } = interSportsSchema.validate(data, { abortEarly: false });
         if (error) {
-            console.log("error",error)
+            console.log('error', error);
             return handleValidationError(error, res);
         }
-        
+
         const confData = await createActivity(data);
         res.status(201).send(confData);
     } catch (error) {
-        console.log("catch error",error)
+        console.log('catch error', error);
         catchError(error, res);
     }
 });
-
 
 Router.put('/:id', async (req, res) => {
     try {
         const data = req.body;
         const id = req.params.id;
         // const userId = (req as any).user.id;
-        const { error } = interSportsSchema.validate(
-            data,
-            { abortEarly: false },
-        );
+        const { error } = interSportsSchema.validate(data, { abortEarly: false });
         if (error) {
             return handleValidationError(error, res);
         }
 
-        const confData = await updateActivity(data,id);
-        if(confData?.status === 404){
+        const confData = await updateActivity(data, id);
+        if (confData?.status === 404) {
             return res.status(404).send(confData?.message);
         }
         res.status(200).send(confData?.message);
@@ -82,20 +71,18 @@ Router.put('/:id', async (req, res) => {
     }
 });
 
-
 Router.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
         // const userId = (req as any).user.id;
         const confData = await deleteActivity(id);
-        if(confData?.status === 404){
+        if (confData?.status === 404) {
             return res.status(404).send(confData?.message);
         }
-        return res.status(200).send(confData?.message)
+        return res.status(200).send(confData?.message);
     } catch (error) {
         catchError(error, res);
     }
 });
-
 
 export default Router;

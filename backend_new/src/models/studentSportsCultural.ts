@@ -1,8 +1,4 @@
-
-import { pgTable, text,timestamp} from 'drizzle-orm/pg-core';
-
-
-
+import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const studentSportsCultural = pgTable('studentSportsCultural', {
     id: text('id').primaryKey(),
@@ -11,5 +7,3 @@ export const studentSportsCultural = pgTable('studentSportsCultural', {
     eventName: text('eventName').notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
- 
-

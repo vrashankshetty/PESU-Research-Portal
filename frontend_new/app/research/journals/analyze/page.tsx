@@ -38,7 +38,7 @@ type Journal = {
   title: string;
   teacherIds: string[];
   campus: string;
-  dept: "EC" | "CSE";
+  dept: string;
   journalName: string;
   month: string;
   year: string;
@@ -50,7 +50,7 @@ type Journal = {
   isUGC: boolean;
   isScopus: boolean;
   isWOS: boolean;
-  qNo: "Q1" | "Q2" | "Q3" | "Q4" | "NA";
+  qNo: string;
   impactFactor?: string;
   isCapstone: boolean;
   isAffiliating: boolean;
@@ -101,10 +101,9 @@ function JournalDashboard() {
   useEffect(() => {
     const fetchJournals = async () => {
       try {
-        const response = await axios.get(
-          `${backendUrl}/api/v1/journal`,
-          { withCredentials: true }
-        );
+        const response = await axios.get(`${backendUrl}/api/v1/journal`, {
+          withCredentials: true,
+        });
         setJournals(response.data);
       } catch (error) {
         console.error("Error fetching journals:", error);

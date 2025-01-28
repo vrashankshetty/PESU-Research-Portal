@@ -1,10 +1,7 @@
 import Joi from 'joi';
 
-
 export const conferenceSchema = Joi.object({
     teacherIds: Joi.array().items(Joi.string()).default([]),
-    // campus: Joi.string().required(), 
-    // dept: Joi.string().required(),
     totalAuthors: Joi.number().default(1),
     bookTitle: Joi.string().required(),
     paperTitle: Joi.string().required(),
@@ -23,5 +20,4 @@ export const conferenceSchema = Joi.object({
     abstract: Joi.string().required(),
     keywords: Joi.array().items(Joi.string()),
     domain: Joi.string().required(),
-  });
-  
+});

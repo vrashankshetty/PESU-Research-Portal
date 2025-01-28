@@ -1,11 +1,9 @@
-
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import db from '../../db';
 import { errs } from '../../utils/catch-error';
 import { generateRandomId } from '../../utils/generate-id';
 import { studentEntranceExam } from '../../models/studentEntranceExam';
 import { StudentEntranceExam } from '../../types';
-
 
 export async function getEachActivity(id: string) {
     try {
@@ -34,13 +32,13 @@ export async function getAllActivities(query: any) {
             isJAM,
             isIELTS,
             isTOEFL,
-            documentLink
+            documentLink,
         } = query;
 
-        const boolConvert = (val: any) => val === 'true' ? true : val === 'false' ? false : undefined;
+        const boolConvert = (val: any) => (val === 'true' ? true : val === 'false' ? false : undefined);
 
         const activities = await db.query.studentEntranceExam.findMany({
-            orderBy: desc(studentEntranceExam.createdAt)
+            orderBy: desc(studentEntranceExam.createdAt),
         });
 
         const filteredActivities = activities.filter(activity => {
@@ -93,41 +91,45 @@ export async function getAllActivities(query: any) {
 
         return filteredActivities;
     } catch (error) {
-        console.log("err in repo", error);
+        console.log('err in repo', error);
         errs(error);
     }
 }
 
-
-
 export async function createActivity(activityData: StudentEntranceExam) {
     try {
-         await db.insert(studentEntranceExam).values({
-            id: generateRandomId(),
-            ...activityData,
-        }).returning();
+        await db
+            .insert(studentEntranceExam)
+            .values({
+                id: generateRandomId(),
+                ...activityData,
+            })
+            .returning();
 
         return { message: 'Successful' };
-
     } catch (error) {
         console.log(error);
         errs(error);
     }
 }
 
-export async function updateActivity(activityData: StudentEntranceExam, id: string,) {
+export async function updateActivity(activityData: StudentEntranceExam, id: string) {
     try {
         const uptData = await db.query.studentEntranceExam.findFirst({
-            where: and(eq(studentEntranceExam.id, id))
+            where: and(eq(studentEntranceExam.id, id)),
         });
 
         if (!uptData) {
             return { status: 404, message: 'Not Found' };
         }
 
-        const [updatedActivity] = await db.update(studentEntranceExam).set({
-            ...activityData,
-        }).where(eq(studentEntranceExam.id, id)).returning();
+        const [updatedActivity] = await db
+            .update(studentEntranceExam)
+            .set({
+                ...activityData,
+            })
+            .where(eq(studentEntranceExam.id, id))
+            .returning();
 
         if (!updatedActivity?.id) {
             throw new Error('Error updating Activity');
@@ -135,7 +137,7 @@ export async function updateActivity(activityData: StudentEntranceExam, id: stri
 
         return { message: 'Update successful' };
     } catch (error) {
-        console.log("error", error);
+        console.log('error', error);
         errs(error);
     }
 }
@@ -143,7 +145,7 @@ export async function updateActivity(activityData: StudentEntranceExam, id: stri
 export async function deleteActivity(id: string) {
     try {
         const getData = await db.query.studentEntranceExam.findFirst({
-            where: eq(studentEntranceExam.id, id)
+            where: eq(studentEntranceExam.id, id),
         });
         if (!getData) {
             return { status: 404, message: 'Not Found' };

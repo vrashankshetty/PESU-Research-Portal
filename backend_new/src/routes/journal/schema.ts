@@ -1,10 +1,8 @@
 import Joi from 'joi';
 
-export const journalSchema =  Joi.object({
+export const journalSchema = Joi.object({
     title: Joi.string().required(),
     teacherIds: Joi.array().items(Joi.string()).default([]),
-    // campus: Joi.string().required(), 
-    // dept: Joi.string().required(),
     journalName: Joi.string().required(),
     month: Joi.string().required(),
     year: Joi.string().required(),
