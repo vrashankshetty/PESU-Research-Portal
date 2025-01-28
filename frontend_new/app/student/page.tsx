@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Users, Lightbulb } from "lucide-react";
+import { BookOpen, Users, Lightbulb, Medal, PenTool, BookCopyIcon } from "lucide-react";
 
 type StudentOption = {
   title: string;
@@ -21,19 +21,19 @@ const studentOptions: StudentOption[] = [
     title: "Inter University Medals",
     description: "Add or analyze awards/medals won by students in sports/cultural activities at inter-university/state/national/international events",
     href: "interSports",
-    icon: <Users className="h-8 w-8" />,
+    icon: <Medal className="h-8 w-8" />,
   },
   {
     title: "Higher Education",
     description: "Add or analyze graduated students who have progressed to higher education",
     href: "higherEducation",
-    icon: <Lightbulb className="h-8 w-8" />,
+    icon: <BookCopyIcon className="h-8 w-8" />,
   },
   {
     title: "Competitive Exams",
     description: "Add or analyze students qualifying in state/ national/ international level examinations",
     href: "higherExams",
-    icon: <Lightbulb className="h-8 w-8" />,
+    icon: <PenTool className="h-8 w-8" />,
   },
   {
     title: "Career Counseling",

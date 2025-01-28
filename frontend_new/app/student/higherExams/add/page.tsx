@@ -33,6 +33,7 @@ const formSchema = z.object({
   isJAM: z.boolean().default(false),
   isIELTS: z.boolean().default(false),
   isTOEFL: z.boolean().default(false),
+  documentLink: z.string().min(1, "Link to relevant documents is required"),
 });
 
 export default function InterSportsForm() {
@@ -51,6 +52,7 @@ export default function InterSportsForm() {
       isJAM: false,
       isIELTS: false,
       isTOEFL: false,
+      documentLink: "",
     },
   });
 
@@ -141,54 +143,7 @@ export default function InterSportsForm() {
                   </FormItem>
                 )}
               />
-              {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="link"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Link to relevant documents</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter the link to relevant documents" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              </div> */}
-              {/* <FormField
-                control={form.control}
-                name="exam"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Qualifying Exam</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select the appropriate qualifying exam" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="NET">NET</SelectItem>
-                        <SelectItem value="SLET">SLET</SelectItem>
-                        <SelectItem value="GATE">GATE</SelectItem>
-                        <SelectItem value="GMAT">GMAT</SelectItem>
-                        <SelectItem value="CAT">CAT</SelectItem>
-                        <SelectItem value="GRE">GRE</SelectItem>
-                        <SelectItem value="JAM">JAM</SelectItem>
-                        <SelectItem value="IELTS">IELTS</SelectItem>
-                        <SelectItem value="TOEFL">TOEFL</SelectItem>
-                        <SelectItem value="Civil Services">Civil Services</SelectItem>
-                        <SelectItem value="State government examinations">State government examinations</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
+              
 
 
               <div>Select the Qualifying Exam</div>
@@ -346,7 +301,19 @@ export default function InterSportsForm() {
                 )}
               />
 
-
+              <FormField
+                control={form.control}
+                name="documentLink"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link to relevant documents</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter the link to relevant documents" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="flex justify-center">
                 <Button type="submit" className="bg-sky-800">

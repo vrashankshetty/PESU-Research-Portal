@@ -111,6 +111,7 @@ export type StudentEntranceExam = {
     isJAM: boolean;
     isIELTS: boolean;
     isTOEFL: boolean;
+    documentLink: string;
 };
 
 export type StudentHigherStudies = {

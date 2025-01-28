@@ -60,6 +60,7 @@ export default function AttendedForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      console.log({"department":values})
       const response = await axios.post(
         `${backendUrl}/api/v1/departmentAttendedActivity`,
         values,

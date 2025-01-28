@@ -45,6 +45,7 @@ interface EntranceExams {
   isJAM: boolean;
   isIELTS: boolean;
   isTOEFL: boolean;
+  documentLink: string;
 }
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
@@ -52,6 +53,7 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 function EntranceExamsDashboard() {
   const [entranceExams, setEntranceExams] = useState<EntranceExams[] | null>(null);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [selectedExam, setSelectedExam] = useState<"NET" | "SLET" | "GATE" | "GMAT" | "CAT" | "GRE" | "JAM" | "IELTS" | "TOEFL" | "">("");
   const [startYear, setStartYear] = useState<number>(2000);
   const [endYear, setEndYear] = useState<number>(new Date().getFullYear());
   const chartRef = useRef<HTMLDivElement>(null);
@@ -60,17 +62,16 @@ function EntranceExamsDashboard() {
     const fetchHigherStudyDetails = async () => {
       try {
         const response = await axios.get(
-          `${backendUrl}/api/v1/studentEntranceExam?startYear=${startYear}&endYear=${endYear}`,
+          `${backendUrl}/api/v1/studentEntranceExam?startYear=${startYear}&endYear=${endYear}${selectedExam.length!=0 ? "&is"+selectedExam+"=true" : ""}`,
           { withCredentials: true }
         );
-        console.log(response.data);
         setEntranceExams(response.data);
       } catch (error) {
         console.error("Error fetching career counsels:", error);
       }
     };
     fetchHigherStudyDetails();
-  }, [startYear, endYear]);
+  }, [startYear, endYear, selectedExam]);
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
@@ -90,6 +91,7 @@ function EntranceExamsDashboard() {
         "Registration number/roll number for the exam",
         "Name of student selected",
         "Examinations Passed",
+        "Link to the relevant document",
       ];
   
       const csvContent = [
@@ -107,7 +109,7 @@ function EntranceExamsDashboard() {
             entry.isTOEFL && "TOEFL",
           ].filter(Boolean).join(" ");
           
-          return [entry.year, entry.registrationNumber, entry.studentName, exams].join(",");
+          return [entry.year, entry.registrationNumber, entry.studentName, exams, entry.documentLink].join(",");
         }),
       ].join("\n");
   
@@ -145,8 +147,6 @@ function EntranceExamsDashboard() {
 
   const renderChart = () => {
     const data = getChartData();
-
-    console.log({OtherWorld: data});
 
     if (data && data.length === 0) {
       return (
@@ -240,7 +240,7 @@ function EntranceExamsDashboard() {
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Entrance Exams Analysis Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Visualization</CardTitle>
@@ -289,6 +289,33 @@ function EntranceExamsDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Select the Exam</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select
+              value={selectedExam}
+              onValueChange={(value: "NET" | "SLET" | "GATE" | "GMAT" | "CAT" | "GRE" | "JAM" | "IELTS" | "TOEFL") => setSelectedExam(value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select the exam" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NET">NET</SelectItem>
+                <SelectItem value="SLET">SLET</SelectItem>
+                <SelectItem value="GATE">GATE</SelectItem>
+                <SelectItem value="GMAT">GMAT</SelectItem>
+                <SelectItem value="CAT">CAT</SelectItem>
+                <SelectItem value="GRE">GRE</SelectItem>
+                <SelectItem value="JAM">JAM</SelectItem>
+                <SelectItem value="IELTS">IELTS</SelectItem>
+                <SelectItem value="TOEFL">TOEFL</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="mb-6">
@@ -322,6 +349,7 @@ function EntranceExamsDashboard() {
                       <th className="px-6 py-3">Registration number/roll number for the exam</th>
                       <th className="px-6 py-3">Name of student selected</th>
                       <th className="px-6 py-3">Qualifying examination</th>
+                      <th className="px-6 py-3">Link to the relevant document</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -347,6 +375,16 @@ function EntranceExamsDashboard() {
                             <td className="px-6 py-3">{entry.registrationNumber}</td>
                             <td className="px-6 py-3">{entry.studentName}</td>
                             <td className="px-6 py-3">{exams}</td>
+                            <td className="px-6 py-3">
+                            <a
+                              href={entry.documentLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500"
+                            >
+                              Document
+                            </a>
+                          </td>
                           </tr>
                         );
                       })
@@ -381,27 +419,30 @@ function EntranceExamsDashboard() {
                   ].filter(Boolean);
 
                   return (
-                    <div
-                      key={index}
-                      className="flex flex-col gap-2 align-bottom p-3 rounded-md bg-gray-100"
-                    >
-                      <div className="flex justify-start items-center gap-2">
-                        <div className="text-xl font-sans">{entry.studentName}</div>
-                        <div className="bg-blue-200 h-max text-xs text-blue-700 rounded-lg px-1 py-[0.1rem]">
-                          {entry.year}
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        {exams.map((exam, examIndex) => (
-                          <div
-                            key={examIndex}
-                            className="bg-green-200 text-green-700 text-xs rounded-lg px-2 py-[0.1rem]"
+                    <Card key={index}>
+                      <CardHeader>
+                        <CardTitle>{entry.studentName}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p>
+                          <strong>Year: </strong>{entry.year}
+                        </p>
+                        <p>
+                          <strong>Exam Roll number: </strong> {entry.registrationNumber}
+                        </p>
+                        <p>
+                          <strong>Exams:</strong> {exams.join(", ")}
+                        </p>
+                        <a
+                            href={entry.documentLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
                           >
-                            {exam}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                            View Documents
+                          </a>
+                      </CardContent>
+                    </Card>
                   );
                 })
               ) : (

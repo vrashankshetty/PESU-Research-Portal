@@ -16,6 +16,7 @@ export const studentEntranceExam = pgTable('studentEntranceExam', {
     isJAM: boolean('isJAM').default(false),
     isIELTS: boolean('isIELTS').default(false),
     isTOEFL: boolean('isTOEFL').default(false),
+    documentLink: text('documentLink'),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
  

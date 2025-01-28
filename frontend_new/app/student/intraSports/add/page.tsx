@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
+import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   event: z.string().min(1, "Event is required"),
@@ -30,10 +31,10 @@ export default function IntraSportsForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       event: "",
-      link: "",
       startDate: "",
       endDate: "",
       yearOfEvent: "",
+      link: "",
     },
   });
 
@@ -42,7 +43,7 @@ export default function IntraSportsForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        "http://localhost:5500/api/v1/journal",
+        `${backendUrl}/api/v1/intraSports`,
         values,
         {
           withCredentials: true,
@@ -68,7 +69,7 @@ export default function IntraSportsForm() {
       toast({
         title: "Submission Error",
         description:
-          "There was an error submitting your event publication. Please try again.",
+          "There was an error submitting your record. Please try again.",
         variant: "destructive",
       });
     }
@@ -121,7 +122,7 @@ export default function IntraSportsForm() {
                       <FormControl>
                         <Input
                           type="date"
-                          placeholder="Enter Start date"
+                          placeholder="Enter Event Start date"
                           {...field}
                         />
                       </FormControl>
@@ -138,7 +139,7 @@ export default function IntraSportsForm() {
                       <FormControl>
                         <Input
                           type="date"
-                          placeholder="Enter End date"
+                          placeholder="Enter Event End date"
                           {...field}
                         />
                       </FormControl>
@@ -154,7 +155,7 @@ export default function IntraSportsForm() {
                   <FormItem>
                     <FormLabel>Enter the year of the event</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex. 2023-24" {...field} />
+                      <Input placeholder="Ex. 2023" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

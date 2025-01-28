@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
+import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   nameOfStudent: z.string().min(1, "Name of student is required"),
@@ -35,7 +36,7 @@ const formSchema = z.object({
   }),
   level: z.enum(["Inter-University", "State", "National", "International"], {
     required_error: "Please select a option",
-}),
+  }),
   nameOfAward: z.enum(["Runner-Up", "Winners"], {
     required_error: "Please select a option",
   }),
@@ -61,7 +62,7 @@ export default function InterSportsForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        "http://localhost:5500/api/v1/journal",
+        `${backendUrl}/api/v1/interSports`,
         values,
         {
           withCredentials: true,
@@ -165,7 +166,7 @@ export default function InterSportsForm() {
                   <FormItem>
                     <FormLabel>Enter the year of the event</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex. 2023-24" {...field} />
+                      <Input placeholder="Ex. 2023" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

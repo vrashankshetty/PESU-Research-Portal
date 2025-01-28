@@ -55,7 +55,6 @@ function CounselingDashboard() {
           `${backendUrl}/api/v1/studentCareerCounselling?startYear=${startYear}&endYear=${endYear}`,
           { withCredentials: true }
         );
-        console.log(response.data);
         setCareerCounsels(response.data);
       } catch (error) {
         console.error("Error fetching career counsels:", error);
@@ -123,8 +122,6 @@ function CounselingDashboard() {
 
   const renderChart = () => {
     const data = getChartData();
-
-    console.log({OtherWorld: data});
 
     if (data && data.length === 0) {
       return (
@@ -338,14 +335,28 @@ function CounselingDashboard() {
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
                 {careerCounsels && careerCounsels.length > 0 ? (
-                    careerCounsels.map((counsel, index) => (
-                        <div key={index} className="flex flex-col p-3 rounded-md bg-gray-100 gap-2">
-                            <div className="text-xl font-sans">{counsel.activityName}</div>
-                            <div className="flex justify-start gap-2 text-xs">
-                                <div className="bg-blue-200 text-blue-700 rounded-lg px-1 py-[0.1rem]">{counsel.year}</div>
-                                <div className="bg-orange-200 text-orange-700 rounded-lg px-1 py-[0.1rem]">{counsel.numberOfStudents} Attendes</div>
-                            </div>
-                        </div>
+                    careerCounsels.map((entry, index) => (
+                      <Card key={index}>
+                        <CardHeader>
+                          <CardTitle>{entry.activityName}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p>
+                            <strong>Year: </strong>{entry.year}
+                          </p>
+                          <p>
+                            <strong>Number of students attended: </strong> {entry.numberOfStudents}
+                          </p>
+                          <a
+                            href={entry.documentLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View Documents
+                          </a>
+                        </CardContent>
+                      </Card>
                     ))
                 ) : (
                     <div>

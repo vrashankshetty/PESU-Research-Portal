@@ -13,6 +13,7 @@ export const studentEntranceExamSchema = Joi.object({
   isGRE: Joi.boolean().default(false),
   isJAM: Joi.boolean().default(false),
   isIELTS: Joi.boolean().default(false),
-  isTOEFL: Joi.boolean().default(false)
+  isTOEFL: Joi.boolean().default(false),
+  documentLink: Joi.string().allow('').default("")
   });
   

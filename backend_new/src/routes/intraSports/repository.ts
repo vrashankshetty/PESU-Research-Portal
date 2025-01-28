@@ -29,19 +29,24 @@ export async function getAllActivities(query: any) {
             endYearOfEvent,
         } = query;
 
+        // Convert startDate and endDate to Date objects if they exist
+        const startDateObj = startDate ? new Date(startDate) : null;
+        const endDateObj = endDate ? new Date(endDate) : null;
+
         const activities = await db.query.intraSports.findMany({
-            orderBy: desc(intraSports.createdAt)
+            orderBy: desc(intraSports.createdAt),
         });
 
-        const filteredActivities = activities.filter(activity => {
+        const filteredActivities = activities.filter((activity) => {
             let isValid = true;
+
             if (startYearOfEvent && activity.yearOfEvent < startYearOfEvent) {
                 isValid = false;
             }
-            if (startDate && activity.startDate < startDate) {
+            if (startDateObj && new Date(activity.startDate) < startDateObj) {
                 isValid = false;
             }
-            if (endDate && activity.endDate > endDate) {
+            if (endDateObj && new Date(activity.endDate) > endDateObj) {
                 isValid = false;
             }
             if (endYearOfEvent && activity.yearOfEvent > endYearOfEvent) {
@@ -69,6 +74,8 @@ export async function createActivity(activityData: IntraSports) {
          await db.insert(intraSports).values({
             id: generateRandomId(),
             ...activityData,
+            startDate: new Date(activityData.startDate),
+            endDate: new Date(activityData.endDate),
         }).returning();
 
         return { message: 'Successful' };
