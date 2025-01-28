@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import axios from "axios"
 import {
   BarChart,
   Bar,
@@ -17,120 +17,125 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from "recharts";
+} from "recharts"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import html2canvas from "html2canvas"
+import { backendUrl } from "@/config"
+import type { DateRange } from "react-day-picker"
+import { DatePickerWithRange } from "@/components/ui/date-picker-with-range"
+import { format } from "date-fns"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import html2canvas from "html2canvas";
-import { backendUrl } from "@/config";
-import { DateRange } from "react-day-picker";
-import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
-import { format } from "date-fns";
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 type Attended = {
-  id: string;
-  userId: string;
-  programTitle: string;
-  durationStartDate: string;
-  durationEndDate: string;
-  documentLink: string | null;
-  year: string;
-  createdAt: string;
-};
+  id: string
+  userId: string
+  programTitle: string
+  durationStartDate: string
+  durationEndDate: string
+  documentLink: string | null
+  year: string
+  createdAt: string
+}
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
 
 function AttendedDashboard() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [attended, setAttended] = useState<Attended[]>([]);
-  const [filteredAttended, setFilteredAttended] = useState<Attended[]>([]);
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [attended, setAttended] = useState<Attended[]>([])
+  const [filteredAttended, setFilteredAttended] = useState<Attended[]>([])
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
-  });
-  const chartRef = useRef<HTMLDivElement>(null);
+  })
+  const chartRef = useRef<HTMLDivElement>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [cardCurrentPage, setCardCurrentPage] = useState(1)
+  const itemsPerPage = 10
+  const cardsPerPage = 6
+  const [visiblePages, setVisiblePages] = useState(5)
 
   useEffect(() => {
     const fetchAttended = async () => {
       try {
-        const response = await axios.get(
-          `${backendUrl}/api/v1/departmentAttendedActivity`,
-          {
-            withCredentials: true,
-          }
-        );
-        setAttended(response.data);
+        const response = await axios.get(`${backendUrl}/api/v1/departmentAttendedActivity`, {
+          withCredentials: true,
+        })
+        setAttended(response.data)
       } catch (error) {
-        console.error("Error fetching attended events:", error);
+        console.error("Error fetching attended events:", error)
       }
-    };
-    fetchAttended();
-  }, []);
+    }
+    fetchAttended()
+  }, [])
 
   const updateQueryParams = useCallback(() => {
-    const params = new URLSearchParams(searchParams);
-    params.set("chartType", chartType);
-    params.set("dateStart", dateRange?.from?.toISOString() || "");
-    params.set("dateEnd", dateRange?.to?.toISOString() || "");
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }, [chartType, dateRange, router, searchParams]);
+    const params = new URLSearchParams(searchParams)
+    params.set("chartType", chartType)
+    params.set("dateStart", dateRange?.from?.toISOString() || "")
+    params.set("dateEnd", dateRange?.to?.toISOString() || "")
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }, [chartType, dateRange, router, searchParams])
 
   useEffect(() => {
     const filtered = attended.filter((event) => {
-      const eventStartDate = new Date(event.durationStartDate);
-      const eventEndDate = new Date(event.durationEndDate);
+      const eventStartDate = new Date(event.durationStartDate)
+      const eventEndDate = new Date(event.durationEndDate)
 
       if (dateRange?.from && dateRange?.to) {
-        return eventStartDate >= dateRange.from && eventEndDate <= dateRange.to;
+        return eventStartDate >= dateRange.from && eventEndDate <= dateRange.to
       }
       if (dateRange?.from) {
-        return eventStartDate >= dateRange.from;
+        return eventStartDate >= dateRange.from
       }
       if (dateRange?.to) {
-        return eventEndDate <= dateRange.to;
+        return eventEndDate <= dateRange.to
       }
-      return true;
-    });
+      return true
+    })
 
-    setFilteredAttended(filtered);
-    updateQueryParams();
-  }, [attended, dateRange, updateQueryParams]);
+    setFilteredAttended(filtered)
+    updateQueryParams()
+  }, [attended, dateRange, updateQueryParams])
 
   const getChartData = () => {
-    const data: { [key: string]: number } = {};
+    const data: { [key: string]: number } = {}
     filteredAttended.forEach((event) => {
-      const monthYear = format(new Date(event.durationStartDate), "MMM yyyy");
-      data[monthYear] = (data[monthYear] || 0) + 1;
-    });
+      const monthYear = format(new Date(event.durationStartDate), "MMM yyyy")
+      data[monthYear] = (data[monthYear] || 0) + 1
+    })
     return Object.entries(data)
       .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  };
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }
 
   const renderChart = () => {
-    const data = getChartData();
+    const data = getChartData()
 
     if (data.length === 0) {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <p className="text-lg font-semibold">No Matching Data Available</p>
         </div>
-      );
+      )
     }
 
     const commonProps = {
       data,
       margin: { top: 5, right: 30, left: 20, bottom: 5 },
-    };
+    }
 
     switch (chartType) {
       case "bar":
@@ -144,15 +149,12 @@ function AttendedDashboard() {
               <Legend />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        );
+        )
       case "line":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -165,7 +167,7 @@ function AttendedDashboard() {
               <Line type="monotone" dataKey="value" stroke="#8884d8" />
             </LineChart>
           </ResponsiveContainer>
-        );
+        )
       case "pie":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -178,45 +180,33 @@ function AttendedDashboard() {
                 outerRadius={150}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
               >
                 {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        );
+        )
     }
-  };
+  }
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
-        const link = document.createElement("a");
-        link.download = "attended_chart.png";
-        link.href = canvas.toDataURL();
-        link.click();
-      });
+        const link = document.createElement("a")
+        link.download = "attended_chart.png"
+        link.href = canvas.toDataURL()
+        link.click()
+      })
     }
-  };
+  }
 
   const downloadTableAsCSV = () => {
-    const headers = [
-      "Serial No",
-      "Year",
-      "Program Title",
-      "Duration Start",
-      "Duration End",
-      "Document Link",
-    ];
+    const headers = ["Serial No", "Year", "Program Title", "Duration Start", "Duration End", "Document Link"]
     const csvContent = [
       headers.join(","),
       ...filteredAttended.map((event, index) =>
@@ -227,22 +217,70 @@ function AttendedDashboard() {
           event.durationStartDate,
           event.durationEndDate,
           event.documentLink,
-        ].join(",")
+        ].join(","),
       ),
-    ].join("\n");
+    ].join("\n")
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
     if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", "attended_data.csv");
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const url = URL.createObjectURL(blob)
+      link.setAttribute("href", url)
+      link.setAttribute("download", "attended_data.csv")
+      link.style.visibility = "hidden"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     }
-  };
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setVisiblePages(3)
+      } else if (window.innerWidth < 768) {
+        setVisiblePages(5)
+      } else {
+        setVisiblePages(10)
+      }
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
+  const getPageNumbers = (currentPage: number, totalPages: number, maxVisible: number) => {
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1)
+    }
+
+    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1)
+    let end = start + maxVisible - 1
+
+    if (end > totalPages) {
+      end = totalPages
+      start = Math.max(end - maxVisible + 1, 1)
+    }
+
+    const pages: (number | null)[] = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+
+    if (start > 1) {
+      pages.unshift(1)
+      if (start > 2) {
+        pages.splice(1, 0, null)
+      }
+    }
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) {
+        pages.push(null)
+      }
+      pages.push(totalPages)
+    }
+
+    return pages
+  }
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
@@ -254,12 +292,7 @@ function AttendedDashboard() {
             <CardTitle>Visualization</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select
-              value={chartType}
-              onValueChange={(value: "bar" | "line" | "pie") =>
-                setChartType(value)
-              }
-            >
+            <Select value={chartType} onValueChange={(value: "bar" | "line" | "pie") => setChartType(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select chart type" />
               </SelectTrigger>
@@ -318,35 +351,68 @@ function AttendedDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredAttended.map((event, index) => (
-                      <tr key={event.id} className="bg-white border-b">
-                        <td className="px-6 py-4">{index + 1}</td>
-                        <td className="px-6 py-4">{event.year}</td>
-                        <td className="px-6 py-4">{event.programTitle}</td>
-                        <td className="px-6 py-4">
-                          {new Date(
-                            event.durationStartDate
-                          ).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          {new Date(event.durationEndDate).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          {event.documentLink && (
-                            <a
-                              href={event.documentLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
-                            >
-                              View
-                            </a>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredAttended
+                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .map((event, index) => (
+                        <tr key={event.id} className="bg-white border-b">
+                          <td className="px-6 py-4">{index + 1}</td>
+                          <td className="px-6 py-4">{event.year}</td>
+                          <td className="px-6 py-4">{event.programTitle}</td>
+                          <td className="px-6 py-4">{new Date(event.durationStartDate).toLocaleDateString()}</td>
+                          <td className="px-6 py-4">{new Date(event.durationEndDate).toLocaleDateString()}</td>
+                          <td className="px-6 py-4">
+                            {event.documentLink && (
+                              <a
+                                href={event.documentLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                View
+                              </a>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
+                <Pagination className="mt-4">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                   
+                      />
+                    </PaginationItem>
+                    {getPageNumbers(currentPage, Math.ceil(filteredAttended.length / itemsPerPage), visiblePages).map(
+                      (pageNumber, index) =>
+                        pageNumber === null ? (
+                          <PaginationItem key={`ellipsis-${index}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(pageNumber)}
+                              isActive={currentPage === pageNumber}
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ),
+                    )}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(Math.ceil(filteredAttended.length / itemsPerPage), prev + 1),
+                          )
+                        }
+                     
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               </div>
               <Button onClick={downloadTableAsCSV} className="mt-4">
                 Download Table as CSV
@@ -354,41 +420,78 @@ function AttendedDashboard() {
             </TabsContent>
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredAttended.map((event, index) => (
-                  <Card key={event.id}>
-                    <CardHeader>
-                      <CardTitle>{event.programTitle}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p>
-                        <strong>Year:</strong> {event.year}
-                      </p>
-                      <p>
-                        <strong>Duration:</strong>{" "}
-                        {new Date(event.durationStartDate).toLocaleDateString()}{" "}
-                        to{" "}
-                        {new Date(event.durationEndDate).toLocaleDateString()}
-                      </p>
-                      {event.documentLink && (
-                        <a
-                          href={event.documentLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          View Document
-                        </a>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                {filteredAttended
+                  .slice((cardCurrentPage - 1) * cardsPerPage, cardCurrentPage * cardsPerPage)
+                  .map((event, index) => (
+                    <Card key={event.id}>
+                      <CardHeader>
+                        <CardTitle>{event.programTitle}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p>
+                          <strong>Year:</strong> {event.year}
+                        </p>
+                        <p>
+                          <strong>Duration:</strong> {new Date(event.durationStartDate).toLocaleDateString()} to{" "}
+                          {new Date(event.durationEndDate).toLocaleDateString()}
+                        </p>
+                        {event.documentLink && (
+                          <a
+                            href={event.documentLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View Document
+                          </a>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
               </div>
+              <Pagination className="mt-4">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCardCurrentPage((prev) => Math.max(1, prev - 1))}
+               
+                    />
+                  </PaginationItem>
+                  {getPageNumbers(cardCurrentPage, Math.ceil(filteredAttended.length / cardsPerPage), visiblePages).map(
+                    (pageNumber, index) =>
+                      pageNumber === null ? (
+                        <PaginationItem key={`ellipsis-${index}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      ) : (
+                        <PaginationItem key={pageNumber}>
+                          <PaginationLink
+                            onClick={() => setCardCurrentPage(pageNumber)}
+                            isActive={cardCurrentPage === pageNumber}
+                          >
+                            {pageNumber}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ),
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() =>
+                        setCardCurrentPage((prev) =>
+                          Math.min(Math.ceil(filteredAttended.length / cardsPerPage), prev + 1),
+                        )
+                      }
+             
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
 
 export default function AttendedAnalyze() {
@@ -396,5 +499,6 @@ export default function AttendedAnalyze() {
     <Suspense fallback={<div>Loading...</div>}>
       <AttendedDashboard />
     </Suspense>
-  );
+  )
 }
+
