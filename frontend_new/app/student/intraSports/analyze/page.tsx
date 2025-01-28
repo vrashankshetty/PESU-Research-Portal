@@ -45,15 +45,16 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 function IntraSportsDashboard() {
   const [intraSports, setIntraSports] = useState<IntraSports[] | null>(null);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
-  const [startYear, setStartYear] = useState<number>(2000);
-  const [endYear, setEndYear] = useState<number>(new Date().getFullYear());
+  const [startDate, setStartDate] = useState<string>('2000-01-01');
+  const [endDate, setEndDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    console.log(`${backendUrl}/api/v1/intraSports?startDate=${startDate}&endDate=${endDate}`)
     const fetchIntraSports = async () => {
       try {
         const response = await axios.get(
-          `${backendUrl}/api/v1/intraSports?startDate=${startYear}-01-01&endDate=${endYear}-01-01`,
+          `${backendUrl}/api/v1/intraSports?startDate=${startDate}&endDate=${endDate}`,
           { withCredentials: true }
         );
         setIntraSports(response.data);
@@ -62,7 +63,7 @@ function IntraSportsDashboard() {
       }
     };
     fetchIntraSports();
-  }, [startYear, endYear]);
+  }, [startDate, endDate]);
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
@@ -246,20 +247,18 @@ function IntraSportsDashboard() {
                 <Label htmlFor="yearStart">Start Year</Label>
                 <Input
                     id="yearStart"
-                    type="number"
-                    min="0"
-                    value={startYear}
-                    onChange={(e) => setStartYear(e.target.valueAsNumber)}
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
                 />
             </div>
             <div className="flex-1">
                 <Label htmlFor="yearStart">End Year</Label>
                 <Input
                     id="yearStart"
-                    type="number"
-                    min="0"
-                    value={endYear}
-                    onChange={(e) => setEndYear(e.target.valueAsNumber)}
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
                 />
             </div>
           </CardContent>
