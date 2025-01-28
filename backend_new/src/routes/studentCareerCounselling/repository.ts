@@ -1,12 +1,9 @@
-
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import db from '../../db';
 import { errs } from '../../utils/catch-error';
 import { generateRandomId } from '../../utils/generate-id';
 import { studentCareerCounselling } from '../../models/studentCareerCounselling';
 import { StudentCareerCounselling } from '../../types';
-
-
 
 export async function getEachActivity(id: string) {
     try {
@@ -19,18 +16,12 @@ export async function getEachActivity(id: string) {
     }
 }
 
-export async function getAllActivities(query:any) {
+export async function getAllActivities(query: any) {
     try {
-        const {
-            startYear,
-            endYear,
-            activityName,
-            numberOfStudents,
-            documentLink
-        } = query;
+        const { startYear, endYear, activityName, numberOfStudents, documentLink } = query;
 
         const activities = await db.query.studentCareerCounselling.findMany({
-            orderBy: desc(studentCareerCounselling.createdAt)
+            orderBy: desc(studentCareerCounselling.createdAt),
         });
 
         const filteredActivities = activities.filter(activity => {
@@ -55,40 +46,45 @@ export async function getAllActivities(query:any) {
 
         return filteredActivities;
     } catch (error) {
-        console.log("err in repo", error);
+        console.log('err in repo', error);
         errs(error);
     }
 }
 
-
 export async function createActivity(activityData: StudentCareerCounselling) {
     try {
-         await db.insert(studentCareerCounselling).values({
-            id: generateRandomId(),
-            ...activityData,
-        }).returning();
+        await db
+            .insert(studentCareerCounselling)
+            .values({
+                id: generateRandomId(),
+                ...activityData,
+            })
+            .returning();
 
         return { message: 'Successful' };
-
     } catch (error) {
         console.log(error);
         errs(error);
     }
 }
 
-export async function updateActivity(activityData: StudentCareerCounselling, id: string,) {
+export async function updateActivity(activityData: StudentCareerCounselling, id: string) {
     try {
         const uptData = await db.query.studentCareerCounselling.findFirst({
-            where: and(eq(studentCareerCounselling.id, id))
+            where: and(eq(studentCareerCounselling.id, id)),
         });
 
         if (!uptData) {
             return { status: 404, message: 'Not Found' };
         }
 
-        const [updatedActivity] = await db.update(studentCareerCounselling).set({
-            ...activityData,
-        }).where(eq(studentCareerCounselling.id, id)).returning();
+        const [updatedActivity] = await db
+            .update(studentCareerCounselling)
+            .set({
+                ...activityData,
+            })
+            .where(eq(studentCareerCounselling.id, id))
+            .returning();
 
         if (!updatedActivity?.id) {
             throw new Error('Error updating Activity');
@@ -96,7 +92,7 @@ export async function updateActivity(activityData: StudentCareerCounselling, id:
 
         return { message: 'Update successful' };
     } catch (error) {
-        console.log("error", error);
+        console.log('error', error);
         errs(error);
     }
 }
@@ -104,7 +100,7 @@ export async function updateActivity(activityData: StudentCareerCounselling, id:
 export async function deleteActivity(id: string) {
     try {
         const getData = await db.query.studentCareerCounselling.findFirst({
-            where: eq(studentCareerCounselling.id, id)
+            where: eq(studentCareerCounselling.id, id),
         });
         if (!getData) {
             return { status: 404, message: 'Not Found' };

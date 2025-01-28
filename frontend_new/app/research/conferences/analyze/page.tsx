@@ -33,12 +33,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import { backendUrl } from "@/config";
-import Cookie from 'js-cookie';
+import Cookie from "js-cookie";
 
 type Conference = {
   teacherIds: string[];
   campus: string;
-  dept: "EC" | "CSE";
+  dept: string;
   bookTitle: string;
   paperTitle: string;
   proceedings_conference_title: string;
@@ -50,7 +50,7 @@ type Conference = {
   is_affiliating_institution_same: boolean;
   publisherName: string;
   impactFactor: string;
-  core: "coreA" | "coreB" | "coreC" | "scopus" | "NA";
+  core: string;
   link_of_paper: string;
   isCapstone: boolean;
   abstract: string;
@@ -101,11 +101,10 @@ function ConferenceDashboard() {
   useEffect(() => {
     const fetchConferences = async () => {
       try {
-        console.log("Cookies",Cookie.get("accessToken"));
-        const response = await axios.get(
-          `${backendUrl}/api/v1/conference`,
-          { withCredentials: true }
-        );
+        console.log("Cookies", Cookie.get("accessToken"));
+        const response = await axios.get(`${backendUrl}/api/v1/conference`, {
+          withCredentials: true,
+        });
         setConferences(response.data);
       } catch (error) {
         console.error("Error fetching conferences:", error);
@@ -137,7 +136,6 @@ function ConferenceDashboard() {
     );
   }, [searchParams]);
 
-  
   useEffect(() => {
     const filtered = conferences.filter((conference) => {
       const yearInRange =

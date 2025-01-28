@@ -1,4 +1,3 @@
-
 import { and, desc, eq, ilike, inArray } from 'drizzle-orm';
 import db from '../../db';
 import { journal } from '../../models/journal';
@@ -8,65 +7,63 @@ import { generateRandomId } from '../../utils/generate-id';
 import { journalUser } from '../../models/journalUser';
 import { user } from '../../models/user';
 
-
-
-export async function getEachJournal(id: string,userId:string,role:string,accessTo:string) {
+export async function getEachJournal(id: string, userId: string, role: string, accessTo: string) {
     try {
-        if(role === 'admin' && (accessTo === 'all' || accessTo === 'research')){
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
             const journal = await db.query.journalUser.findFirst({
-                where:and(eq(journalUser.journalId,id)),
-                with:{
-                    journal:{
-                        with:{
-                            teacherAdmin:{
-                                columns:{
-                                    password:false,
-                                }
+                where: and(eq(journalUser.journalId, id)),
+                with: {
+                    journal: {
+                        with: {
+                            teacherAdmin: {
+                                columns: {
+                                    password: false,
+                                },
                             },
-                            teachers:{
-                               with:{
-                                    user:{
-                                        columns:{
-                                            password:false
-                                        }
+                            teachers: {
+                                with: {
+                                    user: {
+                                        columns: {
+                                            password: false,
+                                        },
                                     },
-                               },
-                               orderBy:desc(journalUser.createdAt)
-                            }
-                        }
-                    }
-                }
-            })
-            if(journal?.journal){
+                                },
+                                orderBy: desc(journalUser.createdAt),
+                            },
+                        },
+                    },
+                },
+            });
+            if (journal?.journal) {
                 return journal;
             }
             return null;
         }
         const journal = await db.query.journalUser.findFirst({
-            where:and(eq(journalUser.journalId,id),eq(journalUser.userId,userId)),
-            with:{
-                journal:{
-                    with:{
-                        teacherAdmin:{
-                            columns:{
-                                password:false,
-                            }
+            where: and(eq(journalUser.journalId, id), eq(journalUser.userId, userId)),
+            with: {
+                journal: {
+                    with: {
+                        teacherAdmin: {
+                            columns: {
+                                password: false,
+                            },
                         },
-                        teachers:{
-                           with:{
-                                user:{
-                                    columns:{
-                                        password:false
-                                    }
+                        teachers: {
+                            with: {
+                                user: {
+                                    columns: {
+                                        password: false,
+                                    },
                                 },
-                           },
-                           orderBy:desc(journalUser.createdAt)
-                        }
-                    }
-                }
-            }
-        })
-        if(journal?.journal){
+                            },
+                            orderBy: desc(journalUser.createdAt),
+                        },
+                    },
+                },
+            },
+        });
+        if (journal?.journal) {
             return journal;
         }
         return null;
@@ -75,50 +72,58 @@ export async function getEachJournal(id: string,userId:string,role:string,access
     }
 }
 
-
-export async function getAllJournal(userId:string,role:string,accessTo:string) {
+export async function getAllJournal(userId: string, role: string, accessTo: string) {
     try {
-        if(role === 'admin' && (accessTo === 'all' || accessTo === 'research')){
-            const journals =  await db.query.journal.findMany({
-                orderBy:desc(journalUser.createdAt)
-             })
-            const formattedconf= journals.map((s)=>({addedAt:s.createdAt,...s}))
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
+            const journals = await db.query.journal.findMany({
+                orderBy: desc(journalUser.createdAt),
+            });
+            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s }));
             return formattedconf;
         }
-        
-        const journals =  await db.query.journalUser.findMany({
-            where:eq(journalUser.userId,userId),
-            columns:{
-                userId:false,
-                journalId:false,
-                id:false,
+
+        const journals = await db.query.journalUser.findMany({
+            where: eq(journalUser.userId, userId),
+            columns: {
+                userId: false,
+                journalId: false,
+                id: false,
             },
-            with:{
-                journal:true
+            with: {
+                journal: true,
             },
-            orderBy:desc(journalUser.createdAt)
-         })
-        const formattedjournals= journals.map((s)=>({addedAt:s.createdAt,...s.journal}))
+            orderBy: desc(journalUser.createdAt),
+        });
+        const formattedjournals = journals.map(s => ({ addedAt: s.createdAt, ...s.journal }));
         return formattedjournals;
     } catch (error) {
-        console.log("err in repo",error)
+        console.log('err in repo', error);
         errs(error);
     }
 }
 
-
-export async function createJournal(journalData: Journal,userId:string) {
+export async function createJournal(journalData: Journal, userId: string) {
     let journalId = '';
     const { teacherIds, ...expData } = journalData;
 
     try {
+        const user1 = await db.query.user.findFirst({
+            where: eq(user.id, userId),
+        });
+        if (!user1) {
+            throw new Error('User not found');
+        }
 
-        const [insertedJournal] = await db.insert(journal).values({
-            id: generateRandomId(),
-            teacherAdminId:userId,
-            ...expData,
-        }).returning();
-
+        const [insertedJournal] = await db
+            .insert(journal)
+            .values({
+                id: generateRandomId(),
+                teacherAdminId: userId,
+                ...expData,
+                campus: user1.campus,
+                dept: user1.dept,
+            })
+            .returning();
 
         if (!insertedJournal?.id) {
             throw new Error('Error creating Journal');
@@ -137,120 +142,128 @@ export async function createJournal(journalData: Journal,userId:string) {
             }
 
             await Promise.all(
-                newteacherIds.map((tId) => 
-                    db.insert(journalUser).values({
-                        id: generateRandomId(),
-                        userId: tId,
-                        journalId,
-                    }).returning()
-                )
+                newteacherIds.map(tId =>
+                    db
+                        .insert(journalUser)
+                        .values({
+                            id: generateRandomId(),
+                            userId: tId,
+                            journalId,
+                        })
+                        .returning(),
+                ),
             );
         }
 
         return { message: 'Successful' };
-
     } catch (error) {
         if (journalId) {
             await Promise.all([
                 db.delete(journal).where(eq(journal.id, journalId)),
-                db.delete(journalUser).where(eq(journalUser.journalId, journalId))
+                db.delete(journalUser).where(eq(journalUser.journalId, journalId)),
             ]);
         }
         console.log(error);
-        errs(error); 
+        errs(error);
     }
 }
 
-
-export async function updateJournal(journalData: Journal, id: string,userId:string) {
+export async function updateJournal(journalData: Journal, id: string, userId: string) {
     const { teacherIds, ...expData } = journalData;
 
     try {
         const uptData = await db.query.journal.findFirst({
-            where:and(eq(journal.id,id),eq(journal.teacherAdminId,userId))
-        })
-        if(!uptData){
-            return {status:403,message:'Forbidden' }
+            where: and(eq(journal.id, id), eq(journal.teacherAdminId, userId)),
+        });
+        if (!uptData) {
+            return { status: 403, message: 'Forbidden' };
         }
-        const [updatedJournal] = await db.update(journal).set({
-            ...expData,
-        }).where(eq(journal.id, id)).returning();
+        const [updatedJournal] = await db
+            .update(journal)
+            .set({
+                ...expData,
+            })
+            .where(eq(journal.id, id))
+            .returning();
 
         if (!updatedJournal?.id) {
             throw new Error('Error updating Journal');
         }
-            const existingTeachers = await db.query.journalUser.findMany({
-                where: eq(journalUser.journalId, id),
-            });
-            teacherIds.push(userId);
-            const newteacherIds = [...new Set(teacherIds)];
-            const existingTeacherIds = existingTeachers.map((t) => t.userId);
-            const teachersToAdd = newteacherIds.filter((tId) => !existingTeacherIds.includes(tId));
-            const teachersToRemove = existingTeacherIds.filter((tId) => !newteacherIds.includes(tId));
-            if (teachersToAdd.length > 0) {
-                await Promise.all(
-                    teachersToAdd.map((tId) =>
-                        db.insert(journalUser).values({
+        const existingTeachers = await db.query.journalUser.findMany({
+            where: eq(journalUser.journalId, id),
+        });
+        teacherIds.push(userId);
+        const newteacherIds = [...new Set(teacherIds)];
+        const existingTeacherIds = existingTeachers.map(t => t.userId);
+        const teachersToAdd = newteacherIds.filter(tId => !existingTeacherIds.includes(tId));
+        const teachersToRemove = existingTeacherIds.filter(tId => !newteacherIds.includes(tId));
+        if (teachersToAdd.length > 0) {
+            await Promise.all(
+                teachersToAdd.map(tId =>
+                    db
+                        .insert(journalUser)
+                        .values({
                             id: generateRandomId(),
                             userId: tId,
                             journalId: id,
-                        }).returning()
-                    )
-                );
-            }
-            if (teachersToRemove.length > 0) {
-                await db.delete(journalUser)
-                    .where(and(eq(journalUser.journalId, id), inArray(journalUser.userId, teachersToRemove)));
-            }
-        return { status:200,message: 'Update successful' };
+                        })
+                        .returning(),
+                ),
+            );
+        }
+        if (teachersToRemove.length > 0) {
+            await db
+                .delete(journalUser)
+                .where(and(eq(journalUser.journalId, id), inArray(journalUser.userId, teachersToRemove)));
+        }
+        return { status: 200, message: 'Update successful' };
     } catch (error) {
-        console.log("error",error);
+        console.log('error', error);
         errs(error);
     }
 }
 
-
-export async function deleteJournal(id:string,userId:string) {
+export async function deleteJournal(id: string, userId: string) {
     try {
         const getData = await db.query.journal.findFirst({
-            where:eq(journal.id,id)
-        })
-        if(!getData?.teacherAdminId){
-            return {status:200,data:{}};
+            where: eq(journal.id, id),
+        });
+        if (!getData?.teacherAdminId) {
+            return { status: 200, data: {} };
         }
-        if(getData?.teacherAdminId === userId){
-            await db.delete(journalUser).where(eq(journalUser.journalId,id));
-            await db.delete(journal).where(eq(journal.id,id));
-            return {status:200,data:'Successfully deleted'};
+        if (getData?.teacherAdminId === userId) {
+            await db.delete(journalUser).where(eq(journalUser.journalId, id));
+            await db.delete(journal).where(eq(journal.id, id));
+            return { status: 200, data: 'Successfully deleted' };
         }
-         return {status:403,data:'Forbidden'};
+        return { status: 403, data: 'Forbidden' };
     } catch (error) {
-        console.log(error)
+        console.log(error);
         errs(error);
     }
 }
 
-
-
-export async function seedJournal(patentData: Journal,name:string) {
+export async function seedJournal(patentData: Journal, name: string) {
     let patentId = '';
     const { teacherIds, ...expData } = patentData;
     try {
         const user1 = await db.query.user.findFirst({
-            where: ilike(user.name,`%${name}%`)
-        })
-        if(!user1){
+            where: ilike(user.name, `%${name}%`),
+        });
+        if (!user1) {
             throw new Error('User not found');
         }
 
-         const [insertedPatent] = await db.insert(journal).values({
-            id: generateRandomId(),
-            teacherAdminId:user1.id,
-            ...patentData,
-            campus:user1.campus,
-            dept:user1.dept,
-        }).returning();
-
+        const [insertedPatent] = await db
+            .insert(journal)
+            .values({
+                id: generateRandomId(),
+                teacherAdminId: user1.id,
+                ...patentData,
+                campus: user1.campus,
+                dept: user1.dept,
+            })
+            .returning();
 
         if (!insertedPatent?.id) {
             throw new Error('Error creating Patent');
@@ -261,38 +274,39 @@ export async function seedJournal(patentData: Journal,name:string) {
         teacherIds.push(name);
 
         const newteacherIds = [...new Set(teacherIds)];
-        console.log("name",name)
+        console.log('name', name);
         if (newteacherIds.length > 0) {
             await Promise.all(
-                newteacherIds.map(async (tId) => {
+                newteacherIds.map(async tId => {
                     const user1 = await db.query.user.findFirst({
-                        where: ilike(user.name,`%${tId}%`)
-                    })
-                    
+                        where: ilike(user.name, `%${tId}%`),
+                    });
+
                     if (!user1) {
                         throw new Error('User not found');
                     }
-        
-                    await db.insert(journalUser).values({
-                        id: generateRandomId(),
-                        userId: user1.id,
-                        journalId:patentId,
-                    }).returning();
-                })
+
+                    await db
+                        .insert(journalUser)
+                        .values({
+                            id: generateRandomId(),
+                            userId: user1.id,
+                            journalId: patentId,
+                        })
+                        .returning();
+                }),
             );
         }
 
         return { message: 'Successful' };
-
     } catch (error) {
         if (patentId) {
             await Promise.all([
                 db.delete(journal).where(eq(journal.id, patentId)),
-                db.delete(journalUser).where(eq(journalUser.journalId, patentId))
+                db.delete(journalUser).where(eq(journalUser.journalId, patentId)),
             ]);
         }
         console.log(error);
-        errs(error); 
+        errs(error);
     }
 }
-

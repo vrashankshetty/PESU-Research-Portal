@@ -34,7 +34,7 @@ import axios from "axios";
 import { backendUrl } from "@/config";
 
 const departmentExpertiseMap = {
-  "CSE": [
+  CSE: [
     "ML/AI",
     "DATA SCIENCE",
     "IOT",
@@ -49,7 +49,7 @@ const departmentExpertiseMap = {
     "BIG DATA AND DATA ANALYTICS",
     "DATA MINING",
   ],
-  "ECE": [
+  ECE: [
     "DIGITAL VLSI",
     "ANALOG VLSI",
     "SIGNAL PROCESSING",

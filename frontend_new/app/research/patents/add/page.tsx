@@ -14,13 +14,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -29,12 +22,6 @@ import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   teacherIds: z.array(z.string()),
-  campus: z.enum(["EC", "RR", "HSN"], {
-    required_error: "Please select a campus.",
-  }),
-  dept: z.enum(["EC", "CSE"], {
-    required_error: "Please select a department.",
-  }),
   patentNumber: z.string().min(1, "Patent number is required"),
   patentTitle: z.string().min(1, "Patent title is required"),
   isCapstone: z.boolean().default(false),
@@ -47,8 +34,6 @@ export default function PatentForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       teacherIds: [],
-      campus: undefined,
-      dept: undefined,
       patentNumber: "",
       patentTitle: "",
       isCapstone: false,
@@ -61,16 +46,12 @@ export default function PatentForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/v1/patent`,
-        values,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post(`${backendUrl}/api/v1/patent`, values, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response.status === 201) {
         toast({
@@ -114,55 +95,6 @@ export default function PatentForm() {
                       <FormControl>
                         <Input placeholder="Enter Patent Number" {...field} />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="campus"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Campus</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a campus" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="EC">EC</SelectItem>
-                          <SelectItem value="RR">RR</SelectItem>
-                          <SelectItem value="HSN">HSN</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dept"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Department</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a department" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="EC">EC</SelectItem>
-                          <SelectItem value="CSE">CSE</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

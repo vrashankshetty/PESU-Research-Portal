@@ -1,8 +1,4 @@
-
-import { integer, pgTable, text,timestamp} from 'drizzle-orm/pg-core';
-
-
-
+import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const studentCareerCounselling = pgTable('studentCareerCounselling', {
     id: text('id').primaryKey(),
@@ -12,5 +8,3 @@ export const studentCareerCounselling = pgTable('studentCareerCounselling', {
     documentLink: text('documentLink'),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
- 
-

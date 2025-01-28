@@ -31,12 +31,6 @@ import { backendUrl } from "@/config";
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   teacherIds: z.array(z.string()),
-  campus: z.enum(["EC", "RR", "HSN"], {
-    required_error: "Please select a campus.",
-  }),
-  dept: z.enum(["EC", "CSE"], {
-    required_error: "Please select a department.",
-  }),
   journalName: z.string().min(1, "Journal name is required"),
   month: z.string().min(1, "Month is required"),
   year: z.string().regex(/^\d{4}$/, "Year must be a 4-digit number"),
@@ -72,8 +66,6 @@ export default function JournalForm() {
     defaultValues: {
       title: "",
       teacherIds: [],
-      campus: undefined,
-      dept: undefined,
       journalName: "",
       month: "",
       year: "",
@@ -144,57 +136,6 @@ export default function JournalForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="campus"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Campus</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a campus" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="EC">EC</SelectItem>
-                          <SelectItem value="RR">RR</SelectItem>
-                          <SelectItem value="HSN">HSN</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dept"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Department</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a department" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="EC">EC</SelectItem>
-                          <SelectItem value="CSE">CSE</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
               <FormField
                 control={form.control}
                 name="title"

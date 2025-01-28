@@ -1,6 +1,4 @@
-
-import { pgTable, text,timestamp,boolean} from 'drizzle-orm/pg-core';
-
+import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
 export const studentEntranceExam = pgTable('studentEntranceExam', {
     id: text('id').primaryKey(),
@@ -19,5 +17,3 @@ export const studentEntranceExam = pgTable('studentEntranceExam', {
     documentLink: text('documentLink'),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
- 
-

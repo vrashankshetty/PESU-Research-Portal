@@ -36,8 +36,8 @@ import { backendUrl } from "@/config";
 
 type Patent = {
   teacherAdminId: string;
-  campus: "EC" | "RR" | "HSN";
-  dept: "EC" | "CSE";
+  campus: string;
+  dept: string;
   patentNumber: string;
   patentTitle: string;
   isCapstone: boolean;
@@ -51,8 +51,8 @@ interface Teacher {
   password: string;
   name: string;
   phno: string;
-  dept: "EC" | "CSE";
-  campus: "EC" | "RR" | "HSN";
+  dept: string;
+  campus: string;
   panNo: string;
   qualification: string;
   designation: string;
@@ -135,10 +135,9 @@ function ImprovedPatentDashboard() {
   useEffect(() => {
     const fetchPatents = async () => {
       try {
-        const response = await axios.get(
-          `${backendUrl}/api/v1/patent`,
-          { withCredentials: true }
-        );
+        const response = await axios.get(`${backendUrl}/api/v1/patent`, {
+          withCredentials: true,
+        });
         console.log(response);
         setPatents(response.data);
       } catch (error) {

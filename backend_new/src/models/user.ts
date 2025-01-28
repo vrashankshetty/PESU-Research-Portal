@@ -18,7 +18,7 @@ export const user = pgTable('users', {
     sId: text('sId').notNull(),
     oId: text('oId').notNull(),
     role: text('role').notNull().default('user'),
-    accessTo : text('accessTo').notNull().default('none'),
+    accessTo: text('accessTo').notNull().default('none'),
     profileImg: text('profileImg'),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
