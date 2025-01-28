@@ -1,11 +1,9 @@
-
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import db from '../../db';
 import { errs } from '../../utils/catch-error';
 import { generateRandomId } from '../../utils/generate-id';
 import { IntraSports } from '../../types';
 import { intraSports } from '../../models/intraSports';
-
 
 export async function getEachActivity(id: string) {
     try {
@@ -20,14 +18,7 @@ export async function getEachActivity(id: string) {
 
 export async function getAllActivities(query: any) {
     try {
-        const {
-            event,
-            startDate,
-            endDate,
-            link,
-            startYearOfEvent,
-            endYearOfEvent,
-        } = query;
+        const { event, startDate, endDate, link, startYearOfEvent, endYearOfEvent } = query;
 
         // Convert startDate and endDate to Date objects if they exist
         const startDateObj = startDate ? new Date(startDate) : null;
@@ -37,7 +28,7 @@ export async function getAllActivities(query: any) {
             orderBy: desc(intraSports.createdAt),
         });
 
-        const filteredActivities = activities.filter((activity) => {
+        const filteredActivities = activities.filter(activity => {
             let isValid = true;
 
             if (startYearOfEvent && activity.yearOfEvent < startYearOfEvent) {
@@ -63,42 +54,47 @@ export async function getAllActivities(query: any) {
 
         return filteredActivities;
     } catch (error) {
-        console.log("err in repo", error);
+        console.log('err in repo', error);
         errs(error);
     }
 }
 
-
 export async function createActivity(activityData: IntraSports) {
     try {
-         await db.insert(intraSports).values({
-            id: generateRandomId(),
-            ...activityData,
-            startDate: new Date(activityData.startDate),
-            endDate: new Date(activityData.endDate),
-        }).returning();
+        await db
+            .insert(intraSports)
+            .values({
+                id: generateRandomId(),
+                ...activityData,
+                startDate: new Date(activityData.startDate),
+                endDate: new Date(activityData.endDate),
+            })
+            .returning();
 
         return { message: 'Successful' };
-
     } catch (error) {
         console.log(error);
         errs(error);
     }
 }
 
-export async function updateActivity(activityData: IntraSports, id: string,) {
+export async function updateActivity(activityData: IntraSports, id: string) {
     try {
         const uptData = await db.query.intraSports.findFirst({
-            where: and(eq(intraSports.id, id))
+            where: and(eq(intraSports.id, id)),
         });
 
         if (!uptData) {
             return { status: 404, message: 'Not Found' };
         }
 
-        const [updatedActivity] = await db.update(intraSports).set({
-            ...activityData,
-        }).where(eq(intraSports.id, id)).returning();
+        const [updatedActivity] = await db
+            .update(intraSports)
+            .set({
+                ...activityData,
+            })
+            .where(eq(intraSports.id, id))
+            .returning();
 
         if (!updatedActivity?.id) {
             throw new Error('Error updating Activity');
@@ -106,7 +102,7 @@ export async function updateActivity(activityData: IntraSports, id: string,) {
 
         return { message: 'Update successful' };
     } catch (error) {
-        console.log("error", error);
+        console.log('error', error);
         errs(error);
     }
 }
@@ -114,7 +110,7 @@ export async function updateActivity(activityData: IntraSports, id: string,) {
 export async function deleteActivity(id: string) {
     try {
         const getData = await db.query.intraSports.findFirst({
-            where: eq(intraSports.id, id)
+            where: eq(intraSports.id, id),
         });
         if (!getData) {
             return { status: 404, message: 'Not Found' };

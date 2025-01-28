@@ -150,10 +150,7 @@ export default function ConductedForm() {
                   <FormItem>
                     <FormLabel>Name of Program</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter program name"
-                        {...field}
-                      />
+                      <Input placeholder="Enter program name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

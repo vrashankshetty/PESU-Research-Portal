@@ -1,8 +1,4 @@
-
-import { pgTable, text,timestamp} from 'drizzle-orm/pg-core';
-
-
-
+import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const studentHigherStudies = pgTable('studentHigherStudies', {
     id: text('id').primaryKey(),
@@ -14,5 +10,3 @@ export const studentHigherStudies = pgTable('studentHigherStudies', {
     year: text('year').notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
- 
-
