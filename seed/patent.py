@@ -19,8 +19,6 @@ data_list = [
     {
         "name": "Dr. Suja C M",
         "teacherIds": [],
-        "dept": "CSE",
-        "campus": "EC",
         "patentNumber": "409651-001",
         "patentTitle": "FRUIT PICKER",
         "year": "2024",
@@ -29,8 +27,6 @@ data_list = [
     {
         "name": "Deepti Chandrasekharan",
         "teacherIds": [],
-        "dept": "CSE",
-        "campus": "EC",
         "patentNumber": "541176",
         "patentTitle": "A SHOPPING TROLLEY WITH AUTOMATIC BILLING SYSTEM",
         "year": "2024",
@@ -39,8 +35,6 @@ data_list = [
     {
         "name": "Surbhi Choudhary",
         "teacherIds": [],
-        "dept": "CSE",
-        "campus": "EC",
         "patentNumber": "415054-001",
         "patentTitle": "SMART SHOPPING TROLLEY",
         "year": "2024",
@@ -49,8 +43,6 @@ data_list = [
     {
         "name": "Dr. Prajwala Ranganath talanki",
         "teacherIds": ["Dr. Chandrashekhar Pomu Chavan"],
-        "dept": "CSE",
-        "campus": "EC",
         "patentNumber": "556591",
         "patentTitle": "Connectionless Vending Machine Using Encrypted QR Code",
         "year": "2024",
@@ -59,8 +51,6 @@ data_list = [
     {
         "name": "Dr. Suja C M",
         "teacherIds": ["Dr. Vaishali Dasharath Shinde"],
-        "dept": "CSE",
-        "campus": "EC",
         "patentNumber": "6407605",
         "patentTitle": "AI-based computer for a holistic data governance framework",
         "year": "2024",
@@ -72,8 +62,6 @@ data_list = [
             "J Ruby Dinakar",
             "Divya Ebenezer Nathaniel"
         ],
-        "dept": "CSE",
-        "campus": "EC",
         "patentNumber": "224414",
         "patentTitle": "IoT Disaster Prediction Device",
         "year": "2024",
@@ -82,6 +70,8 @@ data_list = [
 ]
 
 
+
+print("Started seeding patent data...")
 
 for record in data_list:
     try:
