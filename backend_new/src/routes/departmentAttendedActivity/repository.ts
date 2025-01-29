@@ -1,9 +1,10 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, ilike } from 'drizzle-orm';
 import db from '../../db';
 import { errs } from '../../utils/catch-error';
 import { generateRandomId } from '../../utils/generate-id';
 import { DepartmentAttendedActivity } from '../../types';
 import { departmentAttendedActivity } from '../../models/departmentAttendedActivity';
+import { user } from '../../models/user';
 
 export async function getEachActivity(id: string, userId: string, role: string, accessTo: string) {
     try {
@@ -141,6 +142,46 @@ export async function deleteActivity(id: string, userId: string) {
         await db.delete(departmentAttendedActivity).where(eq(departmentAttendedActivity.id, id));
         return { message: 'Delete successful' };
     } catch (error) {
+        console.log(error);
+        errs(error);
+    }
+}
+
+
+
+export async function seedActivity(patentData: DepartmentAttendedActivity, name: string) {
+    let patentId = '';
+    try {
+        const user1 = await db.query.user.findFirst({
+            where: ilike(user.name, `%${name}%`),
+        });
+        if (!user1) {
+            throw new Error('User not found');
+        }
+
+        const [insertedPatent] = await db
+            .insert(departmentAttendedActivity)
+            .values({
+                id: generateRandomId(),
+                userId: user1.id,
+                ...patentData,
+                durationStartDate: new Date(patentData.durationStartDate),
+                durationEndDate: new Date(patentData.durationEndDate),
+            })
+            .returning();
+
+        if (!insertedPatent?.id) {
+            throw new Error('Error creating Patent');
+        }
+        patentId = insertedPatent.id;
+
+        return { message: 'Successful' };
+    } catch (error) {
+        if (patentId) {
+            await Promise.all([
+                db.delete(departmentAttendedActivity).where(eq(departmentAttendedActivity.id, patentId)),
+            ]);
+        }
         console.log(error);
         errs(error);
     }

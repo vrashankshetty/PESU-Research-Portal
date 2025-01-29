@@ -1,7 +1,7 @@
 import express from 'express';
 import { catchError } from '../../utils/catch-error';
 import handleValidationError from '../../utils/handle-validation-error';
-import { createActivity, deleteActivity, getAllActivities, getEachActivity, updateActivity } from './repository';
+import { createActivity, deleteActivity, getAllActivities, getEachActivity, seedActivity, updateActivity } from './repository';
 import { departmentAttendedActivitySchema } from './schema';
 
 const Router = express.Router();
@@ -86,6 +86,25 @@ Router.delete('/:id', async (req, res) => {
         }
         return res.status(200).send(activityData?.message);
     } catch (error) {
+        catchError(error, res);
+    }
+});
+
+
+Router.post('/seed', async (req, res) => {
+    try {
+        const data = req.body;
+        const { name, ...rest } = data;
+        const { error } = departmentAttendedActivitySchema.validate(rest, { abortEarly: false });
+        if (error) {
+            console.log('error', error);
+            return handleValidationError(error, res);
+        }
+
+        const journalData = await seedActivity(rest, name);
+        res.status(201).send(journalData);
+    } catch (error) {
+        console.log('catch error', error);
         catchError(error, res);
     }
 });
