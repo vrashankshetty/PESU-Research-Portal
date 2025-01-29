@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import axios from "axios"
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -17,16 +17,22 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from "recharts"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import html2canvas from "html2canvas"
-import { backendUrl } from "@/config"
+} from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
 import {
   Pagination,
   PaginationContent,
@@ -35,172 +41,211 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
+import Spinner from "@/components/spinner";
 
 type Journal = {
-  title: string
-  teacherIds: string[]
-  campus: string
-  dept: string
-  journalName: string
-  month: string
-  year: string
-  volumeNo: string
-  issueNo: string
-  issn: string
-  websiteLink?: string
-  articleLink?: string
-  isUGC: boolean
-  isScopus: boolean
-  isWOS: boolean
-  qNo: string
-  impactFactor?: string
-  isCapstone: boolean
-  isAffiliating: boolean
-  pageNumber: number
-  abstract: string
-  keywords: string[]
-  domain: string
-}
+  title: string;
+  teacherIds: string[];
+  campus: string;
+  dept: string;
+  journalName: string;
+  month: string;
+  year: string;
+  volumeNo: string;
+  issueNo: string;
+  issn: string;
+  websiteLink?: string;
+  articleLink?: string;
+  isUGC: boolean;
+  isScopus: boolean;
+  isWOS: boolean;
+  qNo: string;
+  impactFactor?: string;
+  isCapstone: boolean;
+  isAffiliating: boolean;
+  pageNumber: number;
+  abstract: string;
+  keywords: string[];
+  domain: string;
+};
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 function JournalDashboard() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [journals, setJournals] = useState<Journal[]>([])
-  const [filteredJournals, setFilteredJournals] = useState<Journal[]>([])
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
-  const [metric, setMetric] = useState<"campus" | "dept" | "year" | "qNo">("campus")
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" })
-  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([])
-  const [selectedDepts, setSelectedDepts] = useState<string[]>([])
-  const [selectedQNos, setSelectedQNos] = useState<string[]>([])
-  const chartRef = useRef<HTMLDivElement>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [cardCurrentPage, setCardCurrentPage] = useState(1)
-  const itemsPerPage = 10
-  const cardsPerPage = 6
-  const [visiblePages, setVisiblePages] = useState(5)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [journals, setJournals] = useState<Journal[]>([]);
+  const [filteredJournals, setFilteredJournals] = useState<Journal[]>([]);
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [metric, setMetric] = useState<"campus" | "dept" | "year" | "qNo">(
+    "campus"
+  );
+  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
+  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
+  const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
+  const [selectedQNos, setSelectedQNos] = useState<string[]>([]);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cardCurrentPage, setCardCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const cardsPerPage = 6;
+  const [visiblePages, setVisiblePages] = useState(5);
 
   const updateQueryParams = useCallback(() => {
-    const params = new URLSearchParams(searchParams)
-    params.set("chartType", chartType)
-    params.set("metric", metric)
-    params.set("yearStart", yearRange.start)
-    params.set("yearEnd", yearRange.end)
-    params.set("campuses", selectedCampuses.join(","))
-    params.set("depts", selectedDepts.join(","))
-    params.set("qNos", selectedQNos.join(","))
-    router.replace(`?${params.toString()}`)
-  }, [chartType, metric, yearRange, selectedCampuses, selectedDepts, selectedQNos, router, searchParams])
+    const params = new URLSearchParams(searchParams);
+    params.set("chartType", chartType);
+    params.set("metric", metric);
+    params.set("yearStart", yearRange.start);
+    params.set("yearEnd", yearRange.end);
+    params.set("campuses", selectedCampuses.join(","));
+    params.set("depts", selectedDepts.join(","));
+    params.set("qNos", selectedQNos.join(","));
+    router.replace(`?${params.toString()}`);
+  }, [
+    chartType,
+    metric,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    selectedQNos,
+    router,
+    searchParams,
+  ]);
 
   useEffect(() => {
     const fetchJournals = async () => {
       try {
         const response = await axios.get(`${backendUrl}/api/v1/journal`, {
           withCredentials: true,
-        })
-        setJournals(response.data)
+        });
+        setJournals(response.data);
       } catch (error) {
-        console.error("Error fetching journals:", error)
+        console.error("Error fetching journals:", error);
       }
-    }
-    fetchJournals()
-  }, [])
+    };
+    fetchJournals();
+  }, []);
 
   useEffect(() => {
-    setChartType((searchParams.get("chartType") as "bar" | "line" | "pie") || "bar")
-    setMetric((searchParams.get("metric") as "campus" | "dept" | "year" | "qNo") || "campus")
+    setChartType(
+      (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
+    );
+    setMetric(
+      (searchParams.get("metric") as "campus" | "dept" | "year" | "qNo") ||
+        "campus"
+    );
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
       end: searchParams.get("yearEnd") || "2024",
-    })
-    setSelectedCampuses(searchParams.get("campuses")?.split(",").filter(Boolean) || [])
-    setSelectedDepts(searchParams.get("depts")?.split(",").filter(Boolean) || [])
-    setSelectedQNos(searchParams.get("qNos")?.split(",").filter(Boolean) || [])
-  }, [searchParams])
+    });
+    setSelectedCampuses(
+      searchParams.get("campuses")?.split(",").filter(Boolean) || []
+    );
+    setSelectedDepts(
+      searchParams.get("depts")?.split(",").filter(Boolean) || []
+    );
+    setSelectedQNos(searchParams.get("qNos")?.split(",").filter(Boolean) || []);
+  }, [searchParams]);
 
   useEffect(() => {
     const filtered = journals.filter((journal) => {
       const yearInRange =
         Number.parseInt(journal.year) >= Number.parseInt(yearRange.start) &&
-        Number.parseInt(journal.year) <= Number.parseInt(yearRange.end)
-      const campusMatch = selectedCampuses.length === 0 || selectedCampuses.includes(journal.campus)
-      const deptMatch = selectedDepts.length === 0 || selectedDepts.includes(journal.dept)
-      const qNoMatch = selectedQNos.length === 0 || selectedQNos.includes(journal.qNo)
-      return yearInRange && campusMatch && deptMatch && qNoMatch
-    })
-    setFilteredJournals(filtered)
-    updateQueryParams()
-  }, [journals, yearRange, selectedCampuses, selectedDepts, selectedQNos, updateQueryParams])
+        Number.parseInt(journal.year) <= Number.parseInt(yearRange.end);
+      const campusMatch =
+        selectedCampuses.length === 0 ||
+        selectedCampuses.includes(journal.campus);
+      const deptMatch =
+        selectedDepts.length === 0 || selectedDepts.includes(journal.dept);
+      const qNoMatch =
+        selectedQNos.length === 0 || selectedQNos.includes(journal.qNo);
+      return yearInRange && campusMatch && deptMatch && qNoMatch;
+    });
+    setFilteredJournals(filtered);
+    updateQueryParams();
+  }, [
+    journals,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    selectedQNos,
+    updateQueryParams,
+  ]);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setVisiblePages(3)
+        setVisiblePages(3);
       } else if (window.innerWidth < 768) {
-        setVisiblePages(5)
+        setVisiblePages(5);
       } else {
-        setVisiblePages(10)
+        setVisiblePages(10);
       }
-    }
+    };
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const getChartData = () => {
-    const data: { [key: string]: number } = {}
+    const data: { [key: string]: number } = {};
     filteredJournals.forEach((journal) => {
-      const key = journal[metric]
-      data[key] = (data[key] || 0) + 1
-    })
-    return Object.entries(data).map(([name, value]) => ({ name, value }))
-  }
+      const key = journal[metric];
+      data[key] = (data[key] || 0) + 1;
+    });
+    return Object.entries(data).map(([name, value]) => ({ name, value }));
+  };
 
-  const getPageNumbers = (currentPage: number, totalPages: number, maxVisible: number) => {
+  const getPageNumbers = (
+    currentPage: number,
+    totalPages: number,
+    maxVisible: number
+  ) => {
     if (totalPages <= maxVisible) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1)
-    let end = start + maxVisible - 1
+    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1);
+    let end = start + maxVisible - 1;
 
     if (end > totalPages) {
-      end = totalPages
-      start = Math.max(end - maxVisible + 1, 1)
+      end = totalPages;
+      start = Math.max(end - maxVisible + 1, 1);
     }
 
-    const pages: (number | null)[] = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+    const pages: (number | null)[] = Array.from(
+      { length: end - start + 1 },
+      (_, i) => start + i
+    );
 
     if (start > 1) {
-      pages.unshift(1)
+      pages.unshift(1);
       if (start > 2) {
-        pages.splice(1, 0, null)
+        pages.splice(1, 0, null);
       }
     }
 
     if (end < totalPages) {
       if (end < totalPages - 1) {
-        pages.push(null)
+        pages.push(null);
       }
-      pages.push(totalPages)
+      pages.push(totalPages);
     }
 
-    return pages
-  }
+    return pages;
+  };
 
   const renderChart = () => {
-    const data = getChartData()
+    const data = getChartData();
 
     if (data.length === 0) {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <p className="text-lg font-semibold">No Matching Data Available</p>
         </div>
-      )
+      );
     }
 
     switch (chartType) {
@@ -221,12 +266,15 @@ function JournalDashboard() {
               <Legend />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        )
+        );
       case "line":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -252,7 +300,7 @@ function JournalDashboard() {
               />
             </LineChart>
           </ResponsiveContainer>
-        )
+        );
       case "pie":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -265,10 +313,15 @@ function JournalDashboard() {
                 outerRadius={150}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) =>
+                  `${name} ${(percent * 100).toFixed(0)}%`
+                }
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip
@@ -281,20 +334,20 @@ function JournalDashboard() {
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        )
+        );
     }
-  }
+  };
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
-        const link = document.createElement("a")
-        link.download = "journal_chart.png"
-        link.href = canvas.toDataURL()
-        link.click()
-      })
+        const link = document.createElement("a");
+        link.download = "journal_chart.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
     }
-  }
+  };
 
   const downloadTableAsCSV = () => {
     const headers = [
@@ -322,7 +375,7 @@ function JournalDashboard() {
       "Abstract",
       "Keywords",
       "Domain",
-    ]
+    ];
     const csvContent = [
       headers.join(","),
       ...filteredJournals.map((journal) =>
@@ -350,22 +403,22 @@ function JournalDashboard() {
           `"${journal.abstract.replace(/"/g, '""')}"`,
           `"${journal.keywords.join(";")}"`,
           journal.domain,
-        ].join(","),
+        ].join(",")
       ),
-    ].join("\n")
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const link = document.createElement("a")
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob)
-      link.setAttribute("href", url)
-      link.setAttribute("download", "journal_data.csv")
-      link.style.visibility = "hidden"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "journal_data.csv");
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  }
+  };
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
@@ -377,7 +430,12 @@ function JournalDashboard() {
             <CardTitle>Visualization</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={chartType} onValueChange={(value: "bar" | "line" | "pie") => setChartType(value)}>
+            <Select
+              value={chartType}
+              onValueChange={(value: "bar" | "line" | "pie") =>
+                setChartType(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select chart type" />
               </SelectTrigger>
@@ -395,7 +453,12 @@ function JournalDashboard() {
             <CardTitle>Analysis Metric</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={metric} onValueChange={(value: "campus" | "dept" | "year" | "qNo") => setMetric(value)}>
+            <Select
+              value={metric}
+              onValueChange={(value: "campus" | "dept" | "year" | "qNo") =>
+                setMetric(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select metric" />
               </SelectTrigger>
@@ -422,7 +485,9 @@ function JournalDashboard() {
                 min="1990"
                 max="2099"
                 value={yearRange.start}
-                onChange={(e) => setYearRange({ ...yearRange, start: e.target.value })}
+                onChange={(e) =>
+                  setYearRange({ ...yearRange, start: e.target.value })
+                }
               />
             </div>
             <div className="flex-1">
@@ -433,7 +498,9 @@ function JournalDashboard() {
                 min="1990"
                 max="2099"
                 value={yearRange.end}
-                onChange={(e) => setYearRange({ ...yearRange, end: e.target.value })}
+                onChange={(e) =>
+                  setYearRange({ ...yearRange, end: e.target.value })
+                }
               />
             </div>
           </CardContent>
@@ -454,8 +521,10 @@ function JournalDashboard() {
                     checked={selectedCampuses.includes(campus)}
                     onCheckedChange={(checked) => {
                       setSelectedCampuses(
-                        checked ? [...selectedCampuses, campus] : selectedCampuses.filter((c) => c !== campus),
-                      )
+                        checked
+                          ? [...selectedCampuses, campus]
+                          : selectedCampuses.filter((c) => c !== campus)
+                      );
                     }}
                   />
                   <Label htmlFor={`campus-${campus}`}>{campus}</Label>
@@ -477,7 +546,11 @@ function JournalDashboard() {
                     id={`dept-${dept}`}
                     checked={selectedDepts.includes(dept)}
                     onCheckedChange={(checked) => {
-                      setSelectedDepts(checked ? [...selectedDepts, dept] : selectedDepts.filter((d) => d !== dept))
+                      setSelectedDepts(
+                        checked
+                          ? [...selectedDepts, dept]
+                          : selectedDepts.filter((d) => d !== dept)
+                      );
                     }}
                   />
                   <Label htmlFor={`dept-${dept}`}>{dept}</Label>
@@ -499,7 +572,11 @@ function JournalDashboard() {
                     id={`qNo-${qNo}`}
                     checked={selectedQNos.includes(qNo)}
                     onCheckedChange={(checked) => {
-                      setSelectedQNos(checked ? [...selectedQNos, qNo] : selectedQNos.filter((q) => q !== qNo))
+                      setSelectedQNos(
+                        checked
+                          ? [...selectedQNos, qNo]
+                          : selectedQNos.filter((q) => q !== qNo)
+                      );
                     }}
                   />
                   <Label htmlFor={`qNo-${qNo}`}>{qNo}</Label>
@@ -537,7 +614,7 @@ function JournalDashboard() {
                 <table className="w-full text-sm text-left text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3">Serial No</th>
+                      <th className="px-6 py-3">S No.</th>
                       <th className="px-6 py-3">Title</th>
                       <th className="px-6 py-3">Campus</th>
                       <th className="px-6 py-3">Department</th>
@@ -550,17 +627,24 @@ function JournalDashboard() {
                   </thead>
                   <tbody>
                     {filteredJournals
-                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .slice(
+                        (currentPage - 1) * itemsPerPage,
+                        currentPage * itemsPerPage
+                      )
                       .map((journal, index) => (
                         <tr key={index} className="bg-white border-b">
-                          <td className="px-6 py-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                          <td className="px-6 py-4">
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
                           <td className="px-6 py-4">{journal.title}</td>
                           <td className="px-6 py-4">{journal.campus}</td>
                           <td className="px-6 py-4">{journal.dept}</td>
                           <td className="px-6 py-4">{journal.journalName}</td>
                           <td className="px-6 py-4">{journal.year}</td>
                           <td className="px-6 py-4">{journal.qNo}</td>
-                          <td className="px-6 py-4">{journal.impactFactor || "N/A"}</td>
+                          <td className="px-6 py-4">
+                            {journal.impactFactor || "N/A"}
+                          </td>
                           <td className="px-6 py-4">
                             {journal.articleLink ? (
                               <a
@@ -584,33 +668,41 @@ function JournalDashboard() {
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-               
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
                     />
                   </PaginationItem>
-                  {getPageNumbers(currentPage, Math.ceil(filteredJournals.length / itemsPerPage), visiblePages).map(
-                    (pageNumber, index) =>
-                      pageNumber === null ? (
-                        <PaginationItem key={`ellipsis-${index}`}>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      ) : (
-                        <PaginationItem key={pageNumber}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(pageNumber)}
-                            isActive={currentPage === pageNumber}
-                          >
-                            {pageNumber}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ),
+                  {getPageNumbers(
+                    currentPage,
+                    Math.ceil(filteredJournals.length / itemsPerPage),
+                    visiblePages
+                  ).map((pageNumber, index) =>
+                    pageNumber === null ? (
+                      <PaginationItem key={`ellipsis-${index}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={pageNumber}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(pageNumber)}
+                          isActive={currentPage === pageNumber}
+                        >
+                          {pageNumber}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
                   )}
                   <PaginationItem>
                     <PaginationNext
                       onClick={() =>
-                        setCurrentPage((prev) => Math.min(Math.ceil(filteredJournals.length / itemsPerPage), prev + 1))
+                        setCurrentPage((prev) =>
+                          Math.min(
+                            Math.ceil(filteredJournals.length / itemsPerPage),
+                            prev + 1
+                          )
+                        )
                       }
-                  
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -619,7 +711,10 @@ function JournalDashboard() {
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredJournals
-                  .slice((cardCurrentPage - 1) * cardsPerPage, cardCurrentPage * cardsPerPage)
+                  .slice(
+                    (cardCurrentPage - 1) * cardsPerPage,
+                    cardCurrentPage * cardsPerPage
+                  )
                   .map((journal, index) => (
                     <Card key={index}>
                       <CardHeader>
@@ -645,13 +740,15 @@ function JournalDashboard() {
                           <strong>Q No:</strong> {journal.qNo}
                         </p>
                         <p>
-                          <strong>Impact Factor:</strong> {journal.impactFactor || "N/A"}
+                          <strong>Impact Factor:</strong>{" "}
+                          {journal.impactFactor || "N/A"}
                         </p>
                         <p>
                           <strong>UGC:</strong> {journal.isUGC ? "Yes" : "No"}
                         </p>
                         <p>
-                          <strong>Scopus:</strong> {journal.isScopus ? "Yes" : "No"}
+                          <strong>Scopus:</strong>{" "}
+                          {journal.isScopus ? "Yes" : "No"}
                         </p>
                         <p>
                           <strong>WOS:</strong> {journal.isWOS ? "Yes" : "No"}
@@ -674,35 +771,41 @@ function JournalDashboard() {
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => setCardCurrentPage((prev) => Math.max(1, prev - 1))}
-                     
+                      onClick={() =>
+                        setCardCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
                     />
                   </PaginationItem>
-                  {getPageNumbers(cardCurrentPage, Math.ceil(filteredJournals.length / cardsPerPage), visiblePages).map(
-                    (pageNumber, index) =>
-                      pageNumber === null ? (
-                        <PaginationItem key={`ellipsis-${index}`}>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      ) : (
-                        <PaginationItem key={pageNumber}>
-                          <PaginationLink
-                            onClick={() => setCardCurrentPage(pageNumber)}
-                            isActive={cardCurrentPage === pageNumber}
-                          >
-                            {pageNumber}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ),
+                  {getPageNumbers(
+                    cardCurrentPage,
+                    Math.ceil(filteredJournals.length / cardsPerPage),
+                    visiblePages
+                  ).map((pageNumber, index) =>
+                    pageNumber === null ? (
+                      <PaginationItem key={`ellipsis-${index}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={pageNumber}>
+                        <PaginationLink
+                          onClick={() => setCardCurrentPage(pageNumber)}
+                          isActive={cardCurrentPage === pageNumber}
+                        >
+                          {pageNumber}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
                   )}
                   <PaginationItem>
                     <PaginationNext
                       onClick={() =>
                         setCardCurrentPage((prev) =>
-                          Math.min(Math.ceil(filteredJournals.length / cardsPerPage), prev + 1),
+                          Math.min(
+                            Math.ceil(filteredJournals.length / cardsPerPage),
+                            prev + 1
+                          )
                         )
                       }
-               
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -712,14 +815,13 @@ function JournalDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 export default function JournalAnalyze() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Spinner />}>
       <JournalDashboard />
     </Suspense>
-  )
+  );
 }
-

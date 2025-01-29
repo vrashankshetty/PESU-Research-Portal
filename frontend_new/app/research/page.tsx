@@ -53,12 +53,12 @@ export default function Research() {
                 <p className="text-gray-600 mb-4">{option.description}</p>
                 <Link href={`/research/${option.href}/add`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    <SquarePlus className="h-6 w-6 ml-2" /> Add Data
+                    <SquarePlus className="h-6 w-6 mr-2" /> Add Data
                   </Button>
                 </Link>
                 <Link href={`/research/${option.href}/analyze`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    <Search className="h-6 w-6 ml-2" /> View, Update & Analyze
+                    <Search className="h-6 w-6 mr-2" /> View, Update & Analyze
                   </Button>
                 </Link>
               </CardContent>

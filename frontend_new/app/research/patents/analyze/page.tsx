@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import axios from "axios"
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -17,16 +17,22 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from "recharts"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import html2canvas from "html2canvas"
-import { backendUrl } from "@/config"
+} from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
 import {
   Pagination,
   PaginationContent,
@@ -35,156 +41,180 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
+import Spinner from "@/components/spinner";
 
 type Patent = {
-  teacherAdminId: string
-  campus: string
-  dept: string
-  patentNumber: string
-  patentTitle: string
-  isCapstone: boolean
-  year: string
-  documentLink: string
-}
+  teacherAdminId: string;
+  campus: string;
+  dept: string;
+  patentNumber: string;
+  patentTitle: string;
+  isCapstone: boolean;
+  year: string;
+  documentLink: string;
+};
 
 interface Teacher {
-  id: string
-  empId: string
-  password: string
-  name: string
-  phno: string
-  dept: string
-  campus: string
-  panNo: string
-  qualification: string
-  designation: string
-  expertise: string
-  dateofJoining: string
-  totalExpBfrJoin: string
-  googleScholarId: string
-  sId: string
-  oId: string
-  profileImg?: string
-  createdAt: string
+  id: string;
+  empId: string;
+  password: string;
+  name: string;
+  phno: string;
+  dept: string;
+  campus: string;
+  panNo: string;
+  qualification: string;
+  designation: string;
+  expertise: string;
+  dateofJoining: string;
+  totalExpBfrJoin: string;
+  googleScholarId: string;
+  sId: string;
+  oId: string;
+  profileImg?: string;
+  createdAt: string;
 }
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 function ImprovedPatentDashboard() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [patents, setPatents] = useState<Patent[]>([])
-  const [filteredPatents, setFilteredPatents] = useState<Patent[]>([])
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
-  const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus")
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" })
-  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([])
-  const [selectedDepts, setSelectedDepts] = useState<string[]>([])
-  const chartRef = useRef<HTMLDivElement>(null)
-  const [teachers, setTeachers] = useState<Teacher[]>([])
-  const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [cardCurrentPage, setCardCurrentPage] = useState(1)
-  const itemsPerPage = 10
-  const cardsPerPage = 6
-  const [visiblePages, setVisiblePages] = useState(5)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [patents, setPatents] = useState<Patent[]>([]);
+  const [filteredPatents, setFilteredPatents] = useState<Patent[]>([]);
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus");
+  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
+  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
+  const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cardCurrentPage, setCardCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const cardsPerPage = 6;
+  const [visiblePages, setVisiblePages] = useState(5);
 
   const getFilteredTeachers = () => {
     console.log(
       filteredPatents,
-      teachers.filter((teacher) => filteredPatents.some((patent) => patent.teacherAdminId === teacher.id)),
-    )
-    return teachers.filter((teacher) => filteredPatents.some((patent) => patent.teacherAdminId === teacher.id))
-  }
+      teachers.filter((teacher) =>
+        filteredPatents.some((patent) => patent.teacherAdminId === teacher.id)
+      )
+    );
+    return teachers.filter((teacher) =>
+      filteredPatents.some((patent) => patent.teacherAdminId === teacher.id)
+    );
+  };
 
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
         const response = await axios.get(`${backendUrl}/api/v1/user`, {
           withCredentials: true,
-        })
-        console.log(response.data)
-        setTeachers(response.data)
+        });
+        console.log(response.data);
+        setTeachers(response.data);
       } catch (error) {
-        console.error("Error fetching teachers:", error)
+        console.error("Error fetching teachers:", error);
       }
-    }
-    fetchTeachers()
-  }, [])
+    };
+    fetchTeachers();
+  }, []);
 
   useEffect(() => {
-    setFilteredTeachers(getFilteredTeachers())
-  }, [teachers, filteredPatents])
+    setFilteredTeachers(getFilteredTeachers());
+  }, [teachers, filteredPatents]);
 
   const updateQueryParams = useCallback(() => {
-    const params = new URLSearchParams(searchParams)
-    params.set("chartType", chartType)
-    params.set("metric", metric)
-    params.set("yearStart", yearRange.start)
-    params.set("yearEnd", yearRange.end)
-    params.set("campuses", selectedCampuses.join(","))
-    params.set("depts", selectedDepts.join(","))
-    router.replace(`?${params.toString()}`)
-  }, [chartType, metric, yearRange, selectedCampuses, selectedDepts, router, searchParams])
+    const params = new URLSearchParams(searchParams);
+    params.set("chartType", chartType);
+    params.set("metric", metric);
+    params.set("yearStart", yearRange.start);
+    params.set("yearEnd", yearRange.end);
+    params.set("campuses", selectedCampuses.join(","));
+    params.set("depts", selectedDepts.join(","));
+    router.replace(`?${params.toString()}`);
+  }, [
+    chartType,
+    metric,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    router,
+    searchParams,
+  ]);
 
   useEffect(() => {
     const fetchPatents = async () => {
       try {
         const response = await axios.get(`${backendUrl}/api/v1/patent`, {
           withCredentials: true,
-        })
-        console.log(response)
-        setPatents(response.data)
+        });
+        console.log(response);
+        setPatents(response.data);
       } catch (error) {
-        console.error("Error fetching patents:", error)
+        console.error("Error fetching patents:", error);
       }
-    }
-    fetchPatents()
-  }, [])
+    };
+    fetchPatents();
+  }, []);
 
   useEffect(() => {
-    setChartType((searchParams.get("chartType") as "bar" | "line" | "pie") || "bar")
-    setMetric((searchParams.get("metric") as "campus" | "dept" | "year") || "campus")
+    setChartType(
+      (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
+    );
+    setMetric(
+      (searchParams.get("metric") as "campus" | "dept" | "year") || "campus"
+    );
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
       end: searchParams.get("yearEnd") || "2024",
-    })
-    setSelectedCampuses(searchParams.get("campuses")?.split(",").filter(Boolean) || [])
-    setSelectedDepts(searchParams.get("depts")?.split(",").filter(Boolean) || [])
-  }, [searchParams])
+    });
+    setSelectedCampuses(
+      searchParams.get("campuses")?.split(",").filter(Boolean) || []
+    );
+    setSelectedDepts(
+      searchParams.get("depts")?.split(",").filter(Boolean) || []
+    );
+  }, [searchParams]);
 
   useEffect(() => {
     const filtered = patents.filter((patent) => {
       const yearInRange =
         Number.parseInt(patent.year) >= Number.parseInt(yearRange.start) &&
-        Number.parseInt(patent.year) <= Number.parseInt(yearRange.end)
-      const campusMatch = selectedCampuses.length === 0 || selectedCampuses.includes(patent.campus)
-      const deptMatch = selectedDepts.length === 0 || selectedDepts.includes(patent.dept)
-      return yearInRange && campusMatch && deptMatch
-    })
-    setFilteredPatents(filtered)
-    updateQueryParams()
-  }, [patents, yearRange, selectedCampuses, selectedDepts, updateQueryParams])
+        Number.parseInt(patent.year) <= Number.parseInt(yearRange.end);
+      const campusMatch =
+        selectedCampuses.length === 0 ||
+        selectedCampuses.includes(patent.campus);
+      const deptMatch =
+        selectedDepts.length === 0 || selectedDepts.includes(patent.dept);
+      return yearInRange && campusMatch && deptMatch;
+    });
+    setFilteredPatents(filtered);
+    updateQueryParams();
+  }, [patents, yearRange, selectedCampuses, selectedDepts, updateQueryParams]);
 
   const getChartData = () => {
-    const data: { [key: string]: number } = {}
+    const data: { [key: string]: number } = {};
     filteredPatents.forEach((patent) => {
-      const key = patent[metric]
-      data[key] = (data[key] || 0) + 1
-    })
-    return Object.entries(data).map(([name, value]) => ({ name, value }))
-  }
+      const key = patent[metric];
+      data[key] = (data[key] || 0) + 1;
+    });
+    return Object.entries(data).map(([name, value]) => ({ name, value }));
+  };
 
   const renderChart = () => {
-    const data = getChartData()
+    const data = getChartData();
 
     if (data.length === 0) {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <p className="text-lg font-semibold">No Matching Data Available</p>
         </div>
-      )
+      );
     }
 
     switch (chartType) {
@@ -205,12 +235,15 @@ function ImprovedPatentDashboard() {
               <Legend />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        )
+        );
       case "line":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -236,7 +269,7 @@ function ImprovedPatentDashboard() {
               />
             </LineChart>
           </ResponsiveContainer>
-        )
+        );
       case "pie":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -249,10 +282,15 @@ function ImprovedPatentDashboard() {
                 outerRadius={150}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) =>
+                  `${name} ${(percent * 100).toFixed(0)}%`
+                }
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip
@@ -265,20 +303,20 @@ function ImprovedPatentDashboard() {
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        )
+        );
     }
-  }
+  };
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
-        const link = document.createElement("a")
-        link.download = "patent_chart.png"
-        link.href = canvas.toDataURL()
-        link.click()
-      })
+        const link = document.createElement("a");
+        link.download = "patent_chart.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
     }
-  }
+  };
 
   const downloadTableAsCSV = () => {
     const headers = [
@@ -290,7 +328,7 @@ function ImprovedPatentDashboard() {
       "Year",
       "Capstone",
       "Document Link",
-    ]
+    ];
     const csvContent = [
       headers.join(","),
       ...filteredPatents.map((patent) =>
@@ -303,70 +341,77 @@ function ImprovedPatentDashboard() {
           patent.year,
           patent.isCapstone ? "Yes" : "No",
           patent.documentLink,
-        ].join(","),
+        ].join(",")
       ),
-    ].join("\n")
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const link = document.createElement("a")
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob)
-      link.setAttribute("href", url)
-      link.setAttribute("download", "patent_data.csv")
-      link.style.visibility = "hidden"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "patent_data.csv");
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  }
+  };
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setVisiblePages(3)
+        setVisiblePages(3);
       } else if (window.innerWidth < 768) {
-        setVisiblePages(5)
+        setVisiblePages(5);
       } else {
-        setVisiblePages(10)
+        setVisiblePages(10);
       }
-    }
+    };
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  const getPageNumbers = (currentPage: number, totalPages: number, maxVisible: number) => {
+  const getPageNumbers = (
+    currentPage: number,
+    totalPages: number,
+    maxVisible: number
+  ) => {
     if (totalPages <= maxVisible) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1)
-    let end = start + maxVisible - 1
+    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1);
+    let end = start + maxVisible - 1;
 
     if (end > totalPages) {
-      end = totalPages
-      start = Math.max(end - maxVisible + 1, 1)
+      end = totalPages;
+      start = Math.max(end - maxVisible + 1, 1);
     }
 
-    const pages: (number | null)[] = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+    const pages: (number | null)[] = Array.from(
+      { length: end - start + 1 },
+      (_, i) => start + i
+    );
 
     if (start > 1) {
-      pages.unshift(1)
+      pages.unshift(1);
       if (start > 2) {
-        pages.splice(1, 0, null)
+        pages.splice(1, 0, null);
       }
     }
 
     if (end < totalPages) {
       if (end < totalPages - 1) {
-        pages.push(null)
+        pages.push(null);
       }
-      pages.push(totalPages)
+      pages.push(totalPages);
     }
 
-    return pages
-  }
+    return pages;
+  };
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
@@ -378,7 +423,12 @@ function ImprovedPatentDashboard() {
             <CardTitle>Visualization</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={chartType} onValueChange={(value: "bar" | "line" | "pie") => setChartType(value)}>
+            <Select
+              value={chartType}
+              onValueChange={(value: "bar" | "line" | "pie") =>
+                setChartType(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select chart type" />
               </SelectTrigger>
@@ -396,7 +446,12 @@ function ImprovedPatentDashboard() {
             <CardTitle>Analysis Metric</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={metric} onValueChange={(value: "campus" | "dept" | "year") => setMetric(value)}>
+            <Select
+              value={metric}
+              onValueChange={(value: "campus" | "dept" | "year") =>
+                setMetric(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select metric" />
               </SelectTrigger>
@@ -422,7 +477,9 @@ function ImprovedPatentDashboard() {
                 min="1990"
                 max="2099"
                 value={yearRange.start}
-                onChange={(e) => setYearRange({ ...yearRange, start: e.target.value })}
+                onChange={(e) =>
+                  setYearRange({ ...yearRange, start: e.target.value })
+                }
               />
             </div>
             <div className="flex-1">
@@ -433,7 +490,9 @@ function ImprovedPatentDashboard() {
                 min="1990"
                 max="2099"
                 value={yearRange.end}
-                onChange={(e) => setYearRange({ ...yearRange, end: e.target.value })}
+                onChange={(e) =>
+                  setYearRange({ ...yearRange, end: e.target.value })
+                }
               />
             </div>
           </CardContent>
@@ -454,8 +513,10 @@ function ImprovedPatentDashboard() {
                     checked={selectedCampuses.includes(campus)}
                     onCheckedChange={(checked) => {
                       setSelectedCampuses(
-                        checked ? [...selectedCampuses, campus] : selectedCampuses.filter((c) => c !== campus),
-                      )
+                        checked
+                          ? [...selectedCampuses, campus]
+                          : selectedCampuses.filter((c) => c !== campus)
+                      );
                     }}
                   />
                   <Label htmlFor={`campus-${campus}`}>{campus}</Label>
@@ -477,7 +538,11 @@ function ImprovedPatentDashboard() {
                     id={`dept-${dept}`}
                     checked={selectedDepts.includes(dept)}
                     onCheckedChange={(checked) => {
-                      setSelectedDepts(checked ? [...selectedDepts, dept] : selectedDepts.filter((d) => d !== dept))
+                      setSelectedDepts(
+                        checked
+                          ? [...selectedDepts, dept]
+                          : selectedDepts.filter((d) => d !== dept)
+                      );
                     }}
                   />
                   <Label htmlFor={`dept-${dept}`}>{dept}</Label>
@@ -527,20 +592,29 @@ function ImprovedPatentDashboard() {
                   </thead>
                   <tbody>
                     {filteredPatents
-                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .slice(
+                        (currentPage - 1) * itemsPerPage,
+                        currentPage * itemsPerPage
+                      )
                       .map((patent, index) => {
-                        const teacher = filteredTeachers.find((t) => t.id === patent.teacherAdminId)
-                        console.log(patent.teacherAdminId, filteredTeachers)
+                        const teacher = filteredTeachers.find(
+                          (t) => t.id === patent.teacherAdminId
+                        );
+                        console.log(patent.teacherAdminId, filteredTeachers);
 
                         return (
                           <tr key={index} className="bg-white border-b">
-                            <td className="px-6 py-4">{teacher ? teacher.name : "Unknown"}</td>
+                            <td className="px-6 py-4">
+                              {teacher ? teacher.name : "Unknown"}
+                            </td>
                             <td className="px-6 py-4">{patent.campus}</td>
                             <td className="px-6 py-4">{patent.dept}</td>
                             <td className="px-6 py-4">{patent.patentNumber}</td>
                             <td className="px-6 py-4">{patent.patentTitle}</td>
                             <td className="px-6 py-4">{patent.year}</td>
-                            <td className="px-6 py-4">{patent.isCapstone ? "Yes" : "No"}</td>
+                            <td className="px-6 py-4">
+                              {patent.isCapstone ? "Yes" : "No"}
+                            </td>
                             <td className="px-6 py-4">
                               <a
                                 href={patent.documentLink}
@@ -552,7 +626,7 @@ function ImprovedPatentDashboard() {
                               </a>
                             </td>
                           </tr>
-                        )
+                        );
                       })}
                   </tbody>
                 </table>
@@ -560,33 +634,41 @@ function ImprovedPatentDashboard() {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(1, prev - 1))
+                        }
                       />
                     </PaginationItem>
-                    {getPageNumbers(currentPage, Math.ceil(filteredPatents.length / itemsPerPage), visiblePages).map(
-                      (pageNumber, index) =>
-                        pageNumber === null ? (
-                          <PaginationItem key={`ellipsis-${index}`}>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        ) : (
-                          <PaginationItem key={pageNumber}>
-                            <PaginationLink
-                              onClick={() => setCurrentPage(pageNumber)}
-                              isActive={currentPage === pageNumber}
-                            >
-                              {pageNumber}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ),
+                    {getPageNumbers(
+                      currentPage,
+                      Math.ceil(filteredPatents.length / itemsPerPage),
+                      visiblePages
+                    ).map((pageNumber, index) =>
+                      pageNumber === null ? (
+                        <PaginationItem key={`ellipsis-${index}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      ) : (
+                        <PaginationItem key={pageNumber}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(pageNumber)}
+                            isActive={currentPage === pageNumber}
+                          >
+                            {pageNumber}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )
                     )}
                     <PaginationItem>
                       <PaginationNext
                         onClick={() =>
-                          setCurrentPage((prev) => Math.min(Math.ceil(filteredPatents.length / itemsPerPage), prev + 1))
+                          setCurrentPage((prev) =>
+                            Math.min(
+                              Math.ceil(filteredPatents.length / itemsPerPage),
+                              prev + 1
+                            )
+                          )
                         }
-                      
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -599,9 +681,14 @@ function ImprovedPatentDashboard() {
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredPatents
-                  .slice((cardCurrentPage - 1) * cardsPerPage, cardCurrentPage * cardsPerPage)
+                  .slice(
+                    (cardCurrentPage - 1) * cardsPerPage,
+                    cardCurrentPage * cardsPerPage
+                  )
                   .map((patent, index) => {
-                    const teacher = filteredTeachers.find((t) => t.id === patent.teacherAdminId)
+                    const teacher = filteredTeachers.find(
+                      (t) => t.id === patent.teacherAdminId
+                    );
 
                     return (
                       <Card key={index}>
@@ -610,7 +697,8 @@ function ImprovedPatentDashboard() {
                         </CardHeader>
                         <CardContent>
                           <p>
-                            <strong>Faculty:</strong> {teacher ? teacher.name : "Unknown"}
+                            <strong>Faculty:</strong>{" "}
+                            {teacher ? teacher.name : "Unknown"}
                           </p>
                           <p>
                             <strong>Campus:</strong> {patent.campus}
@@ -619,13 +707,15 @@ function ImprovedPatentDashboard() {
                             <strong>Department:</strong> {patent.dept}
                           </p>
                           <p>
-                            <strong>Patent Number:</strong> {patent.patentNumber}
+                            <strong>Patent Number:</strong>{" "}
+                            {patent.patentNumber}
                           </p>
                           <p>
                             <strong>Year:</strong> {patent.year}
                           </p>
                           <p>
-                            <strong>Capstone:</strong> {patent.isCapstone ? "Yes" : "No"}
+                            <strong>Capstone:</strong>{" "}
+                            {patent.isCapstone ? "Yes" : "No"}
                           </p>
                           <a
                             href={patent.documentLink}
@@ -637,42 +727,48 @@ function ImprovedPatentDashboard() {
                           </a>
                         </CardContent>
                       </Card>
-                    )
+                    );
                   })}
               </div>
               <Pagination className="mt-4">
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => setCardCurrentPage((prev) => Math.max(1, prev - 1))}
-                 
+                      onClick={() =>
+                        setCardCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
                     />
                   </PaginationItem>
-                  {getPageNumbers(cardCurrentPage, Math.ceil(filteredPatents.length / cardsPerPage), visiblePages).map(
-                    (pageNumber, index) =>
-                      pageNumber === null ? (
-                        <PaginationItem key={`ellipsis-${index}`}>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      ) : (
-                        <PaginationItem key={pageNumber}>
-                          <PaginationLink
-                            onClick={() => setCardCurrentPage(pageNumber)}
-                            isActive={cardCurrentPage === pageNumber}
-                          >
-                            {pageNumber}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ),
+                  {getPageNumbers(
+                    cardCurrentPage,
+                    Math.ceil(filteredPatents.length / cardsPerPage),
+                    visiblePages
+                  ).map((pageNumber, index) =>
+                    pageNumber === null ? (
+                      <PaginationItem key={`ellipsis-${index}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={pageNumber}>
+                        <PaginationLink
+                          onClick={() => setCardCurrentPage(pageNumber)}
+                          isActive={cardCurrentPage === pageNumber}
+                        >
+                          {pageNumber}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
                   )}
                   <PaginationItem>
                     <PaginationNext
                       onClick={() =>
                         setCardCurrentPage((prev) =>
-                          Math.min(Math.ceil(filteredPatents.length / cardsPerPage), prev + 1),
+                          Math.min(
+                            Math.ceil(filteredPatents.length / cardsPerPage),
+                            prev + 1
+                          )
                         )
                       }
-   
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -682,14 +778,13 @@ function ImprovedPatentDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 export default function PatentAnalyze() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Spinner />}>
       <ImprovedPatentDashboard />
     </Suspense>
-  )
+  );
 }
-

@@ -37,7 +37,7 @@ function Navbar() {
   const handleLogout = () => {
     Cookie.remove("accessToken", { path: "/" });
     setIsLoggedIn(false);
-    window.location.href = '/login'; 
+    window.location.href = "/login";
   };
 
   const toggleMobileMenu = () => {
@@ -93,7 +93,7 @@ function Navbar() {
                       My Profile
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}>
-                      <LogOut className="mr-2" />
+                      <LogOut className="mr-2 h-4 w-4" />
                       Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>

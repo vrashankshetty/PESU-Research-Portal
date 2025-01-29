@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef, Suspense } from "react"
-import axios from "axios"
+import { useState, useEffect, useRef, Suspense } from "react";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -16,15 +16,21 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from "recharts"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import html2canvas from "html2canvas"
-import { backendUrl } from "@/config"
+} from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
 import {
   Pagination,
   PaginationContent,
@@ -33,114 +39,135 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
+import Spinner from "@/components/spinner";
 
 interface EntranceExams {
-  year: string
-  registrationNumber: string
-  studentName: string
-  isNET: boolean
-  isSLET: boolean
-  isGATE: boolean
-  isGMAT: boolean
-  isCAT: boolean
-  isGRE: boolean
-  isJAM: boolean
-  isIELTS: boolean
-  isTOEFL: boolean
-  documentLink: string
+  year: string;
+  registrationNumber: string;
+  studentName: string;
+  isNET: boolean;
+  isSLET: boolean;
+  isGATE: boolean;
+  isGMAT: boolean;
+  isCAT: boolean;
+  isGRE: boolean;
+  isJAM: boolean;
+  isIELTS: boolean;
+  isTOEFL: boolean;
+  documentLink: string;
 }
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 function EntranceExamsDashboard() {
-  const [entranceExams, setEntranceExams] = useState<EntranceExams[] | null>(null)
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
+  const [entranceExams, setEntranceExams] = useState<EntranceExams[] | null>(
+    null
+  );
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
   const [selectedExam, setSelectedExam] = useState<
-    "NET" | "SLET" | "GATE" | "GMAT" | "CAT" | "GRE" | "JAM" | "IELTS" | "TOEFL" | ""
-  >("")
-  const [startYear, setStartYear] = useState<number>(2000)
-  const [endYear, setEndYear] = useState<number>(new Date().getFullYear())
-  const chartRef = useRef<HTMLDivElement>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [cardCurrentPage, setCardCurrentPage] = useState(1)
-  const itemsPerPage = 10
-  const cardsPerPage = 6
-  const [visiblePages, setVisiblePages] = useState(5)
+    | "NET"
+    | "SLET"
+    | "GATE"
+    | "GMAT"
+    | "CAT"
+    | "GRE"
+    | "JAM"
+    | "IELTS"
+    | "TOEFL"
+    | ""
+  >("");
+  const [startYear, setStartYear] = useState<number>(2000);
+  const [endYear, setEndYear] = useState<number>(new Date().getFullYear());
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cardCurrentPage, setCardCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const cardsPerPage = 6;
+  const [visiblePages, setVisiblePages] = useState(5);
 
   useEffect(() => {
     const fetchHigherStudyDetails = async () => {
       try {
         const response = await axios.get(
-          `${backendUrl}/api/v1/studentEntranceExam?startYear=${startYear}&endYear=${endYear}${selectedExam.length != 0 ? "&is" + selectedExam + "=true" : ""}`,
-          { withCredentials: true },
-        )
-        setEntranceExams(response.data)
+          `${backendUrl}/api/v1/studentEntranceExam?startYear=${startYear}&endYear=${endYear}${
+            selectedExam.length != 0 ? "&is" + selectedExam + "=true" : ""
+          }`,
+          { withCredentials: true }
+        );
+        setEntranceExams(response.data);
       } catch (error) {
-        console.error("Error fetching career counsels:", error)
+        console.error("Error fetching career counsels:", error);
       }
-    }
-    fetchHigherStudyDetails()
-  }, [startYear, endYear, selectedExam])
+    };
+    fetchHigherStudyDetails();
+  }, [startYear, endYear, selectedExam]);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setVisiblePages(3)
+        setVisiblePages(3);
       } else if (window.innerWidth < 768) {
-        setVisiblePages(5)
+        setVisiblePages(5);
       } else {
-        setVisiblePages(10)
+        setVisiblePages(10);
       }
-    }
+    };
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  const getPageNumbers = (currentPage: number, totalPages: number, maxVisible: number) => {
+  const getPageNumbers = (
+    currentPage: number,
+    totalPages: number,
+    maxVisible: number
+  ) => {
     if (totalPages <= maxVisible) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1)
-    let end = start + maxVisible - 1
+    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1);
+    let end = start + maxVisible - 1;
 
     if (end > totalPages) {
-      end = totalPages
-      start = Math.max(end - maxVisible + 1, 1)
+      end = totalPages;
+      start = Math.max(end - maxVisible + 1, 1);
     }
 
-    const pages: (number | null)[] = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+    const pages: (number | null)[] = Array.from(
+      { length: end - start + 1 },
+      (_, i) => start + i
+    );
 
     if (start > 1) {
-      pages.unshift(1)
+      pages.unshift(1);
       if (start > 2) {
-        pages.splice(1, 0, null)
+        pages.splice(1, 0, null);
       }
     }
 
     if (end < totalPages) {
       if (end < totalPages - 1) {
-        pages.push(null)
+        pages.push(null);
       }
-      pages.push(totalPages)
+      pages.push(totalPages);
     }
 
-    return pages
-  }
+    return pages;
+  };
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
-        const link = document.createElement("a")
-        link.download = "EntranceExams.png"
-        link.href = canvas.toDataURL()
-        link.click()
-      })
+        const link = document.createElement("a");
+        link.download = "EntranceExams.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
     }
-  }
+  };
 
   const downloadTableAsCSV = () => {
     if (entranceExams) {
@@ -150,7 +177,7 @@ function EntranceExamsDashboard() {
         "Name of student selected",
         "Examinations Passed",
         "Link to the relevant document",
-      ]
+      ];
 
       const csvContent = [
         headers.join(","),
@@ -167,51 +194,57 @@ function EntranceExamsDashboard() {
             entry.isTOEFL && "TOEFL",
           ]
             .filter(Boolean)
-            .join(" ")
+            .join(" ");
 
-          return [entry.year, entry.registrationNumber, entry.studentName, exams, entry.documentLink].join(",")
+          return [
+            entry.year,
+            entry.registrationNumber,
+            entry.studentName,
+            exams,
+            entry.documentLink,
+          ].join(",");
         }),
-      ].join("\n")
+      ].join("\n");
 
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-      const link = document.createElement("a")
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
       if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob)
-        link.setAttribute("href", url)
-        link.setAttribute("download", "EntranceExams.csv")
-        link.style.visibility = "hidden"
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "EntranceExams.csv");
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
     }
-  }
+  };
 
   const getChartData = () => {
-    const yearCount: Record<string, number> = {}
+    const yearCount: Record<string, number> = {};
     if (entranceExams) {
       entranceExams.forEach((entry) => {
-        const year = entry.year
-        yearCount[year] = (yearCount[year] || 0) + 1
-      })
+        const year = entry.year;
+        yearCount[year] = (yearCount[year] || 0) + 1;
+      });
 
       return Object.entries(yearCount).map(([year, entries]) => ({
         year,
         entries,
-      }))
+      }));
     }
-    return []
-  }
+    return [];
+  };
 
   const renderChart = () => {
-    const data = getChartData()
+    const data = getChartData();
 
     if (data && data.length === 0) {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <p className="text-lg font-semibold">No Matching Data Available</p>
         </div>
-      )
+      );
     }
 
     switch (chartType) {
@@ -233,7 +266,7 @@ function EntranceExamsDashboard() {
               <Bar dataKey="entries" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
-        )
+        );
       case "line":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -259,7 +292,7 @@ function EntranceExamsDashboard() {
               />
             </LineChart>
           </ResponsiveContainer>
-        )
+        );
       case "pie":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -284,18 +317,23 @@ function EntranceExamsDashboard() {
                 label
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-        )
+        );
     }
-  }
+  };
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Entrance Exams Analysis Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Entrance Exams Analysis Dashboard
+      </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <Card>
@@ -303,7 +341,12 @@ function EntranceExamsDashboard() {
             <CardTitle>Visualization</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={chartType} onValueChange={(value: "bar" | "line" | "pie") => setChartType(value)}>
+            <Select
+              value={chartType}
+              onValueChange={(value: "bar" | "line" | "pie") =>
+                setChartType(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select chart type" />
               </SelectTrigger>
@@ -351,9 +394,18 @@ function EntranceExamsDashboard() {
           <CardContent>
             <Select
               value={selectedExam}
-              onValueChange={(value: "NET" | "SLET" | "GATE" | "GMAT" | "CAT" | "GRE" | "JAM" | "IELTS" | "TOEFL") =>
-                setSelectedExam(value)
-              }
+              onValueChange={(
+                value:
+                  | "NET"
+                  | "SLET"
+                  | "GATE"
+                  | "GMAT"
+                  | "CAT"
+                  | "GRE"
+                  | "JAM"
+                  | "IELTS"
+                  | "TOEFL"
+              ) => setSelectedExam(value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select the exam" />
@@ -402,16 +454,23 @@ function EntranceExamsDashboard() {
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
                       <th className="px-6 py-3">Year</th>
-                      <th className="px-6 py-3">Registration number/roll number for the exam</th>
+                      <th className="px-6 py-3">
+                        Registration number/roll number for the exam
+                      </th>
                       <th className="px-6 py-3">Name of student selected</th>
                       <th className="px-6 py-3">Qualifying examination</th>
-                      <th className="px-6 py-3">Link to the relevant document</th>
+                      <th className="px-6 py-3">
+                        Link to the relevant document
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {entranceExams && entranceExams.length > 0 ? (
                       entranceExams
-                        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                        .slice(
+                          (currentPage - 1) * itemsPerPage,
+                          currentPage * itemsPerPage
+                        )
                         .map((entry, index) => {
                           const exams = [
                             entry.isNET && "NET",
@@ -425,12 +484,14 @@ function EntranceExamsDashboard() {
                             entry.isTOEFL && "TOEFL",
                           ]
                             .filter(Boolean)
-                            .join(", ")
+                            .join(", ");
 
                           return (
                             <tr key={index}>
                               <td className="px-6 py-3">{entry.year}</td>
-                              <td className="px-6 py-3">{entry.registrationNumber}</td>
+                              <td className="px-6 py-3">
+                                {entry.registrationNumber}
+                              </td>
                               <td className="px-6 py-3">{entry.studentName}</td>
                               <td className="px-6 py-3">{exams}</td>
                               <td className="px-6 py-3">
@@ -444,7 +505,7 @@ function EntranceExamsDashboard() {
                                 </a>
                               </td>
                             </tr>
-                          )
+                          );
                         })
                     ) : (
                       <tr>
@@ -461,14 +522,15 @@ function EntranceExamsDashboard() {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(1, prev - 1))
+                        }
                       />
                     </PaginationItem>
                     {getPageNumbers(
                       currentPage,
                       Math.ceil((entranceExams?.length || 0) / itemsPerPage),
-                      visiblePages,
+                      visiblePages
                     ).map((pageNumber, index) =>
                       pageNumber === null ? (
                         <PaginationItem key={`ellipsis-${index}`}>
@@ -483,16 +545,20 @@ function EntranceExamsDashboard() {
                             {pageNumber}
                           </PaginationLink>
                         </PaginationItem>
-                      ),
+                      )
                     )}
                     <PaginationItem>
                       <PaginationNext
                         onClick={() =>
                           setCurrentPage((prev) =>
-                            Math.min(Math.ceil((entranceExams?.length || 0) / itemsPerPage), prev + 1),
+                            Math.min(
+                              Math.ceil(
+                                (entranceExams?.length || 0) / itemsPerPage
+                              ),
+                              prev + 1
+                            )
                           )
                         }
-                       
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -506,7 +572,10 @@ function EntranceExamsDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
                 {entranceExams && entranceExams.length > 0 ? (
                   entranceExams
-                    .slice((cardCurrentPage - 1) * cardsPerPage, cardCurrentPage * cardsPerPage)
+                    .slice(
+                      (cardCurrentPage - 1) * cardsPerPage,
+                      cardCurrentPage * cardsPerPage
+                    )
                     .map((entry, index) => {
                       const exams = [
                         entry.isNET && "NET",
@@ -518,7 +587,7 @@ function EntranceExamsDashboard() {
                         entry.isJAM && "JAM",
                         entry.isIELTS && "IELTS",
                         entry.isTOEFL && "TOEFL",
-                      ].filter(Boolean)
+                      ].filter(Boolean);
 
                       return (
                         <Card key={index}>
@@ -531,7 +600,8 @@ function EntranceExamsDashboard() {
                               {entry.year}
                             </p>
                             <p>
-                              <strong>Exam Roll number: </strong> {entry.registrationNumber}
+                              <strong>Exam Roll number: </strong>{" "}
+                              {entry.registrationNumber}
                             </p>
                             <p>
                               <strong>Exams:</strong> {exams.join(", ")}
@@ -546,7 +616,7 @@ function EntranceExamsDashboard() {
                             </a>
                           </CardContent>
                         </Card>
-                      )
+                      );
                     })
                 ) : (
                   <div>
@@ -559,14 +629,15 @@ function EntranceExamsDashboard() {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCardCurrentPage((prev) => Math.max(1, prev - 1))}
-                      
+                        onClick={() =>
+                          setCardCurrentPage((prev) => Math.max(1, prev - 1))
+                        }
                       />
                     </PaginationItem>
                     {getPageNumbers(
                       cardCurrentPage,
                       Math.ceil((entranceExams?.length || 0) / cardsPerPage),
-                      visiblePages,
+                      visiblePages
                     ).map((pageNumber, index) =>
                       pageNumber === null ? (
                         <PaginationItem key={`ellipsis-${index}`}>
@@ -581,16 +652,20 @@ function EntranceExamsDashboard() {
                             {pageNumber}
                           </PaginationLink>
                         </PaginationItem>
-                      ),
+                      )
                     )}
                     <PaginationItem>
                       <PaginationNext
                         onClick={() =>
                           setCardCurrentPage((prev) =>
-                            Math.min(Math.ceil((entranceExams?.length || 0) / cardsPerPage), prev + 1),
+                            Math.min(
+                              Math.ceil(
+                                (entranceExams?.length || 0) / cardsPerPage
+                              ),
+                              prev + 1
+                            )
                           )
                         }
-                       
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -601,14 +676,13 @@ function EntranceExamsDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 export default function PatentAnalyze() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Spinner />}>
       <EntranceExamsDashboard />
     </Suspense>
-  )
+  );
 }
-

@@ -53,7 +53,7 @@ export default function Department() {
                 </Link>
                 <Link href={`/department/${option.href}/analyze`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    <Search className="h-6 w-6 ml-2" /> View, Update & Analyze
+                    <Search className="h-6 w-6 mr-2" /> View, Update & Analyze
                   </Button>
                 </Link>
               </CardContent>

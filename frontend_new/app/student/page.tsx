@@ -78,13 +78,13 @@ export default function Student() {
                 <p className="text-gray-600 mb-4">{option.description}</p>
                 <Link href={`/student/${option.href}/add`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    <SquarePlus className="h-6 w-6 ml-2" />
+                    <SquarePlus className="h-6 w-6 mr-2" />
                     Add Data
                   </Button>
                 </Link>
                 <Link href={`/student/${option.href}/analyze`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    <Search className="h-6 w-6 ml-2" /> View, Update & Analyze
+                    <Search className="h-6 w-6 mr-2" /> View, Update & Analyze
                   </Button>
                 </Link>
               </CardContent>
