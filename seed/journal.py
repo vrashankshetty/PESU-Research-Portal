@@ -5420,6 +5420,8 @@ conference= [
 ]
 
 
+print("Started seeding journal data...")
+
 
 for record in journal:
     try:
@@ -5437,6 +5439,8 @@ for record in journal:
     except Exception as e:
         print(f"Error: {e}")
         
+        
+print("Started seeding conference data...")
         
         
 for record in conference:
