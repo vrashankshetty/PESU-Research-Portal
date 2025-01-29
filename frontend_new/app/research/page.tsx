@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Users, Lightbulb } from "lucide-react";
+import { BookOpen, Users, Lightbulb, SquarePlus, Search } from "lucide-react";
 
 type ResearchOption = {
   title: string;
@@ -13,19 +13,19 @@ type ResearchOption = {
 const researchOptions: ResearchOption[] = [
   {
     title: "Journals",
-    description: "Add or analyze journal entries",
+    description: "Add, View, Update and Analyze journal publications",
     href: "journals",
     icon: <BookOpen className="h-8 w-8" />,
   },
   {
     title: "Conferences",
-    description: "Add or analyze conference papers",
+    description: "Add, View, Update and Analyze conference papers",
     href: "conferences",
     icon: <Users className="h-8 w-8" />,
   },
   {
     title: "Patents",
-    description: "Add or analyze patent information",
+    description: "Add, View, Update and Analyze patent information",
     href: "patents",
     icon: <Lightbulb className="h-8 w-8" />,
   },
@@ -53,12 +53,12 @@ export default function Research() {
                 <p className="text-gray-600 mb-4">{option.description}</p>
                 <Link href={`/research/${option.href}/add`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    Add {option.title}
+                    <SquarePlus className="h-6 w-6 mr-2" /> Add Data
                   </Button>
                 </Link>
                 <Link href={`/research/${option.href}/analyze`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    Analyze {option.title}
+                    <Search className="h-6 w-6 mr-2" /> View, Update & Analyze
                   </Button>
                 </Link>
               </CardContent>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { NotebookPen, CalendarCheck2 } from "lucide-react";
+import { NotebookPen, CalendarCheck2, SquarePlus, Search } from "lucide-react";
 
 type DepartmentOption = {
   title: string;
@@ -13,13 +13,13 @@ type DepartmentOption = {
 const departmentOptions: DepartmentOption[] = [
   {
     title: "Conducted Events",
-    description: "Add or analyze details of conducted events",
+    description: "Add, View, Update and Analyze details of conducted events",
     href: "conducted",
     icon: <NotebookPen className="h-8 w-8" />,
   },
   {
     title: "Attended Events",
-    description: "Add or analyze details of attended events",
+    description: "Add, View, Update and Analyze details of attended events",
     href: "attended",
     icon: <CalendarCheck2 className="h-8 w-8" />,
   },
@@ -47,12 +47,13 @@ export default function Department() {
                 <p className="text-gray-600 mb-4">{option.description}</p>
                 <Link href={`/department/${option.href}/add`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    Add {option.title.split(" - ")[0]}
+                    <SquarePlus className="h-6 w-6 mr-2" />
+                    Add Data
                   </Button>
                 </Link>
                 <Link href={`/department/${option.href}/analyze`} passHref>
                   <Button className="w-full bg-sky-800 hover:bg-sky-900 text-white font-bold py-2 px-4 my-2 rounded">
-                    Analyze {option.title.split(" - ")[0]}
+                    <Search className="h-6 w-6 mr-2" /> View, Update & Analyze
                   </Button>
                 </Link>
               </CardContent>

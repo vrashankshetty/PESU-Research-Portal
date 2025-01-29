@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import axios from "axios"
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -17,18 +17,23 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from "recharts"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import html2canvas from "html2canvas"
-import { backendUrl } from "@/config"
-import Cookie from "js-cookie"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+} from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
+import Cookie from "js-cookie";
 import {
   Pagination,
   PaginationContent,
@@ -37,177 +42,221 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
+import Spinner from "@/components/spinner";
 
 type Conference = {
-  teacherIds: string[]
-  campus: string
-  dept: string
-  bookTitle: string
-  paperTitle: string
-  proceedings_conference_title: string
-  volumeNo: string
-  issueNo: string
-  year: string
-  pageNumber: number
-  issn: string
-  is_affiliating_institution_same: boolean
-  publisherName: string
-  impactFactor: string
-  core: string
-  link_of_paper: string
-  isCapstone: boolean
-  abstract: string
-  keywords: string[]
-  domain: string
-}
+  teacherIds: string[];
+  campus: string;
+  dept: string;
+  bookTitle: string;
+  paperTitle: string;
+  proceedings_conference_title: string;
+  volumeNo: string;
+  issueNo: string;
+  year: string;
+  pageNumber: number;
+  issn: string;
+  is_affiliating_institution_same: boolean;
+  publisherName: string;
+  impactFactor: string;
+  core: string;
+  link_of_paper: string;
+  isCapstone: boolean;
+  abstract: string;
+  keywords: string[];
+  domain: string;
+};
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 function ConferenceDashboard() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [conferences, setConferences] = useState<Conference[]>([])
-  const [filteredConferences, setFilteredConferences] = useState<Conference[]>([])
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
-  const [metric, setMetric] = useState<"campus" | "dept" | "year" | "core">("campus")
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" })
-  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([])
-  const [selectedDepts, setSelectedDepts] = useState<string[]>([])
-  const [selectedCores, setSelectedCores] = useState<string[]>([])
-  const chartRef = useRef<HTMLDivElement>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
-  const [cardCurrentPage, setCardCurrentPage] = useState(1)
-  const cardsPerPage = 6
-  const maxVisiblePages = 10
-  const [visiblePages, setVisiblePages] = useState(5)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [conferences, setConferences] = useState<Conference[]>([]);
+  const [filteredConferences, setFilteredConferences] = useState<Conference[]>(
+    []
+  );
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [metric, setMetric] = useState<"campus" | "dept" | "year" | "core">(
+    "campus"
+  );
+  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
+  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
+  const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
+  const [selectedCores, setSelectedCores] = useState<string[]>([]);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [cardCurrentPage, setCardCurrentPage] = useState(1);
+  const cardsPerPage = 6;
+  const maxVisiblePages = 10;
+  const [visiblePages, setVisiblePages] = useState(5);
 
-  const getPageNumbers = (currentPage: number, totalPages: number, maxVisible: number, visiblePages: number) => {
+  const getPageNumbers = (
+    currentPage: number,
+    totalPages: number,
+    maxVisible: number,
+    visiblePages: number
+  ) => {
     if (totalPages <= visiblePages) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    let start = Math.max(currentPage - Math.floor(visiblePages / 2), 1)
-    let end = start + visiblePages - 1
+    let start = Math.max(currentPage - Math.floor(visiblePages / 2), 1);
+    let end = start + visiblePages - 1;
 
     if (end > totalPages) {
-      end = totalPages
-      start = Math.max(end - visiblePages + 1, 1)
+      end = totalPages;
+      start = Math.max(end - visiblePages + 1, 1);
     }
 
-    const pages: (number | null)[] = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+    const pages: (number | null)[] = Array.from(
+      { length: end - start + 1 },
+      (_, i) => start + i
+    );
 
     if (start > 1) {
-      pages.unshift(1)
+      pages.unshift(1);
       if (start > 2) {
-        pages.splice(1, 0, null) // Add ellipsis
+        pages.splice(1, 0, null); // Add ellipsis
       }
     }
 
     if (end < totalPages) {
       if (end < totalPages - 1) {
-        pages.push(null) // Add ellipsis
+        pages.push(null); // Add ellipsis
       }
-      pages.push(totalPages)
+      pages.push(totalPages);
     }
 
-    return pages
-  }
+    return pages;
+  };
 
   const updateQueryParams = useCallback(() => {
-    const params = new URLSearchParams(searchParams)
-    params.set("chartType", chartType)
-    params.set("metric", metric)
-    params.set("yearStart", yearRange.start)
-    params.set("yearEnd", yearRange.end)
-    params.set("campuses", selectedCampuses.join(","))
-    params.set("depts", selectedDepts.join(","))
-    params.set("cores", selectedCores.join(","))
-    router.replace(`?${params.toString()}`)
-  }, [chartType, metric, yearRange, selectedCampuses, selectedDepts, selectedCores, router, searchParams])
+    const params = new URLSearchParams(searchParams);
+    params.set("chartType", chartType);
+    params.set("metric", metric);
+    params.set("yearStart", yearRange.start);
+    params.set("yearEnd", yearRange.end);
+    params.set("campuses", selectedCampuses.join(","));
+    params.set("depts", selectedDepts.join(","));
+    params.set("cores", selectedCores.join(","));
+    router.replace(`?${params.toString()}`);
+  }, [
+    chartType,
+    metric,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    selectedCores,
+    router,
+    searchParams,
+  ]);
 
   useEffect(() => {
     const fetchConferences = async () => {
       try {
-        console.log("Cookies", Cookie.get("accessToken"))
+        console.log("Cookies", Cookie.get("accessToken"));
         const response = await axios.get(`${backendUrl}/api/v1/conference`, {
           withCredentials: true,
-        })
-        setConferences(response.data)
+        });
+        setConferences(response.data);
       } catch (error) {
-        console.error("Error fetching conferences:", error)
+        console.error("Error fetching conferences:", error);
       }
-    }
-    fetchConferences()
-  }, [])
+    };
+    fetchConferences();
+  }, []);
 
   useEffect(() => {
-    setChartType((searchParams.get("chartType") as "bar" | "line" | "pie") || "bar")
-    setMetric((searchParams.get("metric") as "campus" | "dept" | "year" | "core") || "campus")
+    setChartType(
+      (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
+    );
+    setMetric(
+      (searchParams.get("metric") as "campus" | "dept" | "year" | "core") ||
+        "campus"
+    );
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
       end: searchParams.get("yearEnd") || "2024",
-    })
-    setSelectedCampuses(searchParams.get("campuses")?.split(",").filter(Boolean) || [])
-    setSelectedDepts(searchParams.get("depts")?.split(",").filter(Boolean) || [])
-    setSelectedCores(searchParams.get("cores")?.split(",").filter(Boolean) || [])
-  }, [searchParams])
+    });
+    setSelectedCampuses(
+      searchParams.get("campuses")?.split(",").filter(Boolean) || []
+    );
+    setSelectedDepts(
+      searchParams.get("depts")?.split(",").filter(Boolean) || []
+    );
+    setSelectedCores(
+      searchParams.get("cores")?.split(",").filter(Boolean) || []
+    );
+  }, [searchParams]);
 
   useEffect(() => {
     const filtered = conferences.filter((conference) => {
       const yearInRange =
         Number.parseInt(conference.year) >= Number.parseInt(yearRange.start) &&
-        Number.parseInt(conference.year) <= Number.parseInt(yearRange.end)
-      const campusMatch = selectedCampuses.length === 0 || selectedCampuses.includes(conference.campus)
-      const deptMatch = selectedDepts.length === 0 || selectedDepts.includes(conference.dept)
-      const coreMatch = selectedCores.length === 0 || selectedCores.includes(conference.core)
-      return yearInRange && campusMatch && deptMatch && coreMatch
-    })
-    setFilteredConferences(filtered)
-    updateQueryParams()
-  }, [conferences, yearRange, selectedCampuses, selectedDepts, selectedCores, updateQueryParams])
+        Number.parseInt(conference.year) <= Number.parseInt(yearRange.end);
+      const campusMatch =
+        selectedCampuses.length === 0 ||
+        selectedCampuses.includes(conference.campus);
+      const deptMatch =
+        selectedDepts.length === 0 || selectedDepts.includes(conference.dept);
+      const coreMatch =
+        selectedCores.length === 0 || selectedCores.includes(conference.core);
+      return yearInRange && campusMatch && deptMatch && coreMatch;
+    });
+    setFilteredConferences(filtered);
+    updateQueryParams();
+  }, [
+    conferences,
+    yearRange,
+    selectedCampuses,
+    selectedDepts,
+    selectedCores,
+    updateQueryParams,
+  ]);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setVisiblePages(3)
+        setVisiblePages(3);
       } else if (window.innerWidth < 768) {
-        setVisiblePages(5)
+        setVisiblePages(5);
       } else {
-        setVisiblePages(10)
+        setVisiblePages(10);
       }
-    }
+    };
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const getChartData = () => {
-    const data: { [key: string]: number } = {}
+    const data: { [key: string]: number } = {};
     filteredConferences.forEach((conference) => {
-      const key = conference[metric]
-      data[key] = (data[key] || 0) + 1
-    })
-    return Object.entries(data).map(([name, value]) => ({ name, value }))
-  }
+      const key = conference[metric];
+      data[key] = (data[key] || 0) + 1;
+    });
+    return Object.entries(data).map(([name, value]) => ({ name, value }));
+  };
 
   const renderChart = () => {
-    const data = getChartData()
+    const data = getChartData();
 
     if (data.length === 0) {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <p className="text-lg font-semibold">No Matching Data Available</p>
         </div>
-      )
+      );
     }
 
     const commonProps = {
       data,
       margin: { top: 5, right: 30, left: 20, bottom: 5 },
-    }
+    };
 
     switch (chartType) {
       case "bar":
@@ -221,12 +270,15 @@ function ConferenceDashboard() {
               <Legend />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        )
+        );
       case "line":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -239,7 +291,7 @@ function ConferenceDashboard() {
               <Line type="monotone" dataKey="value" stroke="#8884d8" />
             </LineChart>
           </ResponsiveContainer>
-        )
+        );
       case "pie":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -252,30 +304,35 @@ function ConferenceDashboard() {
                 outerRadius={150}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) =>
+                  `${name} ${(percent * 100).toFixed(0)}%`
+                }
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        )
+        );
     }
-  }
+  };
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
-        const link = document.createElement("a")
-        link.download = "conference_chart.png"
-        link.href = canvas.toDataURL()
-        link.click()
-      })
+        const link = document.createElement("a");
+        link.download = "conference_chart.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
     }
-  }
+  };
 
   const downloadTableAsCSV = () => {
     const headers = [
@@ -300,7 +357,7 @@ function ConferenceDashboard() {
       "Abstract",
       "Keywords",
       "Domain",
-    ]
+    ];
     const csvContent = [
       headers.join(","),
       ...filteredConferences.map((conference, index) =>
@@ -326,22 +383,22 @@ function ConferenceDashboard() {
           `"${conference.abstract.replace(/"/g, '""')}"`,
           `"${conference.keywords.join(";")}"`,
           conference.domain,
-        ].join(","),
+        ].join(",")
       ),
-    ].join("\n")
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const link = document.createElement("a")
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob)
-      link.setAttribute("href", url)
-      link.setAttribute("download", "conference_data.csv")
-      link.style.visibility = "hidden"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "conference_data.csv");
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  }
+  };
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
@@ -353,7 +410,12 @@ function ConferenceDashboard() {
             <CardTitle>Visualization</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={chartType} onValueChange={(value: "bar" | "line" | "pie") => setChartType(value)}>
+            <Select
+              value={chartType}
+              onValueChange={(value: "bar" | "line" | "pie") =>
+                setChartType(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select chart type" />
               </SelectTrigger>
@@ -371,7 +433,12 @@ function ConferenceDashboard() {
             <CardTitle>Analysis Metric</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={metric} onValueChange={(value: "campus" | "dept" | "year" | "core") => setMetric(value)}>
+            <Select
+              value={metric}
+              onValueChange={(value: "campus" | "dept" | "year" | "core") =>
+                setMetric(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select metric" />
               </SelectTrigger>
@@ -398,7 +465,9 @@ function ConferenceDashboard() {
                 min="1990"
                 max="2099"
                 value={yearRange.start}
-                onChange={(e) => setYearRange({ ...yearRange, start: e.target.value })}
+                onChange={(e) =>
+                  setYearRange({ ...yearRange, start: e.target.value })
+                }
               />
             </div>
             <div className="flex-1">
@@ -409,7 +478,9 @@ function ConferenceDashboard() {
                 min="1990"
                 max="2099"
                 value={yearRange.end}
-                onChange={(e) => setYearRange({ ...yearRange, end: e.target.value })}
+                onChange={(e) =>
+                  setYearRange({ ...yearRange, end: e.target.value })
+                }
               />
             </div>
           </CardContent>
@@ -430,8 +501,10 @@ function ConferenceDashboard() {
                     checked={selectedCampuses.includes(campus)}
                     onCheckedChange={(checked) => {
                       setSelectedCampuses(
-                        checked ? [...selectedCampuses, campus] : selectedCampuses.filter((c) => c !== campus),
-                      )
+                        checked
+                          ? [...selectedCampuses, campus]
+                          : selectedCampuses.filter((c) => c !== campus)
+                      );
                     }}
                   />
                   <Label htmlFor={`campus-${campus}`}>{campus}</Label>
@@ -453,7 +526,11 @@ function ConferenceDashboard() {
                     id={`dept-${dept}`}
                     checked={selectedDepts.includes(dept)}
                     onCheckedChange={(checked) => {
-                      setSelectedDepts(checked ? [...selectedDepts, dept] : selectedDepts.filter((d) => d !== dept))
+                      setSelectedDepts(
+                        checked
+                          ? [...selectedDepts, dept]
+                          : selectedDepts.filter((d) => d !== dept)
+                      );
                     }}
                   />
                   <Label htmlFor={`dept-${dept}`}>{dept}</Label>
@@ -475,7 +552,11 @@ function ConferenceDashboard() {
                     id={`core-${core}`}
                     checked={selectedCores.includes(core)}
                     onCheckedChange={(checked) => {
-                      setSelectedCores(checked ? [...selectedCores, core] : selectedCores.filter((c) => c !== core))
+                      setSelectedCores(
+                        checked
+                          ? [...selectedCores, core]
+                          : selectedCores.filter((c) => c !== core)
+                      );
                     }}
                   />
                   <Label htmlFor={`core-${core}`}>{core}</Label>
@@ -526,17 +607,26 @@ function ConferenceDashboard() {
                   </thead>
                   <tbody>
                     {filteredConferences
-                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .slice(
+                        (currentPage - 1) * itemsPerPage,
+                        currentPage * itemsPerPage
+                      )
                       .map((conference, index) => (
                         <tr key={index} className="bg-white border-b">
-                          <td className="px-6 py-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                          <td className="px-6 py-4">
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
                           <td className="px-6 py-4">{conference.paperTitle}</td>
                           <td className="px-6 py-4">{conference.campus}</td>
                           <td className="px-6 py-4">{conference.dept}</td>
-                          <td className="px-6 py-4">{conference.proceedings_conference_title}</td>
+                          <td className="px-6 py-4">
+                            {conference.proceedings_conference_title}
+                          </td>
                           <td className="px-6 py-4">{conference.year}</td>
                           <td className="px-6 py-4">{conference.core}</td>
-                          <td className="px-6 py-4">{conference.impactFactor}</td>
+                          <td className="px-6 py-4">
+                            {conference.impactFactor}
+                          </td>
                           <td className="px-6 py-4">
                             <a
                               href={conference.link_of_paper}
@@ -556,15 +646,16 @@ function ConferenceDashboard() {
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                    
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
                     />
                   </PaginationItem>
                   {getPageNumbers(
                     currentPage,
                     Math.ceil(filteredConferences.length / itemsPerPage),
                     maxVisiblePages,
-                    visiblePages,
+                    visiblePages
                   ).map((pageNumber, index) =>
                     pageNumber === null ? (
                       <PaginationItem key={`ellipsis-${index}`}>
@@ -579,16 +670,20 @@ function ConferenceDashboard() {
                           {pageNumber}
                         </PaginationLink>
                       </PaginationItem>
-                    ),
+                    )
                   )}
                   <PaginationItem>
                     <PaginationNext
                       onClick={() =>
                         setCurrentPage((prev) =>
-                          Math.min(Math.ceil(filteredConferences.length / itemsPerPage), prev + 1),
+                          Math.min(
+                            Math.ceil(
+                              filteredConferences.length / itemsPerPage
+                            ),
+                            prev + 1
+                          )
                         )
                       }
-                     
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -600,7 +695,10 @@ function ConferenceDashboard() {
             <TabsContent value="cards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredConferences
-                  .slice((cardCurrentPage - 1) * cardsPerPage, cardCurrentPage * cardsPerPage)
+                  .slice(
+                    (cardCurrentPage - 1) * cardsPerPage,
+                    cardCurrentPage * cardsPerPage
+                  )
                   .map((conference, index) => (
                     <Card key={index}>
                       <CardHeader>
@@ -608,7 +706,8 @@ function ConferenceDashboard() {
                       </CardHeader>
                       <CardContent>
                         <p>
-                          <strong>Serial No:</strong> {(cardCurrentPage - 1) * cardsPerPage + index + 1}
+                          <strong>Serial No:</strong>{" "}
+                          {(cardCurrentPage - 1) * cardsPerPage + index + 1}
                         </p>
                         <p>
                           <strong>Campus:</strong> {conference.campus}
@@ -617,7 +716,8 @@ function ConferenceDashboard() {
                           <strong>Department:</strong> {conference.dept}
                         </p>
                         <p>
-                          <strong>Conference Title:</strong> {conference.proceedings_conference_title}
+                          <strong>Conference Title:</strong>{" "}
+                          {conference.proceedings_conference_title}
                         </p>
                         <p>
                           <strong>Year:</strong> {conference.year}
@@ -626,13 +726,15 @@ function ConferenceDashboard() {
                           <strong>Core:</strong> {conference.core}
                         </p>
                         <p>
-                          <strong>Impact Factor:</strong> {conference.impactFactor}
+                          <strong>Impact Factor:</strong>{" "}
+                          {conference.impactFactor}
                         </p>
                         <p>
                           <strong>Publisher:</strong> {conference.publisherName}
                         </p>
                         <p>
-                          <strong>Capstone:</strong> {conference.isCapstone ? "Yes" : "No"}
+                          <strong>Capstone:</strong>{" "}
+                          {conference.isCapstone ? "Yes" : "No"}
                         </p>
                         <a
                           href={conference.link_of_paper}
@@ -650,15 +752,16 @@ function ConferenceDashboard() {
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => setCardCurrentPage((prev) => Math.max(1, prev - 1))}
-                      
+                      onClick={() =>
+                        setCardCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
                     />
                   </PaginationItem>
                   {getPageNumbers(
                     cardCurrentPage,
                     Math.ceil(filteredConferences.length / cardsPerPage),
                     maxVisiblePages,
-                    visiblePages,
+                    visiblePages
                   ).map((pageNumber, index) =>
                     pageNumber === null ? (
                       <PaginationItem key={`ellipsis-${index}`}>
@@ -673,16 +776,20 @@ function ConferenceDashboard() {
                           {pageNumber}
                         </PaginationLink>
                       </PaginationItem>
-                    ),
+                    )
                   )}
                   <PaginationItem>
                     <PaginationNext
                       onClick={() =>
                         setCardCurrentPage((prev) =>
-                          Math.min(Math.ceil(filteredConferences.length / cardsPerPage), prev + 1),
+                          Math.min(
+                            Math.ceil(
+                              filteredConferences.length / cardsPerPage
+                            ),
+                            prev + 1
+                          )
                         )
                       }
-                     
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -692,14 +799,13 @@ function ConferenceDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 export default function ConferenceAnalyze() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Spinner />}>
       <ConferenceDashboard />
     </Suspense>
-  )
+  );
 }
-

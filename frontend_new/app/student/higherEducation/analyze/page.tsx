@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef, Suspense } from "react"
-import axios from "axios"
+import { useState, useEffect, useRef, Suspense } from "react";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -16,15 +16,21 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from "recharts"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import html2canvas from "html2canvas"
-import { backendUrl } from "@/config"
+} from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
 import {
   Pagination,
   PaginationContent,
@@ -33,103 +39,113 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
+import Spinner from "@/components/spinner";
 
 interface HigherStudies {
-  studentName: string
-  programGraduatedFrom: string
-  institutionAdmittedTo: string
-  programmeAdmittedTo: string
-  year: string
+  studentName: string;
+  programGraduatedFrom: string;
+  institutionAdmittedTo: string;
+  programmeAdmittedTo: string;
+  year: string;
 }
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 function HigherStudiesDashboard() {
-  const [higherStudies, setHigherStudies] = useState<HigherStudies[] | null>(null)
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
-  const [startYear, setStartYear] = useState<number>(2000)
-  const [endYear, setEndYear] = useState<number>(new Date().getFullYear())
-  const chartRef = useRef<HTMLDivElement>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [cardCurrentPage, setCardCurrentPage] = useState(1)
-  const itemsPerPage = 10
-  const cardsPerPage = 6
-  const [visiblePages, setVisiblePages] = useState(5)
+  const [higherStudies, setHigherStudies] = useState<HigherStudies[] | null>(
+    null
+  );
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [startYear, setStartYear] = useState<number>(2000);
+  const [endYear, setEndYear] = useState<number>(new Date().getFullYear());
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cardCurrentPage, setCardCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const cardsPerPage = 6;
+  const [visiblePages, setVisiblePages] = useState(5);
 
   useEffect(() => {
     const fetchHigherStudyDetails = async () => {
       try {
         const response = await axios.get(
           `${backendUrl}/api/v1/studentHigherStudies?startYear=${startYear}&endYear=${endYear}`,
-          { withCredentials: true },
-        )
-        setHigherStudies(response.data)
+          { withCredentials: true }
+        );
+        setHigherStudies(response.data);
       } catch (error) {
-        console.error("Error fetching career counsels:", error)
+        console.error("Error fetching career counsels:", error);
       }
-    }
-    fetchHigherStudyDetails()
-  }, [startYear, endYear])
+    };
+    fetchHigherStudyDetails();
+  }, [startYear, endYear]);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setVisiblePages(3)
+        setVisiblePages(3);
       } else if (window.innerWidth < 768) {
-        setVisiblePages(5)
+        setVisiblePages(5);
       } else {
-        setVisiblePages(10)
+        setVisiblePages(10);
       }
-    }
+    };
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  const getPageNumbers = (currentPage: number, totalPages: number, maxVisible: number) => {
+  const getPageNumbers = (
+    currentPage: number,
+    totalPages: number,
+    maxVisible: number
+  ) => {
     if (totalPages <= maxVisible) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1)
-    let end = start + maxVisible - 1
+    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1);
+    let end = start + maxVisible - 1;
 
     if (end > totalPages) {
-      end = totalPages
-      start = Math.max(end - maxVisible + 1, 1)
+      end = totalPages;
+      start = Math.max(end - maxVisible + 1, 1);
     }
 
-    const pages: (number | null)[] = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+    const pages: (number | null)[] = Array.from(
+      { length: end - start + 1 },
+      (_, i) => start + i
+    );
 
     if (start > 1) {
-      pages.unshift(1)
+      pages.unshift(1);
       if (start > 2) {
-        pages.splice(1, 0, null)
+        pages.splice(1, 0, null);
       }
     }
 
     if (end < totalPages) {
       if (end < totalPages - 1) {
-        pages.push(null)
+        pages.push(null);
       }
-      pages.push(totalPages)
+      pages.push(totalPages);
     }
 
-    return pages
-  }
+    return pages;
+  };
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
-        const link = document.createElement("a")
-        link.download = "HigherStudies.png"
-        link.href = canvas.toDataURL()
-        link.click()
-      })
+        const link = document.createElement("a");
+        link.download = "HigherStudies.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
     }
-  }
+  };
 
   const downloadTableAsCSV = () => {
     if (higherStudies) {
@@ -139,55 +155,59 @@ function HigherStudiesDashboard() {
         "Program graduated from",
         "Name of institution admitted to",
         "Name of programme admitted to",
-      ]
+      ];
       const csvContent = [
         headers.join(","),
         ...higherStudies.map((hs) =>
-          [hs.year, hs.studentName, hs.programGraduatedFrom, hs.institutionAdmittedTo, hs.programmeAdmittedTo].join(
-            ",",
-          ),
+          [
+            hs.year,
+            hs.studentName,
+            hs.programGraduatedFrom,
+            hs.institutionAdmittedTo,
+            hs.programmeAdmittedTo,
+          ].join(",")
         ),
-      ].join("\n")
+      ].join("\n");
 
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-      const link = document.createElement("a")
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
       if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob)
-        link.setAttribute("href", url)
-        link.setAttribute("download", "HigherStudies.csv")
-        link.style.visibility = "hidden"
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "HigherStudies.csv");
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
     }
-  }
+  };
 
   const getChartData = () => {
-    const yearCount: Record<string, number> = {}
+    const yearCount: Record<string, number> = {};
     if (higherStudies) {
       higherStudies.forEach((entry) => {
-        const year = entry.year
-        yearCount[year] = (yearCount[year] || 0) + 1
-      })
+        const year = entry.year;
+        yearCount[year] = (yearCount[year] || 0) + 1;
+      });
 
       return Object.entries(yearCount).map(([year, entries]) => ({
         year,
         entries,
-      }))
+      }));
     }
-    return []
-  }
+    return [];
+  };
 
   const renderChart = () => {
-    const data = getChartData()
+    const data = getChartData();
 
     if (data && data.length === 0) {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <p className="text-lg font-semibold">No Matching Data Available</p>
         </div>
-      )
+      );
     }
 
     switch (chartType) {
@@ -209,7 +229,7 @@ function HigherStudiesDashboard() {
               <Bar dataKey="entries" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
-        )
+        );
       case "line":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -235,7 +255,7 @@ function HigherStudiesDashboard() {
               />
             </LineChart>
           </ResponsiveContainer>
-        )
+        );
       case "pie":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -260,18 +280,23 @@ function HigherStudiesDashboard() {
                 label
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-        )
+        );
     }
-  }
+  };
 
   return (
     <div className="container bg-black bg-opacity-50 mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Higher Studies Analysis Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Higher Studies Analysis Dashboard
+      </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
         <Card>
@@ -279,7 +304,12 @@ function HigherStudiesDashboard() {
             <CardTitle>Visualization</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={chartType} onValueChange={(value: "bar" | "line" | "pie") => setChartType(value)}>
+            <Select
+              value={chartType}
+              onValueChange={(value: "bar" | "line" | "pie") =>
+                setChartType(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select chart type" />
               </SelectTrigger>
@@ -351,21 +381,34 @@ function HigherStudiesDashboard() {
                       <th className="px-6 py-3">Year</th>
                       <th className="px-6 py-3">Name of student</th>
                       <th className="px-6 py-3">Program graduated from</th>
-                      <th className="px-6 py-3">Name of institution admitted to</th>
-                      <th className="px-6 py-3">Name of programme admitted to</th>
+                      <th className="px-6 py-3">
+                        Name of institution admitted to
+                      </th>
+                      <th className="px-6 py-3">
+                        Name of programme admitted to
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {higherStudies && higherStudies.length > 0 ? (
                       higherStudies
-                        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                        .slice(
+                          (currentPage - 1) * itemsPerPage,
+                          currentPage * itemsPerPage
+                        )
                         .map((entry, index) => (
                           <tr key={index}>
                             <td className="px-6 py-3">{entry.year}</td>
                             <td className="px-6 py-3">{entry.studentName}</td>
-                            <td className="px-6 py-3">{entry.programGraduatedFrom}</td>
-                            <td className="px-6 py-3">{entry.institutionAdmittedTo}</td>
-                            <td className="px-6 py-3">{entry.programmeAdmittedTo}</td>
+                            <td className="px-6 py-3">
+                              {entry.programGraduatedFrom}
+                            </td>
+                            <td className="px-6 py-3">
+                              {entry.institutionAdmittedTo}
+                            </td>
+                            <td className="px-6 py-3">
+                              {entry.programmeAdmittedTo}
+                            </td>
                           </tr>
                         ))
                     ) : (
@@ -383,14 +426,15 @@ function HigherStudiesDashboard() {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(1, prev - 1))
+                        }
                       />
                     </PaginationItem>
                     {getPageNumbers(
                       currentPage,
                       Math.ceil((higherStudies?.length || 0) / itemsPerPage),
-                      visiblePages,
+                      visiblePages
                     ).map((pageNumber, index) =>
                       pageNumber === null ? (
                         <PaginationItem key={`ellipsis-${index}`}>
@@ -405,16 +449,20 @@ function HigherStudiesDashboard() {
                             {pageNumber}
                           </PaginationLink>
                         </PaginationItem>
-                      ),
+                      )
                     )}
                     <PaginationItem>
                       <PaginationNext
                         onClick={() =>
                           setCurrentPage((prev) =>
-                            Math.min(Math.ceil((higherStudies?.length || 0) / itemsPerPage), prev + 1),
+                            Math.min(
+                              Math.ceil(
+                                (higherStudies?.length || 0) / itemsPerPage
+                              ),
+                              prev + 1
+                            )
                           )
                         }
-                       
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -428,7 +476,10 @@ function HigherStudiesDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
                 {higherStudies && higherStudies.length > 0 ? (
                   higherStudies
-                    .slice((cardCurrentPage - 1) * cardsPerPage, cardCurrentPage * cardsPerPage)
+                    .slice(
+                      (cardCurrentPage - 1) * cardsPerPage,
+                      cardCurrentPage * cardsPerPage
+                    )
                     .map((entry, index) => (
                       <Card key={index}>
                         <CardHeader>
@@ -440,13 +491,16 @@ function HigherStudiesDashboard() {
                             {entry.year}
                           </p>
                           <p>
-                            <strong>Institution of Admittance: </strong> {entry.institutionAdmittedTo}
+                            <strong>Institution of Admittance: </strong>{" "}
+                            {entry.institutionAdmittedTo}
                           </p>
                           <p>
-                            <strong>Program of Admittance: </strong> {entry.programmeAdmittedTo}
+                            <strong>Program of Admittance: </strong>{" "}
+                            {entry.programmeAdmittedTo}
                           </p>
                           <p>
-                            <strong>Program graduated from: </strong> {entry.programGraduatedFrom}
+                            <strong>Program graduated from: </strong>{" "}
+                            {entry.programGraduatedFrom}
                           </p>
                         </CardContent>
                       </Card>
@@ -462,14 +516,15 @@ function HigherStudiesDashboard() {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCardCurrentPage((prev) => Math.max(1, prev - 1))}
-                  
+                        onClick={() =>
+                          setCardCurrentPage((prev) => Math.max(1, prev - 1))
+                        }
                       />
                     </PaginationItem>
                     {getPageNumbers(
                       cardCurrentPage,
                       Math.ceil((higherStudies?.length || 0) / cardsPerPage),
-                      visiblePages,
+                      visiblePages
                     ).map((pageNumber, index) =>
                       pageNumber === null ? (
                         <PaginationItem key={`ellipsis-${index}`}>
@@ -484,16 +539,20 @@ function HigherStudiesDashboard() {
                             {pageNumber}
                           </PaginationLink>
                         </PaginationItem>
-                      ),
+                      )
                     )}
                     <PaginationItem>
                       <PaginationNext
                         onClick={() =>
                           setCardCurrentPage((prev) =>
-                            Math.min(Math.ceil((higherStudies?.length || 0) / cardsPerPage), prev + 1),
+                            Math.min(
+                              Math.ceil(
+                                (higherStudies?.length || 0) / cardsPerPage
+                              ),
+                              prev + 1
+                            )
                           )
                         }
-                    
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -504,14 +563,13 @@ function HigherStudiesDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 export default function PatentAnalyze() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Spinner />}>
       <HigherStudiesDashboard />
     </Suspense>
-  )
+  );
 }
-
