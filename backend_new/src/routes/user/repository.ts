@@ -14,3 +14,21 @@ export async function getAllUsers() {
         errs(error);
     }
 }
+
+export async function getUserProfile(userId: string) {
+    try {
+        const user = await db.query.user.findFirst({
+            where: (user, { eq }) => eq(user.id, userId),
+            columns: {
+                password: false,
+            },
+        });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        return user;
+    } catch (error) {
+        console.log('err in repo', error);
+        errs(error);
+    }
+}
