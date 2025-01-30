@@ -4,11 +4,17 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import Cookie from "js-cookie";
-import { Menu, X } from "lucide-react";
+import {
+  Menu,
+  X,
+  CircleUserRound,
+  LogOut,
+  UserRoundPen,
+  Gauge,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { CircleUserRound, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -90,7 +96,12 @@ function Navbar() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56">
                     <DropdownMenuItem onClick={() => router.push("/profile")}>
+                      <UserRoundPen className="mr-2 h-4 w-4" />
                       My Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                      <Gauge className="mr-2 h-4 w-4" />
+                      My Dashboard
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
@@ -154,6 +165,12 @@ function Navbar() {
                   className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
                 >
                   My Profile
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
+                >
+                  My Dashboard
                 </Link>
                 <Button
                   variant="outline"

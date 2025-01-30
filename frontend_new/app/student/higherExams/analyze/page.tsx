@@ -41,8 +41,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
+import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface EntranceExams {
+  id: string;
   year: string;
   registrationNumber: string;
   studentName: string;
@@ -85,6 +88,7 @@ function EntranceExamsDashboard() {
   const itemsPerPage = 10;
   const cardsPerPage = 6;
   const [visiblePages, setVisiblePages] = useState(5);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchHigherStudyDetails = async () => {
@@ -462,6 +466,7 @@ function EntranceExamsDashboard() {
                       <th className="px-6 py-3">
                         Link to the relevant document
                       </th>
+                      <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -503,6 +508,20 @@ function EntranceExamsDashboard() {
                                 >
                                   Document
                                 </a>
+                              </td>
+                              <td className="px-6 py-4">
+                                <Button
+                                  onClick={() =>
+                                    router.push(
+                                      `/student/higherExams/edit/${entry.id}`
+                                    )
+                                  }
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  Edit
+                                  <Pencil className="h-4 w-4 ml-2" />
+                                </Button>
                               </td>
                             </tr>
                           );
@@ -591,8 +610,19 @@ function EntranceExamsDashboard() {
 
                       return (
                         <Card key={index}>
-                          <CardHeader>
+                          <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>{entry.studentName}</CardTitle>
+                            <Button
+                              onClick={() =>
+                                router.push(
+                                  `/student/higherExams/edit/${entry.id}`
+                                )
+                              }
+                              variant="outline"
+                              size="icon"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
                           </CardHeader>
                           <CardContent>
                             <p>

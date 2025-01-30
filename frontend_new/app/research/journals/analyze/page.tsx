@@ -43,8 +43,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
+import { Pencil } from "lucide-react";
 
 type Journal = {
+  id: string;
   title: string;
   teacherIds: string[];
   campus: string;
@@ -623,6 +625,7 @@ function JournalDashboard() {
                       <th className="px-6 py-3">Q No</th>
                       <th className="px-6 py-3">Impact Factor</th>
                       <th className="px-6 py-3">Article Link</th>
+                      <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -632,7 +635,7 @@ function JournalDashboard() {
                         currentPage * itemsPerPage
                       )
                       .map((journal, index) => (
-                        <tr key={index} className="bg-white border-b">
+                        <tr key={journal.id} className="bg-white border-b">
                           <td className="px-6 py-4">
                             {(currentPage - 1) * itemsPerPage + index + 1}
                           </td>
@@ -656,8 +659,22 @@ function JournalDashboard() {
                                 View
                               </a>
                             ) : (
-                              "N/A"
+                              <div>NA</div>
                             )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Button
+                              onClick={() =>
+                                router.push(
+                                  `/research/journals/edit/${journal.id}`
+                                )
+                              }
+                              variant="outline"
+                              size="sm"
+                            >
+                              Edit
+                              <Pencil className="h-4 w-4 ml-2" />
+                            </Button>
                           </td>
                         </tr>
                       ))}
@@ -716,9 +733,17 @@ function JournalDashboard() {
                     cardCurrentPage * cardsPerPage
                   )
                   .map((journal, index) => (
-                    <Card key={index}>
-                      <CardHeader>
-                        <CardTitle>{journal.title}</CardTitle>
+                    <Card key={journal.id}>
+                      <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="max-w-[80%]">
+                          {journal.title}
+                        </CardTitle>
+                        <Pencil
+                          className="size-6"
+                          onClick={() =>
+                            router.push(`/research/journals/edit/${journal.id}`)
+                          }
+                        />
                       </CardHeader>
                       <CardContent>
                         <p>

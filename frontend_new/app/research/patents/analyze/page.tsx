@@ -43,8 +43,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
+import { Pencil } from "lucide-react";
 
 type Patent = {
+  id: string;
   teacherAdminId: string;
   campus: string;
   dept: string;
@@ -588,6 +590,7 @@ function ImprovedPatentDashboard() {
                       <th className="px-6 py-3">Year</th>
                       <th className="px-6 py-3">Capstone</th>
                       <th className="px-6 py-3">Document</th>
+                      <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -616,14 +619,32 @@ function ImprovedPatentDashboard() {
                               {patent.isCapstone ? "Yes" : "No"}
                             </td>
                             <td className="px-6 py-4">
-                              <a
-                                href={patent.documentLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
+                              {patent.documentLink ? (
+                                <a
+                                  href={patent.documentLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  View
+                                </a>
+                              ) : (
+                                <div>NA</div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4">
+                              <Button
+                                onClick={() =>
+                                  router.push(
+                                    `/research/patents/edit/${patent.id}`
+                                  )
+                                }
+                                variant="outline"
+                                size="sm"
                               >
-                                View
-                              </a>
+                                Edit
+                                <Pencil className="h-4 w-4 ml-2" />
+                              </Button>
                             </td>
                           </tr>
                         );
@@ -691,9 +712,17 @@ function ImprovedPatentDashboard() {
                     );
 
                     return (
-                      <Card key={index}>
-                        <CardHeader>
-                          <CardTitle>{patent.patentTitle}</CardTitle>
+                      <Card key={patent.id}>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                          <CardTitle className="max-w-[80%]">
+                            {patent.patentTitle}
+                          </CardTitle>
+                          <Pencil
+                            className="size-6"
+                            onClick={() =>
+                              router.push(`/research/patents/edit/${patent.id}`)
+                            }
+                          />
                         </CardHeader>
                         <CardContent>
                           <p>
@@ -717,14 +746,16 @@ function ImprovedPatentDashboard() {
                             <strong>Capstone:</strong>{" "}
                             {patent.isCapstone ? "Yes" : "No"}
                           </p>
-                          <a
-                            href={patent.documentLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                          >
-                            View Document
-                          </a>
+                          {patent.documentLink && (
+                            <a
+                              href={patent.documentLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              View Document
+                            </a>
+                          )}
                         </CardContent>
                       </Card>
                     );

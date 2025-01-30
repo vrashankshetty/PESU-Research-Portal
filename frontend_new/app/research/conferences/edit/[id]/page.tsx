@@ -124,19 +124,6 @@ export default function ConferenceForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="paperTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Paper Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter Paper Title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -153,21 +140,34 @@ export default function ConferenceForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="proceedings_conference_title"
+                  name="paperTitle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Proceedings/Conference Title</FormLabel>
+                      <FormLabel>Paper Title</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Enter Proceedings/Conference Title"
-                          {...field}
-                        />
+                        <Input placeholder="Enter Paper Title" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+              <FormField
+                control={form.control}
+                name="proceedings_conference_title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Proceedings/Conference Title</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter Proceedings/Conference Title"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
