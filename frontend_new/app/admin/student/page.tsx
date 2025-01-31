@@ -35,13 +35,20 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Pencil } from "lucide-react"
+import { Pencil } from 'lucide-react'
 import Spinner from "@/components/spinner"
 import CustomStatistics from "@/components/admin/CustomStudentStatistics"
 
 type Event = {
   id: string
+  userId: string
+  title: string
+  durationStartDate: string
+  durationEndDate: string
+  documentLink: string | null
   year: string
+  createdAt: string
+  noOfParticipants?: number
   [key: string]: any
 }
 
@@ -312,7 +319,7 @@ function StudentAnalysisDashboard() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="general">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             <Card>
               <CardHeader>
                 <CardTitle>Visualization</CardTitle>

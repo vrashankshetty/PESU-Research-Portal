@@ -1,54 +1,83 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import Cookie from "js-cookie";
-import {
-  Menu,
-  X,
-  CircleUserRound,
-  LogOut,
-  UserRoundPen,
-  Gauge,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/auth";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import Link from "next/link"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { useState, useEffect, useMemo, useCallback } from "react"
+import Cookie from "js-cookie"
+import { Menu, X, CircleUserRound, LogOut, UserRoundIcon as UserRoundPen, Gauge, Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/context/auth"
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { verifyToken } from "@/api"
 
 function Navbar() {
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [profileImg, setProfileImg] = useState<string | null>(null);
-  const router = useRouter();
-  const accessToken = Cookie.get("accessToken");
+  const { isLoggedIn, setIsLoggedIn, user, setUser } = useAuth()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(true)
+  const router = useRouter()
+  const accessToken = Cookie.get("accessToken")
 
   useEffect(() => {
-    if (accessToken) {
-      setIsLoggedIn(true);
-      const img = Cookie.get("profileImg");
-      setProfileImg(img || null);
-    } else {
-      setIsLoggedIn(false);
-      setProfileImg(null);
+    const fetchUser = async () => {
+      if (accessToken) {
+        const resp: any = await verifyToken(accessToken)
+        if (resp?.status == 200) {
+          setIsLoggedIn(true)
+          setUser(resp?.data?.data)
+        } else {
+          setIsLoggedIn(false)
+          setUser(null)
+        }
+      } else {
+        setIsLoggedIn(false)
+        setUser(null)
+      }
+      setIsVerifying(false)
     }
-  }, []);
+    fetchUser()
+  }, [accessToken, setIsLoggedIn, setUser])
 
-  const handleLogout = () => {
-    Cookie.remove("accessToken", { path: "/" });
-    setIsLoggedIn(false);
-    window.location.href = "/login";
-  };
+  const navLinks = useMemo(
+    () => (
+      <>
+        <li>
+          <Link href="/research" className="hover:underline">
+            Research
+          </Link>
+        </li>
+        <li>
+          <Link href="/department" className="hover:underline">
+            Department
+          </Link>
+        </li>
+        <li>
+          <Link href="/student" className="hover:underline">
+            Student
+          </Link>
+        </li>
+        {isLoggedIn && user?.role == "admin" && user?.accessTo == "all" && (
+          <li>
+            <Link href="/admin" className="hover:underline">
+              Analysis
+            </Link>
+          </li>
+        )}
+      </>
+    ),
+    [isLoggedIn, user],
+  )
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const handleLogout = useCallback(() => {
+    Cookie.remove("accessToken", { path: "/" })
+    setIsLoggedIn(false)
+    setUser(null)
+    window.location.href = "/login"
+  }, [setIsLoggedIn, setUser])
+
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen((prev) => !prev)
+  }, [])
 
   return (
     <header>
@@ -56,39 +85,29 @@ function Navbar() {
         <Link href="/">
           <div className="flex justify-start items-center">
             <div className="bg-white border-sky-800 rounded-r-full py-2 px-6">
-              <img
-                src="/PESU-logo.png"
-                alt="Logo"
-                className="w-24 h-auto md:w-28 md:h-auto"
-              />
+              <img src="/PESU-logo.png" alt="Logo" className="w-24 h-auto md:w-28 md:h-auto" />
             </div>
             <h1 className="px-6 md:text-xl">PESU NAAC Portal</h1>
           </div>
         </Link>
         <nav className="hidden md:block">
           <ul className="flex space-x-6 md:mx-4 items-center">
+            {isVerifying ? (
+              <li>
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </li>
+            ) : (
+              navLinks
+            )}
             <li>
-              <Link href="/research" className="hover:underline">
-                Research
-              </Link>
-            </li>
-            <li>
-              <Link href="/department" className="hover:underline">
-                Department
-              </Link>
-            </li>
-            <li>
-              <Link href="/student" className="hover:underline">
-                Student
-              </Link>
-            </li>
-            <li>
-              {isLoggedIn ? (
+              {isVerifying ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : isLoggedIn ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    {profileImg ? (
+                    {user?.profileImg ? (
                       <Avatar>
-                        <AvatarImage src={profileImg} />
+                        <AvatarImage src={user?.profileImg} />
                       </Avatar>
                     ) : (
                       <CircleUserRound className="h-6 w-6" />
@@ -140,62 +159,49 @@ function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 text-center bg-sky-800">
-            <Link
-              href="/research"
-              className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
-            >
-              Research
-            </Link>
-            <Link
-              href="/department"
-              className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
-            >
-              Department
-            </Link>
-            <Link
-              href="/student"
-              className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
-            >
-              Student
-            </Link>
-            {isLoggedIn ? (
-              <>
-                <Link
-                  href="/profile"
-                  className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  My Profile
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  My Dashboard
-                </Link>
-                <Button
-                  variant="outline"
-                  className="w-full border-white text-white hover:bg-sky-500"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
-              </>
+            {isVerifying ? (
+              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
             ) : (
-              <Link
-                className={buttonVariants({
-                  variant: "outline",
-                  className: "h-10",
-                })}
-                href="/login"
-              >
-                Login
-              </Link>
+              <>
+                {navLinks}
+                {isLoggedIn ? (
+                  <>
+                    <Link href="/profile" className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium">
+                      My Profile
+                    </Link>
+                    <Link
+                      href="/dashboard"
+                      className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
+                    >
+                      My Dashboard
+                    </Link>
+                    <Button
+                      variant="outline"
+                      className="w-full border-white text-white hover:bg-sky-500"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <Link
+                    className={buttonVariants({
+                      variant: "outline",
+                      className: "h-10",
+                    })}
+                    href="/login"
+                  >
+                    Login
+                  </Link>
+                )}
+              </>
             )}
           </div>
         </div>
       )}
     </header>
-  );
+  )
 }
 
-export default Navbar;
+export default Navbar
+

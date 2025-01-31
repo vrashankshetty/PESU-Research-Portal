@@ -110,7 +110,7 @@ function IntegratedDashboard() {
   const [filteredData, setFilteredData] = useState<(any)[]>([])
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
   const [metric, setMetric] = useState<"campus" | "dept" | "year" | "qNo" | "core">("campus")
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" })
+  const [yearRange, setYearRange] = useState({ start: "2000", end: `${new Date().getFullYear()}` })
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([])
   const [selectedDepts, setSelectedDepts] = useState<string[]>([])
   const [selectedQNos, setSelectedQNos] = useState<string[]>([])
@@ -172,7 +172,7 @@ function IntegratedDashboard() {
     setMetric((searchParams.get("metric") as "campus" | "dept" | "year" | "qNo" | "core") || "campus")
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
-      end: searchParams.get("yearEnd") || "2024",
+      end: searchParams.get("yearEnd") || `${new Date().getFullYear()}`,
     })
     setSelectedCampuses(searchParams.get("campuses")?.split(",").filter(Boolean) || [])
     setSelectedDepts(searchParams.get("depts")?.split(",").filter(Boolean) || [])
