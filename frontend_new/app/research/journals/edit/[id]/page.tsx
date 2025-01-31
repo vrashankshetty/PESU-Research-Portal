@@ -28,7 +28,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import { backendUrl } from "@/config";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -64,6 +64,7 @@ const formSchema = z.object({
 
 export default function EditJournalForm() {
   const params = useParams();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -144,9 +145,11 @@ export default function EditJournalForm() {
       if (response.status === 200) {
         toast({
           title: "Journal Publication Updated",
-          description: "Your journal publication has been successfully updated.",
+          description:
+            "Your journal publication has been successfully updated.",
           variant: "mine",
         });
+        router.back();
       } else {
         throw new Error("Update failed");
       }
@@ -154,7 +157,8 @@ export default function EditJournalForm() {
       console.error("Error updating journal publication:", error);
       toast({
         title: "Update Error",
-        description: "There was an error updating your journal publication. Please try again.",
+        description:
+          "There was an error updating your journal publication. Please try again.",
         variant: "destructive",
       });
     }

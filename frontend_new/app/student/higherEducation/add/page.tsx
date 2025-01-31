@@ -27,24 +27,18 @@ import { backendUrl } from "@/config";
 
 const formSchema = z.object({
   studentName: z.string().min(1, "Name of the student is required"),
-  programGraduatedFrom: z.enum(["BTech", "Mech", "BCom", "MCom", "BBA", "BPharma", "Nursing"], {
-    required_error: "Please select a program of graduation",
-  }),
-  institutionAdmittedTo: z.string().min(1, "Institution of admittance is required"),
+  programGraduatedFrom: z.enum(
+    ["BTech", "Mech", "BCom", "MCom", "BBA", "BPharma", "Nursing"],
+    {
+      required_error: "Please select a program of graduation",
+    }
+  ),
+  institutionAdmittedTo: z
+    .string()
+    .min(1, "Institution of admittance is required"),
   programmeAdmittedTo: z.string().min(1, "Program of Admittance is required"),
   year: z.string().min(1, "Graduation year of the student is required"),
 });
-
-// const formSchema = z.object({
-//   studentName: z.string().min(1, "Name of the student is required"),
-//   link: z.string().min(1, "Link to relevant documents is required"),
-//   programGraduatedFrom: z.enum(["BTech", "Mech", "BCom", "MCom", "BBA", "BPharma", "Nursing"], {
-//     required_error: "Please select a program of graduation",
-//   }),
-//   institutionAdmittedTo: z.string().min(1, "Institution of admittance is required"),
-//   programmeAdmittedTo: z.string().min(1, "Program of Admittance is required"),
-//   year: z.string().min(1, "Graduation year of the student is required"),
-// });
 
 export default function HigherEducationForm() {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,20 +48,9 @@ export default function HigherEducationForm() {
       programGraduatedFrom: undefined,
       institutionAdmittedTo: "",
       programmeAdmittedTo: "",
-      year: ""
+      year: "",
     },
   });
-
-  // const form = useForm<z.infer<typeof formSchema>>({
-  //   resolver: zodResolver(formSchema),
-  //   defaultValues: {
-  //     studentName: "",
-  //     link: "",
-  //     program: undefined,
-  //     institution: "",
-  //     programGraduated: "",
-  //   },
-  // });
 
   const { toast } = useToast();
 
@@ -87,8 +70,7 @@ export default function HigherEducationForm() {
       if (response.status === 201) {
         toast({
           title: "Record Submitted",
-          description:
-            "Your record has been successfully submitted.",
+          description: "Your record has been successfully submitted.",
           variant: "mine",
         });
         form.reset();
@@ -130,27 +112,19 @@ export default function HigherEducationForm() {
                   </FormItem>
                 )}
               />
-              {/* <FormField
-                control={form.control}
-                name="link"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Link to relevant documents</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter the link to relevant documents" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
               <FormField
                 control={form.control}
                 name="year"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Graduation year of the student (Postgraduate Degree)</FormLabel>
+                    <FormLabel>
+                      Graduation year of the student (Postgraduate Degree)
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter the year of the activity" {...field} />
+                      <Input
+                        placeholder="Enter the year of the activity"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -164,29 +138,32 @@ export default function HigherEducationForm() {
                     <FormItem>
                       <FormLabel>Program of Admittance</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter the program of admittance" {...field} />
+                        <Input
+                          placeholder="Enter the program of admittance"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                  <FormField
+                <FormField
                   control={form.control}
                   name="institutionAdmittedTo"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Institution of Admittance</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter the institution of admittance" {...field} />
+                        <Input
+                          placeholder="Enter the institution of admittance"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-
-
-
 
               <FormField
                 control={form.control}

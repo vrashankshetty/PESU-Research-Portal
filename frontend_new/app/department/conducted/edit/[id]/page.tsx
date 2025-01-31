@@ -21,8 +21,7 @@ import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
 import { backendUrl } from "@/config";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/components/spinner";
 
 const formSchema = z.object({
@@ -124,7 +123,7 @@ export default function EditConductedForm() {
           description: "The conducted program has been updated successfully.",
           variant: "mine",
         });
-        router.push("/department");
+        router.back();
       } else {
         throw new Error("Update failed");
       }
