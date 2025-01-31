@@ -4,7 +4,6 @@ import { Award, BookOpen, FileText, Users } from "lucide-react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { backendUrl } from "@/config";
-import Cookies from "js-cookie";
 import Link from "next/link";
 
 export default function Dashboard() {

@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
 import { Pencil } from "lucide-react";
+import { CAMPUS, DEPARTMENTS } from "@/lib/types";
 
 type Journal = {
   id: string;
@@ -83,7 +84,10 @@ function JournalDashboard() {
   const [metric, setMetric] = useState<"campus" | "dept" | "year" | "qNo">(
     "campus"
   );
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
+  const [yearRange, setYearRange] = useState({
+    start: "2000",
+    end: String(new Date().getFullYear()),
+  });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
   const [selectedQNos, setSelectedQNos] = useState<string[]>([]);
@@ -139,7 +143,7 @@ function JournalDashboard() {
     );
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
-      end: searchParams.get("yearEnd") || "2024",
+      end: searchParams.get("yearEnd") || String(new Date().getFullYear()),
     });
     setSelectedCampuses(
       searchParams.get("campuses")?.split(",").filter(Boolean) || []
@@ -516,7 +520,7 @@ function JournalDashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {["EC", "RR", "HSN"].map((campus) => (
+              {CAMPUS.map((campus) => (
                 <div key={campus} className="flex items-center space-x-2">
                   <Checkbox
                     id={`campus-${campus}`}
@@ -542,7 +546,7 @@ function JournalDashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {["EC", "CSE"].map((dept) => (
+              {DEPARTMENTS.map((dept) => (
                 <div key={dept} className="flex items-center space-x-2">
                   <Checkbox
                     id={`dept-${dept}`}

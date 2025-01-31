@@ -20,18 +20,11 @@ type StudentOption = {
 
 const studentOptions: StudentOption[] = [
   {
-    title: "Intra University events",
+    title: "Intra University Events",
     description:
       "Add or analyze sports and cultural events / competitions organised by the Institution",
     href: "intraSports",
     icon: <BookOpen className="h-8 w-8" />,
-  },
-  {
-    title: "Inter University Medals",
-    description:
-      "Add or analyze awards/medals won by students in sports/cultural activities at inter-university/state/national/international events",
-    href: "interSports",
-    icon: <Medal className="h-8 w-8" />,
   },
   {
     title: "Higher Education",
@@ -46,6 +39,13 @@ const studentOptions: StudentOption[] = [
       "Add or analyze students qualifying in state/ national/ international level examinations",
     href: "higherExams",
     icon: <PenTool className="h-8 w-8" />,
+  },
+  {
+    title: "Inter University Medals",
+    description:
+      "Add or analyze awards/medals won by students in sports/cultural activities at inter-university/state/national/international events",
+    href: "interSports",
+    icon: <Medal className="h-8 w-8" />,
   },
   {
     title: "Career Counseling",
