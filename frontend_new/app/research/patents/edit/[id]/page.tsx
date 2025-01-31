@@ -21,10 +21,14 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import axios from "axios";
 import { backendUrl } from "@/config";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Spinner from "@/components/spinner";
+import { useRouter } from "next/navigation";
 
 // Add teacher type
 type Teacher = {
   id: string;
+  userId: string;
   name: string;
 };
 
@@ -37,23 +41,11 @@ const formSchema = z.object({
   documentLink: z.string().url("Please enter a valid URL"),
 });
 
-export default function PatentForm() {
+export default function EditPatentForm() {
+  const params = useParams();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  
-  // Fetch teachers on component mount
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await axios.get(`${backendUrl}/api/v1/user`, {
-          withCredentials: true
-        });
-        setTeachers(response.data);
-      } catch (error) {
-        console.error("Error fetching teachers:", error);
-      }
-    };
-    fetchTeachers();
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,34 +61,92 @@ export default function PatentForm() {
 
   const { toast } = useToast();
 
+  // Update the fetchPatent useEffect
+  useEffect(() => {
+    const fetchPatent = async () => {
+      try {
+        const response = await axios.get(
+          `${backendUrl}/api/v1/patent/${params.id}`,
+          { withCredentials: true }
+        );
+
+        // Transform the response data to match form structure
+        const patentData = {
+          ...response.data.patent,
+          teacherIds: response.data.patent.teachers.map(
+            (t: Teacher) => t.userId
+          ),
+        };
+
+        form.reset(patentData);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching patent:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch patent details",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchPatent();
+    }
+  }, [params.id]);
+
+  // Fetch teachers on component mount
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/v1/user`, {
+          withCredentials: true,
+        });
+        setTeachers(response.data);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    };
+    fetchTeachers();
+  }, []);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await axios.post(`${backendUrl}/api/v1/patent`, values, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.put(
+        `${backendUrl}/api/v1/patent/${params.id}`,
+        values,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         toast({
-          title: "Patent Submitted",
-          description: "Your patent has been successfully submitted.",
+          title: "Patent Updated",
+          description: "Your patent has been successfully updated.",
           variant: "mine",
         });
-        form.reset();
+        router.back();
       } else {
-        throw new Error("Submission failed");
+        throw new Error("Update failed");
       }
     } catch (error) {
-      console.error("Error submitting patent:", error);
+      console.error("Error updating patent:", error);
       toast({
-        title: "Submission Error",
+        title: "Update Error",
         description:
-          "There was an error submitting your patent. Please try again.",
+          "There was an error updating your patent. Please try again.",
         variant: "destructive",
       });
     }
+  }
+
+  if (isLoading) {
+    return <Spinner />;
   }
 
   return (
@@ -104,7 +154,7 @@ export default function PatentForm() {
       <Card className="w-full max-w-6xl bg-white/90 backdrop-blur-sm shadow-xl">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            Patent Registration Form
+            Edit Patent Details
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -118,13 +168,14 @@ export default function PatentForm() {
                     <FormLabel>Teachers</FormLabel>
                     <FormControl>
                       <MultiSelect
-                        options={teachers.map(teacher => ({
+                        options={teachers.map((teacher) => ({
                           label: teacher.name,
-                          value: teacher.id
+                          value: teacher.id,
                         }))}
                         placeholder="Select teachers..."
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        value={field.value} // Add controlled value
                         className="text-black"
                       />
                     </FormControl>
@@ -213,7 +264,7 @@ export default function PatentForm() {
               />
               <div className="flex justify-center">
                 <Button type="submit" className="bg-sky-800">
-                  Submit
+                  Update
                 </Button>
               </div>
             </form>

@@ -44,8 +44,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
+import { Pencil } from "lucide-react";
+import { CAMPUS, DEPARTMENTS } from "@/lib/types";
 
 type Conference = {
+  id: string;
   teacherIds: string[];
   campus: string;
   dept: string;
@@ -81,7 +84,10 @@ function ConferenceDashboard() {
   const [metric, setMetric] = useState<"campus" | "dept" | "year" | "core">(
     "campus"
   );
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
+  const [yearRange, setYearRange] = useState({
+    start: "2000",
+    end: String(new Date().getFullYear()),
+  });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
   const [selectedCores, setSelectedCores] = useState<string[]>([]);
@@ -179,7 +185,7 @@ function ConferenceDashboard() {
     );
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
-      end: searchParams.get("yearEnd") || "2024",
+      end: searchParams.get("yearEnd") || String(new Date().getFullYear()),
     });
     setSelectedCampuses(
       searchParams.get("campuses")?.split(",").filter(Boolean) || []
@@ -494,7 +500,7 @@ function ConferenceDashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {["EC", "RR", "HSN"].map((campus) => (
+              {CAMPUS.map((campus) => (
                 <div key={campus} className="flex items-center space-x-2">
                   <Checkbox
                     id={`campus-${campus}`}
@@ -520,7 +526,7 @@ function ConferenceDashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {["EC", "CSE"].map((dept) => (
+              {DEPARTMENTS.map((dept) => (
                 <div key={dept} className="flex items-center space-x-2">
                   <Checkbox
                     id={`dept-${dept}`}
@@ -603,6 +609,7 @@ function ConferenceDashboard() {
                       <th className="px-6 py-3">Core</th>
                       <th className="px-6 py-3">Impact Factor</th>
                       <th className="px-6 py-3">Paper Link</th>
+                      <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -612,7 +619,7 @@ function ConferenceDashboard() {
                         currentPage * itemsPerPage
                       )
                       .map((conference, index) => (
-                        <tr key={index} className="bg-white border-b">
+                        <tr key={conference.id} className="bg-white border-b">
                           <td className="px-6 py-4">
                             {(currentPage - 1) * itemsPerPage + index + 1}
                           </td>
@@ -628,14 +635,32 @@ function ConferenceDashboard() {
                             {conference.impactFactor}
                           </td>
                           <td className="px-6 py-4">
-                            <a
-                              href={conference.link_of_paper}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
+                            {conference.link_of_paper ? (
+                              <a
+                                href={conference.link_of_paper}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                View
+                              </a>
+                            ) : (
+                              <div>NA</div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Button
+                              onClick={() =>
+                                router.push(
+                                  `/research/conferences/edit/${conference.id}`
+                                )
+                              }
+                              variant="outline"
+                              size="sm"
                             >
-                              View
-                            </a>
+                              Edit
+                              <Pencil className="h-4 w-4 ml-2" />
+                            </Button>
                           </td>
                         </tr>
                       ))}
@@ -700,9 +725,19 @@ function ConferenceDashboard() {
                     cardCurrentPage * cardsPerPage
                   )
                   .map((conference, index) => (
-                    <Card key={index}>
-                      <CardHeader>
-                        <CardTitle>{conference.paperTitle}</CardTitle>
+                    <Card key={conference.id}>
+                      <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="max-w-[80%]">
+                          {conference.paperTitle}
+                        </CardTitle>
+                        <Pencil
+                          className="size-6"
+                          onClick={() =>
+                            router.push(
+                              `/research/conferences/edit/${conference.id}`
+                            )
+                          }
+                        />
                       </CardHeader>
                       <CardContent>
                         <p>
@@ -736,14 +771,16 @@ function ConferenceDashboard() {
                           <strong>Capstone:</strong>{" "}
                           {conference.isCapstone ? "Yes" : "No"}
                         </p>
-                        <a
-                          href={conference.link_of_paper}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          View Paper
-                        </a>
+                        {conference.link_of_paper && (
+                          <a
+                            href={conference.link_of_paper}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View Paper
+                          </a>
+                        )}
                       </CardContent>
                     </Card>
                   ))}

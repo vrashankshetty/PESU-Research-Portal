@@ -27,6 +27,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import { backendUrl } from "@/config";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
 const formSchema = z.object({
   teacherIds: z.array(z.string()),
@@ -51,7 +53,10 @@ const formSchema = z.object({
   domain: z.string().min(1, "Domain is required"),
 });
 
-export default function ConferenceForm() {
+export default function EditConferenceForm() {
+  const params = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -78,10 +83,44 @@ export default function ConferenceForm() {
 
   const { toast } = useToast();
 
+  // Fetch existing conference data
+  useEffect(() => {
+    const fetchConference = async () => {
+      try {
+        const response = await axios.get(
+          `${backendUrl}/api/v1/conference/${params.id}`,
+          { withCredentials: true }
+        );
+
+        // Transform keywords array to string for the form input
+        const conferenceData = {
+          ...response.data,
+          keywords: response.data.keywords.join(","),
+        };
+
+        // Reset form with fetched data
+        form.reset(conferenceData);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching conference:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch conference details",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchConference();
+    }
+  }, [params.id]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/v1/conference`,
+      const response = await axios.put(
+        `${backendUrl}/api/v1/conference/${params.id}`,
         values,
         {
           withCredentials: true,
@@ -91,26 +130,33 @@ export default function ConferenceForm() {
         }
       );
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         toast({
-          title: "Conference Publication Submitted",
+          title: "Conference Publication Updated",
           description:
-            "Your conference publication has been successfully submitted.",
+            "Your conference publication has been successfully updated.",
           variant: "mine",
         });
-        form.reset();
       } else {
-        throw new Error("Submission failed");
+        throw new Error("Update failed");
       }
     } catch (error) {
-      console.error("Error submitting conference publication:", error);
+      console.error("Error updating conference publication:", error);
       toast({
-        title: "Submission Error",
+        title: "Update Error",
         description:
-          "There was an error submitting your conference publication. Please try again.",
+          "There was an error updating your conference publication. Please try again.",
         variant: "destructive",
       });
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div>Loading...</div>
+      </div>
+    );
   }
 
   return (
@@ -118,7 +164,7 @@ export default function ConferenceForm() {
       <Card className="w-full max-w-6xl bg-white/90 backdrop-blur-sm shadow-xl">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            Conference Publication Form
+            Edit Conference Publication
           </CardTitle>
         </CardHeader>
         <CardContent>

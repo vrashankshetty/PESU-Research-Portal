@@ -110,6 +110,12 @@ interface MultiSelectProps
    * Optional, can be used to add custom styles.
    */
   className?: string;
+
+  /**
+   * The selected values for the multi-select component.
+   * Optional, can be used to control the selected values externally.
+   */
+  value?: string[];
 }
 
 export const MultiSelect = React.forwardRef<
@@ -128,14 +134,22 @@ export const MultiSelect = React.forwardRef<
       modalPopover = false,
       asChild = false,
       className,
+      value,
       ...props
     },
     ref
   ) => {
-    const [selectedValues, setSelectedValues] =
-      React.useState<string[]>(defaultValue);
+    const [selectedValues, setSelectedValues] = React.useState<string[]>(
+      value || defaultValue || []
+    );
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [isAnimating, setIsAnimating] = React.useState(false);
+
+    React.useEffect(() => {
+      if (value) {
+        setSelectedValues(value);
+      }
+    }, [value]);
 
     const handleInputKeyDown = (
       event: React.KeyboardEvent<HTMLInputElement>
