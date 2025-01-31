@@ -28,7 +28,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import { backendUrl } from "@/config";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const formSchema = z.object({
   teacherIds: z.array(z.string()),
@@ -56,6 +56,7 @@ const formSchema = z.object({
 export default function EditConferenceForm() {
   const params = useParams();
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -137,6 +138,7 @@ export default function EditConferenceForm() {
             "Your conference publication has been successfully updated.",
           variant: "mine",
         });
+        router.back();
       } else {
         throw new Error("Update failed");
       }

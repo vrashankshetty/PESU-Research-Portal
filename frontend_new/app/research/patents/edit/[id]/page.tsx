@@ -21,11 +21,9 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import axios from "axios";
 import { backendUrl } from "@/config";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/components/spinner";
-import { useRouter } from "next/navigation";
 
-// Add teacher type
 type Teacher = {
   id: string;
   userId: string;
