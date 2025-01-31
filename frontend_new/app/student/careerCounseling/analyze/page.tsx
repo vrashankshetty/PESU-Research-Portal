@@ -41,8 +41,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
+import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface CareerCounsels {
+  id: string;
   documentLink: string;
   numberOfStudents: string;
   year: string;
@@ -64,6 +67,7 @@ function CounselingDashboard() {
   const itemsPerPage = 10;
   const cardsPerPage = 6;
   const [visiblePages, setVisiblePages] = useState(5);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCareerCounsels = async () => {
@@ -378,6 +382,7 @@ function CounselingDashboard() {
                       <th className="px-6 py-3">
                         Link to the relevant document
                       </th>
+                      <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -403,8 +408,22 @@ function CounselingDashboard() {
                                 rel="noopener noreferrer"
                                 className="text-blue-500"
                               >
-                                Document
+                                Link
                               </a>
+                            </td>
+                            <td className="px-6 py-4">
+                              <Button
+                                onClick={() =>
+                                  router.push(
+                                    `/student/careerCounseling/edit/${counsel.id}`
+                                  )
+                                }
+                                variant="outline"
+                                size="sm"
+                              >
+                                Edit
+                                <Pencil className="h-4 w-4 ml-2" />
+                              </Button>
                             </td>
                           </tr>
                         ))
@@ -478,9 +497,20 @@ function CounselingDashboard() {
                       cardCurrentPage * cardsPerPage
                     )
                     .map((entry, index) => (
-                      <Card key={index}>
-                        <CardHeader>
+                      <Card key={entry.id}>
+                        <CardHeader className="flex flex-row items-center justify-between">
                           <CardTitle>{entry.activityName}</CardTitle>
+                          <Button
+                            onClick={() =>
+                              router.push(
+                                `/student/careerCounseling/edit/${entry.id}`
+                              )
+                            }
+                            variant="outline"
+                            size="icon"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
                         </CardHeader>
                         <CardContent>
                           <p>

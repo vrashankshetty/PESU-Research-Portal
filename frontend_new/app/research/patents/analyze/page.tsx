@@ -43,8 +43,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
+import { Pencil } from "lucide-react";
+import { CAMPUS, DEPARTMENTS } from "@/lib/types";
 
 type Patent = {
+  id: string;
   teacherAdminId: string;
   campus: string;
   dept: string;
@@ -85,7 +88,10 @@ function ImprovedPatentDashboard() {
   const [filteredPatents, setFilteredPatents] = useState<Patent[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
   const [metric, setMetric] = useState<"campus" | "dept" | "year">("campus");
-  const [yearRange, setYearRange] = useState({ start: "2000", end: "2024" });
+  const [yearRange, setYearRange] = useState({
+    start: "2000",
+    end: String(new Date().getFullYear()),
+  });
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
   const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
@@ -171,7 +177,7 @@ function ImprovedPatentDashboard() {
     );
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
-      end: searchParams.get("yearEnd") || "2024",
+      end: searchParams.get("yearEnd") || String(new Date().getFullYear()),
     });
     setSelectedCampuses(
       searchParams.get("campuses")?.split(",").filter(Boolean) || []
@@ -506,7 +512,7 @@ function ImprovedPatentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {["EC", "RR", "HSN"].map((campus) => (
+              {CAMPUS.map((campus) => (
                 <div key={campus} className="flex items-center space-x-2">
                   <Checkbox
                     id={`campus-${campus}`}
@@ -532,7 +538,7 @@ function ImprovedPatentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {["EC", "CSE"].map((dept) => (
+              {DEPARTMENTS.map((dept) => (
                 <div key={dept} className="flex items-center space-x-2">
                   <Checkbox
                     id={`dept-${dept}`}
@@ -588,6 +594,7 @@ function ImprovedPatentDashboard() {
                       <th className="px-6 py-3">Year</th>
                       <th className="px-6 py-3">Capstone</th>
                       <th className="px-6 py-3">Document</th>
+                      <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -616,14 +623,32 @@ function ImprovedPatentDashboard() {
                               {patent.isCapstone ? "Yes" : "No"}
                             </td>
                             <td className="px-6 py-4">
-                              <a
-                                href={patent.documentLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
+                              {patent.documentLink ? (
+                                <a
+                                  href={patent.documentLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  View
+                                </a>
+                              ) : (
+                                <div>NA</div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4">
+                              <Button
+                                onClick={() =>
+                                  router.push(
+                                    `/research/patents/edit/${patent.id}`
+                                  )
+                                }
+                                variant="outline"
+                                size="sm"
                               >
-                                View
-                              </a>
+                                Edit
+                                <Pencil className="h-4 w-4 ml-2" />
+                              </Button>
                             </td>
                           </tr>
                         );
@@ -691,9 +716,17 @@ function ImprovedPatentDashboard() {
                     );
 
                     return (
-                      <Card key={index}>
-                        <CardHeader>
-                          <CardTitle>{patent.patentTitle}</CardTitle>
+                      <Card key={patent.id}>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                          <CardTitle className="max-w-[80%]">
+                            {patent.patentTitle}
+                          </CardTitle>
+                          <Pencil
+                            className="size-6"
+                            onClick={() =>
+                              router.push(`/research/patents/edit/${patent.id}`)
+                            }
+                          />
                         </CardHeader>
                         <CardContent>
                           <p>
@@ -717,14 +750,16 @@ function ImprovedPatentDashboard() {
                             <strong>Capstone:</strong>{" "}
                             {patent.isCapstone ? "Yes" : "No"}
                           </p>
-                          <a
-                            href={patent.documentLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                          >
-                            View Document
-                          </a>
+                          {patent.documentLink && (
+                            <a
+                              href={patent.documentLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              View Document
+                            </a>
+                          )}
                         </CardContent>
                       </Card>
                     );

@@ -111,14 +111,21 @@ Router.post('/verifyToken', async (req, res) => {
 
         const userTokenData = verifyToken(access_token);
         console.log('userData from token', userTokenData);
+        let currUser = null;
         if (userTokenData) {
             const result = await db.select().from(user).where(eq(user.id, userTokenData.id));
             if (result.length === 0) {
                 throw new Error('Account has been deleted');
             }
+            currUser = result[0];
         }
         res.status(200).send({
             message: 'Token verified',
+            data:{
+                role:currUser?.role,
+                accessTo: currUser?.accessTo,
+                profileImg: currUser?.profileImg
+            }
         });
     } catch (error) {
         console.log('catch error', error);

@@ -41,8 +41,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
+import { useRouter } from "next/navigation";
+import { Pencil } from "lucide-react";
 
 interface InterSports {
+  id: string;
   nameOfStudent: string;
   nameOfEvent: string;
   link: string;
@@ -66,6 +69,7 @@ function InterSportsDashboard() {
   const itemsPerPage = 10;
   const cardsPerPage = 6;
   const [visiblePages, setVisiblePages] = useState(5);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchInterSports = async () => {
@@ -392,6 +396,7 @@ function InterSportsDashboard() {
                       <th className="px-6 py-3">
                         Link to the relevant document
                       </th>
+                      <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -420,6 +425,20 @@ function InterSportsDashboard() {
                               >
                                 Document
                               </a>
+                            </td>
+                            <td className="px-6 py-4">
+                              <Button
+                                onClick={() =>
+                                  router.push(
+                                    `/student/interSports/edit/${counsel.id}`
+                                  )
+                                }
+                                variant="outline"
+                                size="sm"
+                              >
+                                Edit
+                                <Pencil className="h-4 w-4 ml-2" />
+                              </Button>
                             </td>
                           </tr>
                         ))
@@ -494,8 +513,19 @@ function InterSportsDashboard() {
                     )
                     .map((entry, index) => (
                       <Card key={index}>
-                        <CardHeader>
+                        <CardHeader className="flex flex-row items-center justify-between">
                           <CardTitle>{entry.nameOfStudent}</CardTitle>
+                          <Button
+                            onClick={() =>
+                              router.push(
+                                `/student/interSports/edit/${entry.id}`
+                              )
+                            }
+                            variant="outline"
+                            size="icon"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
                         </CardHeader>
                         <CardContent>
                           <p>

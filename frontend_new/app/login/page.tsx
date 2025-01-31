@@ -40,7 +40,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const { setIsLoggedIn } = useAuth();
+  const { setIsLoggedIn,setUser } = useAuth();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -75,7 +75,8 @@ export default function LoginPage() {
           title: "Successfully Logged In",
           description: "Welcome to the PES portal",
         });
-        setIsLoggedIn(true);
+        setIsLoggedIn(true);1
+        setUser(response.data.data);
         window.location.href = "/";
       }
     } catch (error) {

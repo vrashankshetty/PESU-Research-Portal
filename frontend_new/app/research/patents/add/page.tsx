@@ -17,8 +17,16 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { MultiSelect } from "@/components/ui/multi-select";
 import axios from "axios";
 import { backendUrl } from "@/config";
+import { useEffect, useState } from "react";
+
+// Add teacher type
+type Teacher = {
+  id: string;
+  name: string;
+};
 
 const formSchema = z.object({
   teacherIds: z.array(z.string()),
@@ -30,6 +38,23 @@ const formSchema = z.object({
 });
 
 export default function PatentForm() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  
+  // Fetch teachers on component mount
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/v1/user`, {
+          withCredentials: true
+        });
+        setTeachers(response.data);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    };
+    fetchTeachers();
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -85,7 +110,29 @@ export default function PatentForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FormField
+                control={form.control}
+                name="teacherIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teachers</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={teachers.map(teacher => ({
+                          label: teacher.name,
+                          value: teacher.id
+                        }))}
+                        placeholder="Select teachers..."
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="text-black"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="patentNumber"
@@ -94,6 +141,19 @@ export default function PatentForm() {
                       <FormLabel>Patent Number</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter Patent Number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="year"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Year</FormLabel>
+                      <FormControl>
+                        <Input placeholder="YYYY" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -113,7 +173,7 @@ export default function PatentForm() {
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 <FormField
                   control={form.control}
                   name="isCapstone"
@@ -131,19 +191,6 @@ export default function PatentForm() {
                           Check if capstone project
                         </FormDescription>
                       </div>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Year</FormLabel>
-                      <FormControl>
-                        <Input placeholder="YYYY" {...field} />
-                      </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />

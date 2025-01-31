@@ -84,9 +84,6 @@ const departmentExpertiseMap = {
 
 const formSchema = z.object({
   empId: z.string().min(6, { message: "EMP ID must be at least 6 characters" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   phno: z
     .string()
@@ -150,7 +147,8 @@ export default function ProfilePage() {
     fetchUserData();
   }, []);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("Form submitted with values:", values);
     try {
       const response = await axios.put(
         `${backendUrl}/api/v1/user/profile`,
@@ -173,7 +171,7 @@ export default function ProfilePage() {
         description: "Failed to update profile",
       });
     }
-  };
+  }
 
   if (loading) {
     return <Spinner />;
@@ -437,11 +435,11 @@ export default function ProfilePage() {
                 />
               </div>
             </CardContent>
-            <CardFooter>
+            <div className="flex justify-center pb-2">
               <Button type="submit" className="bg-sky-800">
                 Save Changes
               </Button>
-            </CardFooter>
+            </div>
           </form>
         </Form>
       </Card>

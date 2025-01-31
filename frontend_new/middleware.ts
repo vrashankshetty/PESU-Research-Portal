@@ -1,21 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import axios from 'axios';
-import { backendUrl } from './config';
-
+import { verifyToken } from './api';
 const protectedRoutes = ['/research', '/department', '/student'];
 
-const verifyToken = async (token: string) => {
-    try {
-        const response = await axios.post(   
-            `${backendUrl}/api/v1/auth/verifyToken`,
-            { access_token: token },
-        );
-        return response;
-    } catch (error) {
-        return { status: 401 };
-    }
-};
 
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;

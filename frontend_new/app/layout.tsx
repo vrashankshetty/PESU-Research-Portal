@@ -17,9 +17,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "PESU Research Portal",
+  title: "PESU NAAC Portal",
   description:
-    "A portal to allow faculty to update and analyze their publications and patents",
+    "PES University's portal to allow faculty to update and analyze their academic achievements",
 };
 
 export default function RootLayout({
