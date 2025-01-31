@@ -168,13 +168,21 @@ export async function createPatent(patentData: Patent, userId: string) {
     }
 }
 
-export async function updatePatent(patentData: Patent, id: string, userId: string) {
+export async function updatePatent(patentData: Patent, id: string, userId: string,role:string,accessTo:string) {
     const { teacherIds, ...expData } = patentData;
 
     try {
-        const uptData = await db.query.patent.findFirst({
-            where: and(eq(patent.id, id), eq(patent.teacherAdminId, userId)),
-        });
+        let uptData;
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
+            uptData = await db.query.patent.findFirst({
+                where: and(eq(patent.id, id)),
+            });
+        }else{
+            uptData = await db.query.patent.findFirst({
+                where: and(eq(patent.id, id), eq(patent.teacherAdminId, userId)),
+            });
+        }
+        
         if (!uptData) {
             return { status: 403, message: 'Forbidden' };
         }

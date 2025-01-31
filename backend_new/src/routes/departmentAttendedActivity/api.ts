@@ -42,6 +42,7 @@ Router.post('/', async (req, res) => {
     try {
         const data = req.body;
         const userId = (req as any).user.id;
+        
         const { error } = departmentAttendedActivitySchema.validate(data, { abortEarly: false });
         if (error) {
             console.log('error', error);
@@ -61,12 +62,14 @@ Router.put('/:id', async (req, res) => {
         const data = req.body;
         const id = req.params.id;
         const userId = (req as any).user.id;
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
         const { error } = departmentAttendedActivitySchema.validate(data, { abortEarly: false });
         if (error) {
             return handleValidationError(error, res);
         }
 
-        const activityData = await updateActivity(data, id, userId);
+        const activityData = await updateActivity(data, id, userId,role, accessTo);
         if (activityData?.status === 404) {
             return res.status(404).send(activityData?.message);
         }

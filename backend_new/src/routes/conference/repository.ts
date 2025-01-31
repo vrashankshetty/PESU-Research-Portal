@@ -171,13 +171,21 @@ export async function createConference(confData: Conference, userId: string) {
     }
 }
 
-export async function updateConference(journalData: Conference, id: string, userId: string) {
+export async function updateConference(journalData: Conference, id: string, userId: string,role: string,accessTo:string) {
     const { teacherIds, ...expData } = journalData;
 
     try {
-        const uptData = await db.query.conference.findFirst({
-            where: and(eq(conference.id, id), eq(conference.teacherAdminId, userId)),
-        });
+        let uptData;
+        
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
+            uptData = await db.query.conference.findFirst({
+                where: and(eq(conference.id, id)),
+            });
+        }else{
+            uptData = await db.query.conference.findFirst({
+                where: and(eq(conference.id, id), eq(conference.teacherAdminId, userId)),
+            });
+        }   
 
         if (!uptData) {
             return { status: 403, message: 'Forbidden' };
@@ -192,7 +200,7 @@ export async function updateConference(journalData: Conference, id: string, user
             .returning();
 
         if (!updatedJournal?.id) {
-            throw new Error('Error updating Journal');
+            throw new Error('Error updating Conference');
         }
         const existingTeachers = await db.query.conferenceUser.findMany({
             where: eq(conferenceUser.conferenceId, id),

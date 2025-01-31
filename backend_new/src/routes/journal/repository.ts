@@ -168,13 +168,21 @@ export async function createJournal(journalData: Journal, userId: string) {
     }
 }
 
-export async function updateJournal(journalData: Journal, id: string, userId: string) {
+export async function updateJournal(journalData: Journal, id: string, userId: string,role:string,accessTo:string) {
     const { teacherIds, ...expData } = journalData;
 
     try {
-        const uptData = await db.query.journal.findFirst({
-            where: and(eq(journal.id, id), eq(journal.teacherAdminId, userId)),
-        });
+        let uptData;
+
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
+            uptData = await db.query.journal.findFirst({
+                where: and(eq(journal.id, id)),
+            });
+        }else{
+            uptData = await db.query.journal.findFirst({
+                where: and(eq(journal.id, id), eq(journal.teacherAdminId, userId)),
+            });
+        }
         if (!uptData) {
             return { status: 403, message: 'Forbidden' };
         }

@@ -60,13 +60,15 @@ Router.put('/:id', async (req, res) => {
     try {
         const data = req.body;
         const id = req.params.id;
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
         const userId = (req as any).user.id;
         const { error } = patentSchema.validate(data, { abortEarly: false });
         if (error) {
             return handleValidationError(error, res);
         }
 
-        const patentData = await updatePatent(data, id, userId);
+        const patentData = await updatePatent(data, id, userId,role,accessTo);
         if (patentData?.status == 403) {
             return res.status(403).send(patentData?.message);
         }

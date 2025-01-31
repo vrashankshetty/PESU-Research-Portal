@@ -68,12 +68,14 @@ Router.put('/:id', async (req, res) => {
         const data = req.body;
         const id = req.params.id;
         const userId = (req as any).user.id;
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
         const { error } = conferenceSchema.validate(data, { abortEarly: false });
         if (error) {
             return handleValidationError(error, res);
         }
 
-        const confData = await updateConference(data, id, userId);
+        const confData = await updateConference(data, id, userId,role, accessTo);
         if (confData?.status == 403) {
             return res.status(403).send(confData?.message);
         }

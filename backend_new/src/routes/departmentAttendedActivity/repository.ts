@@ -100,12 +100,18 @@ export async function createActivity(activityData: DepartmentAttendedActivity, u
     }
 }
 
-export async function updateActivity(activityData: DepartmentAttendedActivity, id: string, userId: string) {
+export async function updateActivity(activityData: DepartmentAttendedActivity, id: string, userId: string,role: string, accessTo: string) {
     try {
-        const uptData = await db.query.departmentAttendedActivity.findFirst({
-            where: and(eq(departmentAttendedActivity.id, id), eq(departmentAttendedActivity.userId, userId)),
-        });
-
+        let uptData;
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'department')) {
+            uptData = await db.query.departmentAttendedActivity.findFirst({
+                where: and(eq(departmentAttendedActivity.id, id)),
+            });   
+        }else{
+            uptData = await db.query.departmentAttendedActivity.findFirst({
+                where: and(eq(departmentAttendedActivity.id, id), eq(departmentAttendedActivity.userId, userId)),
+            });
+        }
         if (!uptData) {
             return { status: 404, message: 'Not Found' };
         }

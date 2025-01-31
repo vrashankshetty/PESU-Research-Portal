@@ -61,12 +61,14 @@ Router.put('/:id', async (req, res) => {
     try {
         const data = req.body;
         const id = req.params.id;
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
         const userId = (req as any).user.id;
         const { error } = journalSchema.validate(data, { abortEarly: false });
         if (error) {
             return handleValidationError(error, res);
         }
-        const journalData = await updateJournal(data, id, userId);
+        const journalData = await updateJournal(data, id, userId,role,accessTo);
         if (journalData?.status == 403) {
             return res.status(403).send(journalData?.message);
         }
