@@ -26,6 +26,7 @@ router.use('/departmentConductedActivity', authenticateUser,departmentConductedA
 router.use('/departmentAttendedActivity', authenticateUser,departmentAttendedActivity);
 router.use('/studentEntranceExam',authenticateUser, studentEntranceExam);
 router.use('/studentHigherStudies', authenticateUser,studentHigherStudies);
+router.use('/studentCareerCounselling', authenticateUser,studentCareerCounselling);
 router.use('/interSports',authenticateUser, interSports);
 router.use('/intraSports',authenticateUser, intraSports);
 export default router;
