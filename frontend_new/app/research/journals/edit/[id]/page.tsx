@@ -29,6 +29,7 @@ import axios from "axios";
 import { backendUrl } from "@/config";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Spinner from "@/components/spinner";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -107,8 +108,8 @@ export default function EditJournalForm() {
 
         // Transform keywords array to string for form
         const journalData = {
-          ...response.data,
-          keywords: response.data.keywords.join(","),
+          ...response.data.journal,
+          keywords: response.data.journal.keywords.join(","),
         };
 
         form.reset(journalData);
@@ -165,11 +166,7 @@ export default function EditJournalForm() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div>Loading...</div>
-      </div>
-    );
+    return <Spinner />;
   }
 
   return (

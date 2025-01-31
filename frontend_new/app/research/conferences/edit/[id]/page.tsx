@@ -29,6 +29,7 @@ import axios from "axios";
 import { backendUrl } from "@/config";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Spinner from "@/components/spinner";
 
 const formSchema = z.object({
   teacherIds: z.array(z.string()),
@@ -95,8 +96,8 @@ export default function EditConferenceForm() {
 
         // Transform keywords array to string for the form input
         const conferenceData = {
-          ...response.data,
-          keywords: response.data.keywords.join(","),
+          ...response.data.conference,
+          keywords: response.data.conference.keywords.join(","),
         };
 
         // Reset form with fetched data
@@ -154,11 +155,7 @@ export default function EditConferenceForm() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div>Loading...</div>
-      </div>
-    );
+    return <Spinner />;
   }
 
   return (
