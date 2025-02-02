@@ -75,9 +75,11 @@ Router.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
         // const userId = (req as any).user.id;
-        const confData = await deleteActivity(id);
-        if (confData?.status === 404) {
-            return res.status(404).send(confData?.message);
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
+        const confData = await deleteActivity(id, role, accessTo);
+        if (confData?.status === 404 || confData?.status === 403) {
+            return res.status(confData?.status).send(confData?.message);
         }
         return res.status(200).send(confData?.message);
     } catch (error) {

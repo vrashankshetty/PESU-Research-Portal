@@ -153,16 +153,19 @@ export async function updateActivity(activityData: DepartmentConductedActivity, 
     }
 }
 
-export async function deleteActivity(id: string, userId: string) {
+export async function deleteActivity(id: string, userId: string, role: string, accessTo: string) {
     try {
         const getData = await db.query.departmentConductedActivity.findFirst({
-            where: and(eq(departmentConductedActivity.id, id), eq(departmentConductedActivity.userId, userId)),
+            where: and(eq(departmentConductedActivity.id, id)),
         });
         if (!getData) {
             return { status: 404, message: 'Not Found' };
         }
-        await db.delete(departmentConductedActivity).where(eq(departmentConductedActivity.id, id));
-        return { message: 'Delete successful' };
+        if(role === 'admin' || (accessTo === 'all' || accessTo === 'department')){
+            await db.delete(departmentConductedActivity).where(eq(departmentConductedActivity.id, id));
+            return { message: 'Delete successful' };
+        }
+        return { status: 403, message: 'Forbidden' };
     } catch (error) {
         console.log(error);
         errs(error);

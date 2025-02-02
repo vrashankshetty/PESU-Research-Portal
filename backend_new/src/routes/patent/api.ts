@@ -82,7 +82,9 @@ Router.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
         const userId = (req as any).user.id;
-        const patentData = await deletePatent(id, userId);
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
+        const patentData = await deletePatent(id, userId, role, accessTo);
         if (patentData?.status === 200) {
             return res.status(200).send(patentData?.data);
         }

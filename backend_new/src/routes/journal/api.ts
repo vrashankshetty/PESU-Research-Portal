@@ -81,8 +81,10 @@ Router.put('/:id', async (req, res) => {
 Router.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
         const userId = (req as any).user.id;
-        const journalData = await deleteJournal(id, userId);
+        const journalData = await deleteJournal(id, userId,role,accessTo);
         if (journalData?.status === 200) {
             return res.status(200).send(journalData?.data);
         }

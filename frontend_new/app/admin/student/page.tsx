@@ -24,8 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import html2canvas from "html2canvas"
 import { backendUrl } from "@/config"
-import type { DateRange } from "react-day-picker"
-import { DatePickerWithRange } from "@/components/ui/date-picker-with-range"
+import { Input } from "@/components/ui/input"
 import {
   Pagination,
   PaginationContent,
@@ -35,26 +34,58 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Pencil } from 'lucide-react'
+import { Pencil, Trash } from "lucide-react"
 import Spinner from "@/components/spinner"
 import CustomStatistics from "@/components/admin/CustomStudentStatistics"
+import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 type Event = {
-  id: string
-  userId: string
-  title: string
-  durationStartDate: string
-  durationEndDate: string
-  documentLink: string | null
-  year: string
-  createdAt: string
-  noOfParticipants?: number
   [key: string]: any
 }
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
 
 const eventTypes = ["CareerCounselling", "HigherStudies", "EntranceExam", "InterSports", "IntraSports"]
+
+const fieldsByEventType = {
+  HigherStudies: [
+    { key: "year", label: "Year" },
+    { key: "studentName", label: "Name of student" },
+    { key: "programGraduatedFrom", label: "Program graduated from" },
+    { key: "institutionAdmittedTo", label: "Name of institution admitted to" },
+    { key: "programmeAdmittedTo", label: "Name of programme admitted to" },
+  ],
+  CareerCounselling: [
+    { key: "year", label: "Year" },
+    { key: "nameOfActivity", label: "Name of the Activity" },
+    { key: "numberOfStudentsAttended", label: "Number of students attended" },
+    { key: "documentLink", label: "Link to the relevant document" },
+  ],
+  EntranceExam: [
+    { key: "year", label: "Year" },
+    { key: "registrationNumber", label: "Registration number" },
+    { key: "studentName", label: "Name of student selected" },
+    { key: "qualifyingExamination", label: "Qualifying examination" },
+    { key: "documentLink", label: "Link to the relevant document" },
+  ],
+  InterSports: [
+    { key: "yearOfEvent", label: "Year" },
+    { key: "nameOfAward", label: "Name of the award/ medal" },
+    { key: "teamOrIndi", label: "Team / Individual" },
+    { key: "level", label: "Inter-university / State / National / International" },
+    { key: "nameOfEvent", label: "Name of the event" },
+    { key: "nameOfStudent", label: "Name of the student" },
+    { key: "link", label: "Link to the relevant document" },
+  ],
+  IntraSports: [
+    { key: "yearOfEvent", label: "Year" },
+    { key: "startDate", label: "Start Date of event/competition" },
+    { key: "endDate", label: "End Date of event/competition" },
+    { key: "event", label: "Name of the event/competition" },
+    { key: "link", label: "Link to relevant documents" },
+  ],
+}
 
 function StudentAnalysisDashboard() {
   const router = useRouter()
@@ -63,35 +94,32 @@ function StudentAnalysisDashboard() {
   const [events, setEvents] = useState<Event[]>([])
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  })
+  const [startYear, setStartYear] = useState<number | undefined>(undefined)
+  const [endYear, setEndYear] = useState<number | undefined>(undefined)
   const chartRef = useRef<HTMLDivElement>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [cardCurrentPage, setCardCurrentPage] = useState(1)
   const itemsPerPage = 10
   const cardsPerPage = 6
   const [visiblePages, setVisiblePages] = useState(5)
+  const { toast } = useToast()
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deleteId,setDeleteId] = useState<string>("");
 
   const updateQueryParams = useCallback(() => {
     const params = new URLSearchParams(searchParams)
     params.set("eventType", eventType)
     params.set("chartType", chartType)
-    params.set("dateStart", dateRange?.from?.toISOString() || "")
-    params.set("dateEnd", dateRange?.to?.toISOString() || "")
+    params.set("startYear", startYear?.toString() || "")
+    params.set("endYear", endYear?.toString() || "")
     router.replace(`?${params.toString()}`, { scroll: false })
-  }, [eventType, chartType, dateRange, router, searchParams])
+  }, [eventType, chartType, startYear, endYear, router, searchParams])
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        let url = `${backendUrl}/api/v1/${eventType=='InterSports'?'interSports':eventType=='IntraSports'?'intraSports':`student${eventType}`}`
-        if (eventType === "interSports" || eventType === "intraSports") {
-          url += `?startDate=${dateRange?.from?.toISOString()}&endDate=${dateRange?.to?.toISOString()}`
-        } else {
-          url += `?startYear=${dateRange?.from?.getFullYear()}&endYear=${dateRange?.to?.getFullYear()}`
-        }
+        let url = `${backendUrl}/api/v1/${eventType == "InterSports" ? "interSports" : eventType == "IntraSports" ? "intraSports" : `student${eventType}`}`
+        url += `?startYear=${startYear || ""}&endYear=${endYear || ""}`
         const response = await axios.get(url, { withCredentials: true })
         setEvents(response.data)
       } catch (error) {
@@ -99,43 +127,45 @@ function StudentAnalysisDashboard() {
       }
     }
     fetchEvents()
-  }, [eventType, dateRange])
+  }, [eventType, startYear, endYear])
 
   useEffect(() => {
+    console.log("searchParams", searchParams.get("eventType"))
     setEventType(searchParams.get("eventType") || eventTypes[0])
     setChartType((searchParams.get("chartType") as "bar" | "line" | "pie") || "bar")
-    const startDate = searchParams.get("dateStart")
-    const endDate = searchParams.get("dateEnd")
-    if (startDate && endDate) {
-      setDateRange({
-        from: new Date(startDate),
-        to: new Date(endDate),
-      })
-    }
-  }, [searchParams])
+    const start = searchParams.get("startYear")
+    const end = searchParams.get("endYear")
+    if (start) setStartYear(Number.parseInt(start))
+    if (end) setEndYear(Number.parseInt(end))
+  }, [])
 
   useEffect(() => {
     const filtered = events.filter((event) => {
-      const eventDate = new Date(event.year)
-      if (dateRange?.from && dateRange?.to) {
-        return eventDate >= dateRange.from && eventDate <= dateRange.to
+      const eventYear = Number.parseInt(event.year)
+      if (startYear && endYear) {
+        return eventYear >= startYear && eventYear <= endYear
       }
-      if (dateRange?.from) {
-        return eventDate >= dateRange.from
+      if (startYear) {
+        return eventYear >= startYear
       }
-      if (dateRange?.to) {
-        return eventDate <= dateRange.to
+      if (endYear) {
+        return eventYear <= endYear
       }
       return true
     })
     setFilteredEvents(filtered)
     updateQueryParams()
-  }, [events, dateRange, updateQueryParams])
+  }, [events, startYear, endYear, updateQueryParams])
 
   const getChartData = () => {
     const data: { [key: string]: number } = {}
     filteredEvents.forEach((event) => {
-      const year = event.year
+      let year = null;
+      if(event.year){
+        year = event.year
+      }else{
+        year = event.yearOfEvent
+      }
       data[year] = (data[year] || 0) + 1
     })
     return Object.entries(data)
@@ -227,11 +257,99 @@ function StudentAnalysisDashboard() {
     }
   }
 
+  const getFieldsForEventType = (type: string) => {
+    return fieldsByEventType[type as keyof typeof fieldsByEventType] || []
+  }
+
+  const renderTableHeader = () => {
+    const fields = getFieldsForEventType(eventType)
+    return (
+      <tr>
+        {fields.map((field) => (
+          <th key={field.key} className="px-6 py-3">
+            {field.label}
+          </th>
+        ))}
+        <th className="px-6 py-3">Edit</th>
+        <th className="px-6 py-3">Delete</th>
+      </tr>
+    )
+  }
+
+  const renderTableRow = (event: Event) => {
+    const fields = getFieldsForEventType(eventType)
+    return (
+      <tr key={event.id} className="bg-white border-b">
+        {fields.map((field) => (
+          <td key={field.key} className="px-6 py-4">
+            {field.key === "documentLink" || field.key === "link" && typeof event[field.key] === "string" ? (
+              <a
+                href={event[field.key]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                Document
+              </a>
+            ) : field.key === "qualifyingExamination" && eventType === "EntranceExam" ? (
+              renderQualifyingExams(event)
+            ) :  field.key === "startDate" ||  field.key === "endDate" ? <>
+             {event[field.key]?.slice(0,10)}
+            </>:(
+              event[field.key]
+            )}
+          </td>
+        ))}
+        <td className="px-6 py-4">
+          <Button onClick={() => router.push(`/student/${eventType}/edit/${event.id}`)} variant="outline" size="sm">
+            Edit
+            <Pencil className="h-4 w-4 ml-2" />
+          </Button>
+        </td>
+        <td className="px-6 py-4" key={event?.id}>
+        <Button variant="outline" onClick={()=>{
+            setIsDeleteDialogOpen(true)
+            setDeleteId(event?.id)
+        }}>
+                <Trash className="h-4 w-4" />
+        </Button>
+        </td>
+      </tr>
+    )
+  }
+
+  const renderQualifyingExams = (event: Event) => {
+    const exams = [
+      event.isNET && "NET",
+      event.isSLET && "SLET",
+      event.isGATE && "GATE",
+      event.isGMAT && "GMAT",
+      event.isCAT && "CAT",
+      event.isGRE && "GRE",
+      event.isJAM && "JAM",
+      event.isIELTS && "IELTS",
+      event.isTOEFL && "TOEFL",
+    ]
+      .filter(Boolean)
+      .join(", ")
+    return exams
+  }
+
   const downloadTableAsCSV = () => {
-    const headers = Object.keys(filteredEvents[0] || {})
+    const fields = getFieldsForEventType(eventType)
+    const headers = fields.map((field) => field.label)
     const csvContent = [
       headers.join(","),
-      ...filteredEvents.map((event) => headers.map((header) => event[header]).join(",")),
+      ...filteredEvents.map((event) =>
+        fields
+          .map((field) => {
+            if (field.key === "qualifyingExamination" && eventType === "EntranceExam") {
+              return `"${renderQualifyingExams(event)}"`
+            }
+            return `"${event[field.key]}"`
+          })
+          .join(","),
+      ),
     ].join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
@@ -279,10 +397,76 @@ function StudentAnalysisDashboard() {
     return pages
   }
 
+  const handleDelete = async () => {
+    if(!deleteId) return;
+    try {
+      let response
+      switch (eventType) {
+        case "CareerCounselling":
+          response = await axios.delete(`${backendUrl}/api/v1/studentCareerCounselling/${deleteId}`, { withCredentials: true })
+          break
+        case "HigherStudies":
+          response = await axios.delete(`${backendUrl}/api/v1/studentHigherStudies/${deleteId}`, { withCredentials: true })
+          break
+        case "EntranceExam":
+          response = await axios.delete(`${backendUrl}/api/v1/studentEntranceExam/${deleteId}`, { withCredentials: true })
+          break
+        case "InterSports":
+          response = await axios.delete(`${backendUrl}/api/v1/interSports/${deleteId}`, { withCredentials: true })
+            break
+        case "IntraSports":
+          response = await axios.delete(`${backendUrl}/api/v1/intraSports/${deleteId}`, { withCredentials: true })
+          break
+        default:
+          throw new Error("Invalid event type")
+      }
+
+      if (response.status === 200) {
+        toast({
+          title: "Success",
+          variant: "mine",
+          description: `Deleted successfully`,
+        })
+        setFilteredEvents(filteredEvents.filter((item) => item.id !== deleteId))
+      } else {
+        throw new Error("Failed to delete item")
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to delete ${eventType}`,
+      })
+    } finally {
+      setIsDeleteDialogOpen(false)
+    }
+    setDeleteId("");
+  }
+
+
   return (
     <div className="container bg-black bg-opacity-80 mx-auto p-4 w-screen">
       <h1 className="text-3xl font-bold mb-6">Student Analysis Dashboard</h1>
-
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+    <DialogContent className="sm:max-w-[525px] bg-white text-black">
+      <DialogHeader>
+        <DialogTitle>Are you sure you want to delete?</DialogTitle>
+        <DialogDescription>
+          This action cannot be undone. This will permanently delete the item and remove
+          its data from our servers.
+        </DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+          No
+        </Button>
+        <Button variant="destructive" onClick={() => handleDelete()}>
+          Yes
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+      </Dialog>
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Analysis Type</CardTitle>
@@ -343,7 +527,32 @@ function StudentAnalysisDashboard() {
                 <CardTitle>Date Range Filter</CardTitle>
               </CardHeader>
               <CardContent>
-                <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+                <div className="flex space-x-4">
+                  <div className="flex-1">
+                    <label htmlFor="startYear" className="block text-sm font-medium text-gray-700">
+                      Start Year
+                    </label>
+                    <Input
+                      id="startYear"
+                      type="number"
+                      value={startYear || ""}
+                      onChange={(e) => setStartYear(e.target.value ? Number.parseInt(e.target.value) : undefined)}
+                      placeholder="Start Year"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label htmlFor="endYear" className="block text-sm font-medium text-gray-700">
+                      End Year
+                    </label>
+                    <Input
+                      id="endYear"
+                      type="number"
+                      value={endYear || ""}
+                      onChange={(e) => setEndYear(e.target.value ? Number.parseInt(e.target.value) : undefined)}
+                      placeholder="End Year"
+                    />
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -373,49 +582,11 @@ function StudentAnalysisDashboard() {
                 <TabsContent value="table">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-gray-500">
-                      <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                        <tr>
-                          {Object.keys(filteredEvents[0] || {}).map((header) => (
-                            <th key={header} className="px-6 py-3">
-                              {header}
-                            </th>
-                          ))}
-                          <th className="px-6 py-3">Edit</th>
-                        </tr>
-                      </thead>
+                      <thead className="text-xs text-gray-700 uppercase bg-gray-50">{renderTableHeader()}</thead>
                       <tbody>
                         {filteredEvents
                           .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-                          .map((event, index) => (
-                            <tr key={event.id} className="bg-white border-b">
-                              {Object.values(event).map((value, idx) => (
-                                <td key={idx} className="px-6 py-4">
-                                  {typeof value === "string" && value.startsWith("http") ? (
-                                    <a
-                                      href={value}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:underline"
-                                    >
-                                      View
-                                    </a>
-                                  ) : (
-                                    value
-                                  )}
-                                </td>
-                              ))}
-                              <td className="px-6 py-4">
-                                <Button
-                                  onClick={() => router.push(`/student/${eventType}/edit/${event.id}`)}
-                                  variant="outline"
-                                  size="sm"
-                                >
-                                  Edit
-                                  <Pencil className="h-4 w-4 ml-2" />
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
+                          .map(renderTableRow)}
                       </tbody>
                     </table>
                   </div>
@@ -463,7 +634,7 @@ function StudentAnalysisDashboard() {
                       .map((event) => (
                         <Card key={event.id}>
                           <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>{event.name || event.title || `Event ${event.id}`}</CardTitle>
+                            <CardTitle>{event.nameOfStudent || event.nameOfActivity || `Event ${event.id}`}</CardTitle>
                             <Button
                               onClick={() => router.push(`/student/${eventType}/edit/${event.id}`)}
                               variant="outline"
@@ -473,23 +644,27 @@ function StudentAnalysisDashboard() {
                             </Button>
                           </CardHeader>
                           <CardContent>
-                            {Object.entries(event).map(([key, value]) => (
-                              <p key={key}>
-                                <strong>{key}:</strong>{" "}
-                                {typeof value === "string" && value.startsWith("http") ? (
-                                  <a
-                                    href={value}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                  >
-                                    View
-                                  </a>
-                                ) : (
-                                  value
-                                )}
-                              </p>
-                            ))}
+                            <div className="space-y-2">
+                              {getFieldsForEventType(eventType).map((field) => (
+                                <p key={field.key}>
+                                  <strong>{field.label}:</strong>{" "}
+                                  {field.key === "documentLink" && typeof event[field.key] === "string" ? (
+                                    <a
+                                      href={event[field.key]}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:underline"
+                                    >
+                                      View
+                                    </a>
+                                  ) : field.key === "qualifyingExamination" && eventType === "EntranceExam" ? (
+                                    renderQualifyingExams(event)
+                                  ) : (
+                                    event[field.key]
+                                  )}
+                                </p>
+                              ))}
+                            </div>
                           </CardContent>
                         </Card>
                       ))}
@@ -550,3 +725,4 @@ export default function StudentAnalysis() {
     </Suspense>
   )
 }
+

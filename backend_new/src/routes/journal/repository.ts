@@ -231,15 +231,17 @@ export async function updateJournal(journalData: Journal, id: string, userId: st
     }
 }
 
-export async function deleteJournal(id: string, userId: string) {
+export async function deleteJournal(id: string, userId: string,role:string,accessTo:string) {
     try {
         const getData = await db.query.journal.findFirst({
             where: eq(journal.id, id),
         });
+        console.log('getData', getData);
         if (!getData?.teacherAdminId) {
             return { status: 200, data: {} };
         }
-        if (getData?.teacherAdminId === userId) {
+        if ((role === 'admin' && (accessTo === 'all' || accessTo === 'research'))) {
+            console.log('role', role);
             await db.delete(journalUser).where(eq(journalUser.journalId, id));
             await db.delete(journal).where(eq(journal.id, id));
             return { status: 200, data: 'Successfully deleted' };

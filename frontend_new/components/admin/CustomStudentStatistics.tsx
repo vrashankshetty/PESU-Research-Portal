@@ -22,15 +22,7 @@ import { format } from "date-fns"
 import type { DateRange } from "react-day-picker"
 
 type Event = {
-  id: string
-  userId: string
-  title: string
-  durationStartDate: string
-  durationEndDate: string
-  documentLink: string | null
-  year: string
-  createdAt: string
-  noOfParticipants?: number
+  [key: string]: any
 }
 
 type CustomStatisticsProps = {

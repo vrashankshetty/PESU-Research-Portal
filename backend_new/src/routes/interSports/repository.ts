@@ -119,7 +119,7 @@ export async function updateActivity(activityData: InterSports, id: string) {
     }
 }
 
-export async function deleteActivity(id: string) {
+export async function deleteActivity(id: string,role: string, accessTo: string) {
     try {
         const getData = await db.query.interSports.findFirst({
             where: eq(interSports.id, id),
@@ -127,8 +127,11 @@ export async function deleteActivity(id: string) {
         if (!getData) {
             return { status: 404, message: 'Not Found' };
         }
-        await db.delete(interSports).where(eq(interSports.id, id));
-        return { message: 'Delete successful' };
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'student')) {
+            await db.delete(interSports).where(eq(interSports.id, id));
+            return { message: 'Delete successful' };
+        }
+        return { status: 403, message: 'Forbidden' };
     } catch (error) {
         console.log(error);
         errs(error);

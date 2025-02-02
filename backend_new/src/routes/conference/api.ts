@@ -89,7 +89,9 @@ Router.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
         const userId = (req as any).user.id;
-        const confData = await deleteConference(id, userId);
+        const role = (req as any).user.role;
+        const accessTo = (req as any).user.accessTo;
+        const confData = await deleteConference(id, userId,role,accessTo);
         if (confData?.status === 200) {
             return res.status(200).send(confData?.data);
         }

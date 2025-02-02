@@ -36,9 +36,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Pencil } from "lucide-react"
+import { Pencil, Trash } from "lucide-react"
 import Spinner from "@/components/spinner"
 import CustomStatistics from "@/components/admin/CustomDepartmentStatistics"
+import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 type Event = {
   id: string
@@ -49,9 +51,7 @@ type Event = {
   documentLink: string | null
   year: string
   createdAt: string
-  // Attended event specific fields
   programTitle?: string
-  // Conducted event specific fields
   nameOfProgram?: string
   noOfParticipants?: number
 }
@@ -75,6 +75,9 @@ function IntegratedDepartmentDashboard() {
   const itemsPerPage = 10
   const cardsPerPage = 6
   const [visiblePages, setVisiblePages] = useState(5)
+  const { toast } = useToast()
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deleteId,setDeleteId] = useState<string>("");
 
   const updateQueryParams = useCallback(() => {
     const params = new URLSearchParams(searchParams)
@@ -297,10 +300,67 @@ function IntegratedDepartmentDashboard() {
     return pages
   }
 
+  const handleDelete = async () => {
+    if(!deleteId) return;
+    try {
+      let response
+      switch (eventType) {
+        case "attended":
+          response = await axios.delete(`${backendUrl}/api/v1/departmentAttendedActivity/${deleteId}`, { withCredentials: true })
+          break
+        case "conducted":
+          response = await axios.delete(`${backendUrl}/api/v1/departmentConductedActivity/${deleteId}`, { withCredentials: true })
+          break
+        default:
+          throw new Error("Invalid event type")
+      }
+
+      if (response.status === 200) {
+        toast({
+          title: "Success",
+          variant: "mine",
+          description: `Deleted successfully`,
+        })
+        setFilteredEvents(filteredEvents.filter((item) => item.id !== deleteId))
+      } else {
+        throw new Error("Failed to delete item")
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to delete ${eventType}`,
+      })
+    } finally {
+      setIsDeleteDialogOpen(false)
+    }
+    setDeleteId("");
+  }
+
+
   return (
     <div className="container bg-black bg-opacity-80 mx-auto p-4 w-screen">
       <h1 className="text-3xl font-bold mb-6">Department Analysis Dashboard</h1>
-
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+    <DialogContent className="sm:max-w-[525px] bg-white text-black">
+      <DialogHeader>
+        <DialogTitle>Are you sure you want to delete?</DialogTitle>
+        <DialogDescription>
+          This action cannot be undone. This will permanently delete the item and remove
+          its data from our servers.
+        </DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+          No
+        </Button>
+        <Button variant="destructive" onClick={() => handleDelete()}>
+          Yes
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+      </Dialog>
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Analysis Type</CardTitle>
@@ -398,6 +458,7 @@ function IntegratedDepartmentDashboard() {
                           {eventType === "conducted" && <th className="px-6 py-3">Participants</th>}
                           <th className="px-6 py-3">Document Link</th>
                           <th className="px-6 py-3">Edit</th>
+                          <th className="px-6 py-3">Delete</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -436,6 +497,14 @@ function IntegratedDepartmentDashboard() {
                                   Edit
                                   <Pencil className="h-4 w-4 ml-2" />
                                 </Button>
+                              </td>
+                              <td className="px-6 py-4" key={event?.id}>
+                              <Button variant="outline" onClick={()=>{
+                                 setIsDeleteDialogOpen(true)
+                                 setDeleteId(event?.id)
+                              }}>
+                                      <Trash className="h-4 w-4" />
+                              </Button>
                               </td>
                             </tr>
                           ))}

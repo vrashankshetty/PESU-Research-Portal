@@ -231,7 +231,7 @@ export async function updatePatent(patentData: Patent, id: string, userId: strin
     }
 }
 
-export async function deletePatent(id: string, userId: string) {
+export async function deletePatent(id: string, userId: string,role:string,accessTo:string) {
     try {
         const getData = await db.query.patent.findFirst({
             where: eq(patent.id, id),
@@ -239,7 +239,7 @@ export async function deletePatent(id: string, userId: string) {
         if (!getData?.teacherAdminId) {
             return { status: 200, data: {} };
         }
-        if (getData?.teacherAdminId === userId) {
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
             await db.delete(patentUser).where(eq(patentUser.patentId, id));
             await db.delete(patent).where(eq(patent.id, id));
             return { status: 200, data: 'Successfully deleted' };

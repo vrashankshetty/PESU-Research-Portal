@@ -237,7 +237,7 @@ export async function updateConference(journalData: Conference, id: string, user
     }
 }
 
-export async function deleteConference(id: string, userId: string) {
+export async function deleteConference(id: string, userId: string,role: string,accessTo:string) {
     try {
         const getData = await db.query.conference.findFirst({
             where: eq(conference.id, id),
@@ -245,7 +245,7 @@ export async function deleteConference(id: string, userId: string) {
         if (!getData?.teacherAdminId) {
             return { status: 200, data: {} };
         }
-        if (getData?.teacherAdminId === userId) {
+        if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
             await db.delete(conferenceUser).where(eq(conferenceUser.conferenceId, id));
             await db.delete(conference).where(eq(conference.id, id));
             return { status: 200, data: 'Successfully deleted' };

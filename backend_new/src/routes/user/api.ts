@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllUsers, getUserProfile, updateUserProfile } from './repository';
+import { changePassword, deleteUser, getAllUsers, getUser, getUserProfile, updateUserProfile } from './repository';
 import { catchError } from '../../utils/catch-error';
 import authenticateUser from '../../middleware/authenticate-user';
 import { userUpdateSchema } from './schema';
@@ -9,14 +9,15 @@ const Router = express.Router();
 
 Router.get('/', async (req, res) => {
     try {
-        console.log('users', (req as any).user);
-        const course = await getAllUsers();
+        const {role,accessTo} = (req as any).user;
+        const course = await getAllUsers(role,accessTo);
         res.status(200).send(course);
     } catch (error) {
         console.log('error', error);
         catchError(error, res);
     }
 });
+
 
 Router.get('/profile', authenticateUser, async (req, res) => {
     try {
@@ -45,6 +46,49 @@ Router.put('/profile', authenticateUser, async (req, res) => {
         }
         res.status(200).send(userData?.message);
     } catch (error) {
+        catchError(error, res);
+    }
+});
+
+
+Router.get('/:id', async (req, res) => {
+    try {
+        const {role,accessTo} = (req as any).user;
+        const {id} = req.params;
+        const course = await getUser(role,accessTo,id);
+        res.status(200).send(course);
+    } catch (error) {
+        console.log('error', error);
+        catchError(error, res);
+    }
+});
+
+
+Router.delete('/:id', async (req, res) => {
+    try {
+        const {role,accessTo} = (req as any).user;
+        const {id} = req.params;
+        const course = await deleteUser(role,accessTo,id);
+        res.status(200).send(course);
+    } catch (error) {
+        console.log('error', error);
+        catchError(error, res);
+    }
+});
+
+
+Router.post('/:id/changePassword', async (req, res) => {
+    try {
+        const {role,accessTo} = (req as any).user;
+        const {id} = req.params;
+        const { newPassword, confirmPassword } = req.body;
+        if (newPassword !== confirmPassword) {
+            return res.status(400).send('Passwords do not match');
+        }
+        const course = await changePassword(role,accessTo,id,newPassword);
+        res.status(200).send(course);
+    } catch (error) {
+        console.log('error', error);
         catchError(error, res);
     }
 });
