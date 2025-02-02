@@ -77,8 +77,24 @@ export async function getAllPatent(userId: string, role: string, accessTo: strin
         if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
             const journals = await db.query.patent.findMany({
                 orderBy: desc(patentUser.createdAt),
+                with:{
+                    teachers:{
+                        columns:{
+                            userId:false,
+                            patentId:false,
+                            id:false
+                        },
+                        with:{
+                            user:{
+                                columns:{
+                                    name:true,
+                                }
+                            }
+                        }
+                    }
+                }
             });
-            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s }));
+            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s,teachers:s.teachers.map(t=>t.user.name) }));
             return formattedconf;
         }
 
@@ -90,11 +106,28 @@ export async function getAllPatent(userId: string, role: string, accessTo: strin
                 id: false,
             },
             with: {
-                patent: true,
+                patent: {
+                    with:{
+                        teachers:{
+                            columns:{
+                                userId:false,
+                                patentId:false,
+                                id:false,
+                            },
+                            with:{
+                                user:{
+                                    columns:{
+                                        name: true,
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
             },
             orderBy: desc(patentUser.createdAt),
         });
-        const formattedpatents = patents.map(s => ({ addedAt: s.createdAt, ...s.patent }));
+        const formattedpatents = patents.map(s => ({ addedAt: s.createdAt, ...s.patent,teachers:s.patent.teachers.map(t=>t.user.name) }));
         return formattedpatents;
     } catch (error) {
         console.log('err in repo', error);

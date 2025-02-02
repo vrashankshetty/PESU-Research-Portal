@@ -77,8 +77,24 @@ export async function getAllConference(userId: string, role: string, accessTo: s
         if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
             const journals = await db.query.conference.findMany({
                 orderBy: desc(conferenceUser.createdAt),
+                with:{
+                    teachers:{
+                        columns:{
+                            userId:false,
+                            conferenceId:false,
+                            id:false,
+                        },
+                        with:{
+                            user:{
+                                columns:{
+                                    name: true,
+                                }
+                            }
+                        }
+                    }
+                }
             });
-            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s }));
+            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s,teachers:s.teachers.map(t=>t.user.name) }));
             return formattedconf;
         }
         const journals = await db.query.conferenceUser.findMany({
@@ -89,11 +105,28 @@ export async function getAllConference(userId: string, role: string, accessTo: s
                 id: false,
             },
             with: {
-                conference: true,
+                conference: {
+                    with:{
+                        teachers:{
+                            columns:{
+                                userId:false,
+                                conferenceId:false,
+                                id:false,
+                            },
+                            with:{
+                                user:{
+                                    columns:{
+                                        name: true,
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
             },
             orderBy: desc(conferenceUser.createdAt),
         });
-        const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s.conference }));
+        const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s.conference,teachers:s.conference.teachers.map(t=>t.user.name) }));
         return formattedconf;
     } catch (error) {
         console.log('err in repo', error);

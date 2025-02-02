@@ -77,8 +77,25 @@ export async function getAllJournal(userId: string, role: string, accessTo: stri
         if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
             const journals = await db.query.journal.findMany({
                 orderBy: desc(journalUser.createdAt),
+                with:{
+                    teachers:{
+                        columns:{
+                            userId:false,
+                            journalId:false,
+                            id:false
+                        },
+                        with:{
+                            user:{
+                                columns:{
+                                   name:true
+                                }
+                            }
+                            
+                        }
+                    }
+                }
             });
-            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s }));
+            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s,teachers:s.teachers.map(t=>t.user.name) }));
             return formattedconf;
         }
 
@@ -90,11 +107,28 @@ export async function getAllJournal(userId: string, role: string, accessTo: stri
                 id: false,
             },
             with: {
-                journal: true,
+                journal: {
+                    with:{
+                        teachers:{
+                            columns:{
+                                userId:false,
+                                journalId:false,
+                                id:false,
+                            },
+                            with:{
+                                user:{
+                                    columns:{
+                                        name: true,
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
             },
             orderBy: desc(journalUser.createdAt),
         });
-        const formattedjournals = journals.map(s => ({ addedAt: s.createdAt, ...s.journal }));
+        const formattedjournals = journals.map(s => ({ addedAt: s.createdAt, ...s.journal,teachers:s.journal.teachers.map(t=>t.user.name) }));
         return formattedjournals;
     } catch (error) {
         console.log('err in repo', error);
