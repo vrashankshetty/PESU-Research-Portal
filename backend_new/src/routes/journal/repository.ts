@@ -35,6 +35,8 @@ export async function getEachJournal(id: string, userId: string, role: string, a
                 },
             });
             if (journal?.journal) {
+                journal.journal.teachers = journal.journal.teachers
+                .filter(t => t.user.role !== 'admin');
                 return journal;
             }
             return null;
@@ -64,6 +66,8 @@ export async function getEachJournal(id: string, userId: string, role: string, a
             },
         });
         if (journal?.journal) {
+            journal.journal.teachers = journal.journal.teachers
+            .filter(t => t.user.role !== 'admin')
             return journal;
         }
         return null;
@@ -87,7 +91,8 @@ export async function getAllJournal(userId: string, role: string, accessTo: stri
                         with:{
                             user:{
                                 columns:{
-                                   name:true
+                                   name:true,
+                                   role:true
                                 }
                             }
                             
@@ -95,7 +100,13 @@ export async function getAllJournal(userId: string, role: string, accessTo: stri
                     }
                 }
             });
-            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s,teachers:s.teachers.map(t=>t.user.name) }));
+            const formattedconf = journals.map(s => ({
+                addedAt: s.createdAt,
+                ...s,
+                teachers: s.teachers
+                    .filter(t => t.user.role !== 'admin')
+                    .map(t => t.user.name),
+            }));
             return formattedconf;
         }
 
@@ -119,6 +130,7 @@ export async function getAllJournal(userId: string, role: string, accessTo: stri
                                 user:{
                                     columns:{
                                         name: true,
+                                        role: true
                                     }
                                 }
                             }
@@ -128,7 +140,13 @@ export async function getAllJournal(userId: string, role: string, accessTo: stri
             },
             orderBy: desc(journalUser.createdAt),
         });
-        const formattedjournals = journals.map(s => ({ addedAt: s.createdAt, ...s.journal,teachers:s.journal.teachers.map(t=>t.user.name) }));
+        const formattedjournals = journals.map(s => ({
+            addedAt: s.createdAt,
+            ...s.journal,
+            teachers: s.journal.teachers
+                .filter(t => t.user.role !== 'admin')
+                .map(t => t.user.name),
+        }));
         return formattedjournals;
     } catch (error) {
         console.log('err in repo', error);

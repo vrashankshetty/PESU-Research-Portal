@@ -35,6 +35,8 @@ export async function getEachConference(id: string, userId: string, role: string
                 },
             });
             if (conf?.conference) {
+                conf.conference.teachers = conf.conference.teachers
+                    .filter(t => t.user.role !== 'admin')
                 return conf;
             }
             return null;
@@ -64,6 +66,8 @@ export async function getEachConference(id: string, userId: string, role: string
             },
         });
         if (conf?.conference) {
+            conf.conference.teachers = conf.conference.teachers
+                    .filter(t => t.user.role !== 'admin')
             return conf;
         }
         return null;
@@ -87,6 +91,7 @@ export async function getAllConference(userId: string, role: string, accessTo: s
                         with:{
                             user:{
                                 columns:{
+                                    role:true,
                                     name: true,
                                 }
                             }
@@ -94,7 +99,9 @@ export async function getAllConference(userId: string, role: string, accessTo: s
                     }
                 }
             });
-            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s,teachers:s.teachers.map(t=>t.user.name) }));
+            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s,  teachers: s.teachers
+                .filter(t => t.user.role !== 'admin')
+                .map(t => t.user.name)}));
             return formattedconf;
         }
         const journals = await db.query.conferenceUser.findMany({
@@ -117,6 +124,7 @@ export async function getAllConference(userId: string, role: string, accessTo: s
                                 user:{
                                     columns:{
                                         name: true,
+                                        role:true,
                                     }
                                 }
                             }
@@ -126,8 +134,15 @@ export async function getAllConference(userId: string, role: string, accessTo: s
             },
             orderBy: desc(conferenceUser.createdAt),
         });
-        const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s.conference,teachers:s.conference.teachers.map(t=>t.user.name) }));
+        const formattedconf = journals.map(s => ({
+            addedAt: s.createdAt,
+            ...s.conference,
+            teachers: s.conference.teachers
+                .filter(t => t.user.role !== 'admin')
+                .map(t => t.user.name),
+        }));
         return formattedconf;
+        
     } catch (error) {
         console.log('err in repo', error);
         errs(error);

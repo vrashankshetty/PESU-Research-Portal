@@ -35,7 +35,9 @@ export async function getEachPatent(id: string, userId: string, role: string, ac
                 },
             });
             if (patent?.patent) {
-                return patent;
+                patent.patent.teachers = patent.patent.teachers
+                .filter(t => t.user.role !== 'admin')
+            return patent;
             }
             return null;
         }
@@ -64,7 +66,9 @@ export async function getEachPatent(id: string, userId: string, role: string, ac
             },
         });
         if (patent?.patent) {
-            return patent;
+            patent.patent.teachers = patent.patent.teachers
+            .filter(t => t.user.role !== 'admin')
+        return patent;
         }
         return null;
     } catch (error) {
@@ -88,13 +92,20 @@ export async function getAllPatent(userId: string, role: string, accessTo: strin
                             user:{
                                 columns:{
                                     name:true,
+                                    role:true
                                 }
                             }
                         }
                     }
                 }
             });
-            const formattedconf = journals.map(s => ({ addedAt: s.createdAt, ...s,teachers:s.teachers.map(t=>t.user.name) }));
+            const formattedconf = journals.map(s => ({
+                addedAt: s.createdAt,
+                ...s,
+                teachers: s.teachers
+                    .filter(t => t.user.role !== 'admin')
+                    .map(t => t.user.name),
+            }));
             return formattedconf;
         }
 
@@ -118,6 +129,7 @@ export async function getAllPatent(userId: string, role: string, accessTo: strin
                                 user:{
                                     columns:{
                                         name: true,
+                                        role:true
                                     }
                                 }
                             }
@@ -127,7 +139,13 @@ export async function getAllPatent(userId: string, role: string, accessTo: strin
             },
             orderBy: desc(patentUser.createdAt),
         });
-        const formattedpatents = patents.map(s => ({ addedAt: s.createdAt, ...s.patent,teachers:s.patent.teachers.map(t=>t.user.name) }));
+        const formattedpatents = patents.map(s => ({
+            addedAt: s.createdAt,
+            ...s.patent,
+            teachers: s.patent.teachers
+                .filter(t => t.user.role !== 'admin')
+                .map(t => t.user.name),
+        }));
         return formattedpatents;
     } catch (error) {
         console.log('err in repo', error);
