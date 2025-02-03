@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/context/auth";
+import Link from "next/link";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,24 +34,31 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-        <div
-          className="min-h-screen flex flex-col"
-          style={{
-            backgroundImage: "url(/bg.jpg)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <Navbar />
-          <main className="flex-grow md:mx-auto px-4 py-8">{children}</main>
-          <Toaster />
-          <footer className="bg-sky-800 text-white py-4">
-            <div className="container mx-auto px-4 text-center">
-              © {new Date().getFullYear()} Research Center. All rights reserved.
-            </div>
-          </footer>
-        </div>
+          <div
+            className="min-h-screen flex flex-col"
+            style={{
+              backgroundImage: "url(/bg.jpg)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <Navbar />
+            <main className="flex-grow md:mx-auto px-4 py-8">{children}</main>
+            <Toaster />
+            <footer className="bg-sky-800 text-white py-4 flex w-full px-4 text-sm lg:text-base">
+              <div className="container mx-auto">
+                © {new Date().getFullYear()} Research Center. All rights
+                reserved.
+              </div>
+              <Link
+                href="/contact"
+                className="justify-end text-center hover:underline"
+              >
+                Contact Us
+              </Link>
+            </footer>
+          </div>
         </AuthProvider>
       </body>
     </html>

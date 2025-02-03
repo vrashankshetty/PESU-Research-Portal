@@ -40,7 +40,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const { setIsLoggedIn,setUser } = useAuth();
+  const { setIsLoggedIn, setUser } = useAuth();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -75,7 +75,8 @@ export default function LoginPage() {
           title: "Successfully Logged In",
           description: "Welcome to the PESU NAAC Portal",
         });
-        setIsLoggedIn(true);1
+        setIsLoggedIn(true);
+        1;
         setUser(response.data.data);
         window.location.href = "/";
       }
@@ -144,10 +145,7 @@ export default function LoginPage() {
                 Login
               </Button>
               <p className="mt-2 text-center">
-                Don&apos;t have an account?{" "}
-                <Link href="/register" className="underline">
-                  Register now!
-                </Link>
+                Don&apos;t have an account? Contact the admin to create one.
               </p>
             </CardFooter>
           </form>
