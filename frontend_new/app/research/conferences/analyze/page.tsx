@@ -49,7 +49,7 @@ import { CAMPUS, DEPARTMENTS } from "@/lib/types";
 
 type Conference = {
   id: string;
-  teacherIds: string[];
+  teachers: string[]; // Changed from teacherIds to teachers array of names
   campus: string;
   dept: string;
   bookTitle: string;
@@ -341,9 +341,10 @@ function ConferenceDashboard() {
   };
 
   const downloadTableAsCSV = () => {
+    console.log(filteredConferences);
     const headers = [
       "Serial No",
-      "Teacher IDs",
+      "Authors",
       "Campus",
       "Department",
       "Book Title",
@@ -369,7 +370,7 @@ function ConferenceDashboard() {
       ...filteredConferences.map((conference, index) =>
         [
           index + 1,
-          `"${conference.teacherIds.join(";")}"`,
+          `"${conference.teachers.join(";")}"`,
           conference.campus,
           conference.dept,
           `"${conference.bookTitle.replace(/"/g, '""')}"`,
@@ -600,10 +601,9 @@ function ConferenceDashboard() {
                 <table className="w-full text-sm text-left text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3">Serial No</th>
+                      <th className="px-6 py-3">S No.</th>
                       <th className="px-6 py-3">Paper Title</th>
-                      <th className="px-6 py-3">Campus</th>
-                      <th className="px-6 py-3">Department</th>
+                      <th className="px-6 py-3">Authors</th>
                       <th className="px-6 py-3">Conference Title</th>
                       <th className="px-6 py-3">Year</th>
                       <th className="px-6 py-3">Core</th>
@@ -624,8 +624,9 @@ function ConferenceDashboard() {
                             {(currentPage - 1) * itemsPerPage + index + 1}
                           </td>
                           <td className="px-6 py-4">{conference.paperTitle}</td>
-                          <td className="px-6 py-4">{conference.campus}</td>
-                          <td className="px-6 py-4">{conference.dept}</td>
+                          <td className="px-6 py-4">
+                            {conference.teachers.join(", ")}
+                          </td>
                           <td className="px-6 py-4">
                             {conference.proceedings_conference_title}
                           </td>
@@ -753,6 +754,10 @@ function ConferenceDashboard() {
                         <p>
                           <strong>Conference Title:</strong>{" "}
                           {conference.proceedings_conference_title}
+                        </p>
+                        <p>
+                          <strong>Authors:</strong>{" "}
+                          {conference.teachers.join(", ")}
                         </p>
                         <p>
                           <strong>Year:</strong> {conference.year}

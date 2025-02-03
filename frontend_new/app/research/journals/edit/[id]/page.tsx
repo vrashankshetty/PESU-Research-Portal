@@ -30,6 +30,7 @@ import { backendUrl } from "@/config";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/components/spinner";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -63,10 +64,17 @@ const formSchema = z.object({
   domain: z.string().min(1, "Domain is required"),
 });
 
+type Teacher = {
+  id: string;
+  name: string;
+  userId: string;
+};
+
 export default function EditJournalForm() {
   const params = useParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -97,6 +105,20 @@ export default function EditJournalForm() {
 
   const { toast } = useToast();
 
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/v1/user`, {
+          withCredentials: true,
+        });
+        setTeachers(response.data);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    };
+    fetchTeachers();
+  }, []);
+
   // Fetch existing journal data
   useEffect(() => {
     const fetchJournal = async () => {
@@ -106,10 +128,14 @@ export default function EditJournalForm() {
           { withCredentials: true }
         );
 
-        // Transform keywords array to string for form
+        // Transform journal data to include teacherIds
         const journalData = {
           ...response.data.journal,
-          keywords: response.data.journal.keywords.join(","),
+          teacherIds: response.data.journal.teachers.map(
+            (t: Teacher) => t.userId
+          ),
+          // Keep keywords as array
+          keywords: response.data.journal.keywords,
         };
 
         form.reset(journalData);
@@ -206,6 +232,29 @@ export default function EditJournalForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="teacherIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Co-Author(s)</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={teachers.map((teacher) => ({
+                          label: teacher.name,
+                          value: teacher.id,
+                        }))}
+                        placeholder="Select teachers..."
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        value={field.value}
+                        className="text-black"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
@@ -213,13 +262,30 @@ export default function EditJournalForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Month</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="month"
-                          placeholder="Enter Month"
-                          {...field}
-                        />
-                      </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Month" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="January">January</SelectItem>
+                          <SelectItem value="February">February</SelectItem>
+                          <SelectItem value="March">March</SelectItem>
+                          <SelectItem value="April">April</SelectItem>
+                          <SelectItem value="May">May</SelectItem>
+                          <SelectItem value="June">June</SelectItem>
+                          <SelectItem value="July">July</SelectItem>
+                          <SelectItem value="August">August</SelectItem>
+                          <SelectItem value="September">September</SelectItem>
+                          <SelectItem value="October">October</SelectItem>
+                          <SelectItem value="November">November</SelectItem>
+                          <SelectItem value="December">December</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -509,9 +575,11 @@ export default function EditJournalForm() {
                     <FormControl>
                       <Input
                         placeholder="Enter keywords separated by commas"
-                        {...field}
+                        value={field.value.join(",")} // Join array to string for display
                         onChange={(e) =>
-                          field.onChange(e.target.value.split(","))
+                          field.onChange(
+                            e.target.value.split(",").map(k => k.trim()).filter(k => k)
+                          )
                         }
                       />
                     </FormControl>

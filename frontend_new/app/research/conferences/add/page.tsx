@@ -27,6 +27,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import { backendUrl } from "@/config";
+import { useEffect, useState } from "react";
+import { MultiSelect } from "@/components/ui/multi-select";
+
+type Teacher = {
+  id: string;
+  name: string;
+  userId: string;
+};
 
 const formSchema = z.object({
   teacherIds: z.array(z.string()),
@@ -52,6 +60,22 @@ const formSchema = z.object({
 });
 
 export default function ConferenceForm() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/v1/user`, {
+          withCredentials: true,
+        });
+        setTeachers(response.data);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    };
+    fetchTeachers();
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -132,6 +156,28 @@ export default function ConferenceForm() {
                     <FormLabel>Paper Title</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter Paper Title" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="teacherIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Co-Author(s)</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={teachers.map((teacher) => ({
+                          label: teacher.name,
+                          value: teacher.id,
+                        }))}
+                        placeholder="Select teachers..."
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="text-black"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
