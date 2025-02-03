@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import axios from "axios"
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -17,16 +17,22 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
-} from "recharts"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import html2canvas from "html2canvas"
-import { backendUrl } from "@/config"
+} from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import html2canvas from "html2canvas";
+import { backendUrl } from "@/config";
 import {
   Pagination,
   PaginationContent,
@@ -35,11 +41,11 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import Spinner from "@/components/spinner"
-import CustomStatistics from "@/components/admin/CustomStatistics"
-import { useToast } from "@/hooks/use-toast"
-import { Pencil, Trash } from "lucide-react"
+} from "@/components/ui/pagination";
+import Spinner from "@/components/spinner";
+import CustomStatistics from "@/components/admin/CustomStatistics";
+import { useToast } from "@/hooks/use-toast";
+import { Pencil, Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -48,110 +54,117 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 type Journal = {
-  id: string
-  title: string
-  teacherIds: string[]
-  campus: string
-  dept: string
-  journalName: string
-  month: string
-  year: string
-  volumeNo: string
-  issueNo: string
-  issn: string
-  websiteLink?: string
-  articleLink?: string
-  isUGC: boolean
-  isScopus: boolean
-  isWOS: boolean
-  qNo: string
-  impactFactor?: string
-  isCapstone: boolean
-  isAffiliating: boolean
-  pageNumber: number
-  abstract: string
-  keywords: string[]
-  domain: string
-}
+  id: string;
+  title: string;
+  teacherIds: string[];
+  campus: string;
+  dept: string;
+  journalName: string;
+  month: string;
+  year: string;
+  volumeNo: string;
+  issueNo: string;
+  issn: string;
+  websiteLink?: string;
+  articleLink?: string;
+  isUGC: boolean;
+  isScopus: boolean;
+  isWOS: boolean;
+  qNo: string;
+  impactFactor?: string;
+  isCapstone: boolean;
+  isAffiliating: boolean;
+  pageNumber: number;
+  abstract: string;
+  keywords: string[];
+  domain: string;
+};
 
 type Conference = {
-  id: string
-  teacherIds: string[]
-  campus: string
-  dept: string
-  bookTitle: string
-  paperTitle: string
-  proceedings_conference_title: string
-  volumeNo: string
-  issueNo: string
-  year: string
-  pageNumber: number
-  issn: string
-  is_affiliating_institution_same: boolean
-  publisherName: string
-  impactFactor: string
-  core: string
-  link_of_paper: string
-  isCapstone: boolean
-  abstract: string
-  keywords: string[]
-  domain: string
-}
+  id: string;
+  teacherIds: string[];
+  campus: string;
+  dept: string;
+  bookTitle: string;
+  paperTitle: string;
+  proceedings_conference_title: string;
+  volumeNo: string;
+  issueNo: string;
+  year: string;
+  pageNumber: number;
+  issn: string;
+  is_affiliating_institution_same: boolean;
+  publisherName: string;
+  impactFactor: string;
+  core: string;
+  link_of_paper: string;
+  isCapstone: boolean;
+  abstract: string;
+  keywords: string[];
+  domain: string;
+};
 
 type Patent = {
   // Add patent type definition here
-  id: string
-  patentNumber: string
-  patentTitle: string
-  teacherIds: string[]
-  isCapstone: boolean
-  documentLink: string
-  campus: string
-  dept: string
-  year: string
-}
+  id: string;
+  patentNumber: string;
+  patentTitle: string;
+  teacherIds: string[];
+  isCapstone: boolean;
+  documentLink: string;
+  campus: string;
+  dept: string;
+  year: string;
+};
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 function IntegratedDashboard() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [analysisType, setAnalysisType] = useState<"journal" | "conference" | "patent">("journal")
-  const [journals, setJournals] = useState<Journal[]>([])
-  const [conferences, setConferences] = useState<Conference[]>([])
-  const [patents, setPatents] = useState<Patent[]>([])
-  const [filteredData, setFilteredData] = useState<any[]>([])
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar")
-  const [metric, setMetric] = useState<"campus" | "dept" | "year" | "qNo" | "core">("campus")
-  const [yearRange, setYearRange] = useState({ start: "2000", end: `${new Date().getFullYear()}` })
-  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([])
-  const [selectedDepts, setSelectedDepts] = useState<string[]>([])
-  const [selectedQNos, setSelectedQNos] = useState<string[]>([])
-  const [selectedCores, setSelectedCores] = useState<string[]>([])
-  const chartRef = useRef<HTMLDivElement>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [cardCurrentPage, setCardCurrentPage] = useState(1)
-  const itemsPerPage = 10
-  const cardsPerPage = 6
-  const [visiblePages, setVisiblePages] = useState(5)
-  const { toast } = useToast()
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [deleteId,setDeleteId] = useState<string>("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [analysisType, setAnalysisType] = useState<
+    "journal" | "conference" | "patent"
+  >("journal");
+  const [journals, setJournals] = useState<Journal[]>([]);
+  const [conferences, setConferences] = useState<Conference[]>([]);
+  const [patents, setPatents] = useState<Patent[]>([]);
+  const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [metric, setMetric] = useState<
+    "campus" | "dept" | "year" | "qNo" | "core"
+  >("campus");
+  const [yearRange, setYearRange] = useState({
+    start: "2000",
+    end: `${new Date().getFullYear()}`,
+  });
+  const [selectedCampuses, setSelectedCampuses] = useState<string[]>([]);
+  const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
+  const [selectedQNos, setSelectedQNos] = useState<string[]>([]);
+  const [selectedCores, setSelectedCores] = useState<string[]>([]);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cardCurrentPage, setCardCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const cardsPerPage = 6;
+  const [visiblePages, setVisiblePages] = useState(5);
+  const { toast } = useToast();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string>("");
   const updateQueryParams = useCallback(() => {
-    const params = new URLSearchParams(searchParams)
-    params.set("analysisType", analysisType)
-    params.set("chartType", chartType)
-    params.set("metric", metric)
-    params.set("yearStart", yearRange.start)
-    params.set("yearEnd", yearRange.end)
-    params.set("campuses", selectedCampuses.join(","))
-    params.set("depts", selectedDepts.join(","))
-    params.set("qNos", selectedQNos.join(","))
-    params.set("cores", selectedCores.join(","))
-    router.replace(`?${params.toString()}`)
+    const params = new URLSearchParams(searchParams);
+    params.set("analysisType", analysisType);
+    params.set("chartType", chartType);
+    params.set("metric", metric);
+    params.set("yearStart", yearRange.start);
+    params.set("yearEnd", yearRange.end);
+    params.set("campuses", selectedCampuses.join(","));
+    params.set("depts", selectedDepts.join(","));
+    params.set("qNos", selectedQNos.join(","));
+    params.set("cores", selectedCores.join(","));
+    router.replace(`?${params.toString()}`);
   }, [
     analysisType,
     chartType,
@@ -163,75 +176,109 @@ function IntegratedDashboard() {
     selectedCores,
     router,
     searchParams,
-  ])
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const journalResponse = await axios.get(`${backendUrl}/api/v1/journal`, { withCredentials: true })
-        setJournals(journalResponse.data)
+        const journalResponse = await axios.get(
+          `${backendUrl}/api/v1/journal`,
+          { withCredentials: true }
+        );
+        setJournals(journalResponse.data);
 
-        const conferenceResponse = await axios.get(`${backendUrl}/api/v1/conference`, { withCredentials: true })
-        setConferences(conferenceResponse.data)
+        const conferenceResponse = await axios.get(
+          `${backendUrl}/api/v1/conference`,
+          { withCredentials: true }
+        );
+        setConferences(conferenceResponse.data);
 
         // Fetch patents data when the API is available
-        const patentResponse = await axios.get(`${backendUrl}/api/v1/patent`, { withCredentials: true })
-        setPatents(patentResponse.data)
+        const patentResponse = await axios.get(`${backendUrl}/api/v1/patent`, {
+          withCredentials: true,
+        });
+        setPatents(patentResponse.data);
       } catch (error) {
-        console.error("Error fetching data:", error)
+        console.error("Error fetching data:", error);
       }
-    }
-    fetchData()
-  }, [])
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    setAnalysisType((searchParams.get("analysisType") as "journal" | "conference" | "patent") || "journal")
-    setChartType((searchParams.get("chartType") as "bar" | "line" | "pie") || "bar")
-    setMetric((searchParams.get("metric") as "campus" | "dept" | "year" | "qNo" | "core") || "campus")
+    setAnalysisType(
+      (searchParams.get("analysisType") as
+        | "journal"
+        | "conference"
+        | "patent") || "journal"
+    );
+    setChartType(
+      (searchParams.get("chartType") as "bar" | "line" | "pie") || "bar"
+    );
+    setMetric(
+      (searchParams.get("metric") as
+        | "campus"
+        | "dept"
+        | "year"
+        | "qNo"
+        | "core") || "campus"
+    );
     setYearRange({
       start: searchParams.get("yearStart") || "2000",
       end: searchParams.get("yearEnd") || `${new Date().getFullYear()}`,
-    })
-    setSelectedCampuses(searchParams.get("campuses")?.split(",").filter(Boolean) || [])
-    setSelectedDepts(searchParams.get("depts")?.split(",").filter(Boolean) || [])
-    setSelectedQNos(searchParams.get("qNos")?.split(",").filter(Boolean) || [])
-    setSelectedCores(searchParams.get("cores")?.split(",").filter(Boolean) || [])
-  }, [searchParams])
+    });
+    setSelectedCampuses(
+      searchParams.get("campuses")?.split(",").filter(Boolean) || []
+    );
+    setSelectedDepts(
+      searchParams.get("depts")?.split(",").filter(Boolean) || []
+    );
+    setSelectedQNos(searchParams.get("qNos")?.split(",").filter(Boolean) || []);
+    setSelectedCores(
+      searchParams.get("cores")?.split(",").filter(Boolean) || []
+    );
+  }, [searchParams]);
 
   useEffect(() => {
-    let dataToFilter: (Journal | Conference | Patent)[] = []
+    let dataToFilter: (Journal | Conference | Patent)[] = [];
     switch (analysisType) {
       case "journal":
-        dataToFilter = journals
-        break
+        dataToFilter = journals;
+        break;
       case "conference":
-        dataToFilter = conferences
-        break
+        dataToFilter = conferences;
+        break;
       case "patent":
-        dataToFilter = patents
-        break
+        dataToFilter = patents;
+        break;
     }
 
     const filtered = dataToFilter.filter((item) => {
       const yearInRange =
         Number.parseInt(item.year) >= Number.parseInt(yearRange.start) &&
-        Number.parseInt(item.year) <= Number.parseInt(yearRange.end)
-      const campusMatch = selectedCampuses.length === 0 || selectedCampuses.includes(item.campus)
-      const deptMatch = selectedDepts.length === 0 || selectedDepts.includes(item.dept)
-      let qNoMatch = true
-      let coreMatch = true
+        Number.parseInt(item.year) <= Number.parseInt(yearRange.end);
+      const campusMatch =
+        selectedCampuses.length === 0 || selectedCampuses.includes(item.campus);
+      const deptMatch =
+        selectedDepts.length === 0 || selectedDepts.includes(item.dept);
+      let qNoMatch = true;
+      let coreMatch = true;
 
       if (analysisType === "journal") {
-        qNoMatch = selectedQNos.length === 0 || selectedQNos.includes((item as Journal).qNo)
+        qNoMatch =
+          selectedQNos.length === 0 ||
+          selectedQNos.includes((item as Journal).qNo);
       } else if (analysisType === "conference") {
-        coreMatch = selectedCores.length === 0 || selectedCores.includes((item as Conference).core)
+        coreMatch =
+          selectedCores.length === 0 ||
+          selectedCores.includes((item as Conference).core);
       }
 
-      return yearInRange && campusMatch && deptMatch && qNoMatch && coreMatch
-    })
+      return yearInRange && campusMatch && deptMatch && qNoMatch && coreMatch;
+    });
 
-    setFilteredData(filtered)
-    updateQueryParams()
+    setFilteredData(filtered);
+    updateQueryParams();
   }, [
     analysisType,
     journals,
@@ -243,74 +290,81 @@ function IntegratedDashboard() {
     selectedQNos,
     selectedCores,
     updateQueryParams,
-  ])
+  ]);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setVisiblePages(3)
+        setVisiblePages(3);
       } else if (window.innerWidth < 768) {
-        setVisiblePages(5)
+        setVisiblePages(5);
       } else {
-        setVisiblePages(10)
+        setVisiblePages(10);
       }
-    }
+    };
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const getChartData = () => {
-    const data: { [key: string]: number } = {}
+    const data: { [key: string]: number } = {};
     filteredData.forEach((item) => {
-      const key = item[metric]
-      data[key] = (data[key] || 0) + 1
-    })
-    return Object.entries(data).map(([name, value]) => ({ name, value }))
-  }
+      const key = item[metric];
+      data[key] = (data[key] || 0) + 1;
+    });
+    return Object.entries(data).map(([name, value]) => ({ name, value }));
+  };
 
-  const getPageNumbers = (currentPage: number, totalPages: number, maxVisible: number) => {
+  const getPageNumbers = (
+    currentPage: number,
+    totalPages: number,
+    maxVisible: number
+  ) => {
     if (totalPages <= maxVisible) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1)
-    let end = start + maxVisible - 1
+    let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1);
+    let end = start + maxVisible - 1;
 
     if (end > totalPages) {
-      end = totalPages
-      start = Math.max(end - maxVisible + 1, 1)
+      end = totalPages;
+      start = Math.max(end - maxVisible + 1, 1);
     }
 
-    const pages: (number | null)[] = Array.from({ length: end - start + 1 }, (_, i) => start + i)
+    const pages: (number | null)[] = Array.from(
+      { length: end - start + 1 },
+      (_, i) => start + i
+    );
 
     if (start > 1) {
-      pages.unshift(1)
+      pages.unshift(1);
       if (start > 2) {
-        pages.splice(1, 0, null)
+        pages.splice(1, 0, null);
       }
     }
 
     if (end < totalPages) {
       if (end < totalPages - 1) {
-        pages.push(null)
+        pages.push(null);
       }
-      pages.push(totalPages)
+      pages.push(totalPages);
     }
 
-    return pages
-  }
+    return pages;
+  };
 
   const renderChart = () => {
-    const data = getChartData()
+    const data = getChartData();
 
     if (data.length === 0) {
       return (
         <div className="flex items-center justify-center h-[400px]">
           <p className="text-lg font-semibold">No Matching Data Available</p>
         </div>
-      )
+      );
     }
 
     switch (chartType) {
@@ -331,12 +385,15 @@ function IntegratedDashboard() {
               <Legend />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        )
+        );
       case "line":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -362,7 +419,7 @@ function IntegratedDashboard() {
               />
             </LineChart>
           </ResponsiveContainer>
-        )
+        );
       case "pie":
         return (
           <ResponsiveContainer width="100%" height={400}>
@@ -375,10 +432,15 @@ function IntegratedDashboard() {
                 outerRadius={150}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) =>
+                  `${name} ${(percent * 100).toFixed(0)}%`
+                }
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip
@@ -391,24 +453,24 @@ function IntegratedDashboard() {
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        )
+        );
     }
-  }
+  };
 
   const downloadChartAsPNG = () => {
     if (chartRef.current) {
       html2canvas(chartRef.current).then((canvas) => {
-        const link = document.createElement("a")
-        link.download = `${analysisType}_chart.png`
-        link.href = canvas.toDataURL()
-        link.click()
-      })
+        const link = document.createElement("a");
+        link.download = `${analysisType}_chart.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      });
     }
-  }
+  };
 
   const downloadTableAsCSV = () => {
-    let headers: string[] = []
-    let csvContent = ""
+    let headers: string[] = [];
+    let csvContent = "";
 
     switch (analysisType) {
       case "journal":
@@ -437,7 +499,7 @@ function IntegratedDashboard() {
           "Abstract",
           "Keywords",
           "Domain",
-        ]
+        ];
         csvContent = [
           headers.join(","),
           ...filteredData.map((journal: Journal, index) =>
@@ -466,10 +528,10 @@ function IntegratedDashboard() {
               `"${journal.abstract.replace(/"/g, '""')}"`,
               `"${journal.keywords.join(";")}"`,
               journal.domain,
-            ].join(","),
+            ].join(",")
           ),
-        ].join("\n")
-        break
+        ].join("\n");
+        break;
       case "conference":
         headers = [
           "Serial No",
@@ -493,7 +555,7 @@ function IntegratedDashboard() {
           "Abstract",
           "Keywords",
           "Domain",
-        ]
+        ];
         csvContent = [
           headers.join(","),
           ...filteredData.map((conference: Conference, index) =>
@@ -504,7 +566,10 @@ function IntegratedDashboard() {
               conference.dept,
               `"${conference.bookTitle.replace(/"/g, '""')}"`,
               `"${conference.paperTitle.replace(/"/g, '""')}"`,
-              `"${conference.proceedings_conference_title.replace(/"/g, '""')}"`,
+              `"${conference.proceedings_conference_title.replace(
+                /"/g,
+                '""'
+              )}"`,
               conference.volumeNo,
               conference.issueNo,
               conference.year,
@@ -519,10 +584,10 @@ function IntegratedDashboard() {
               `"${conference.abstract.replace(/"/g, '""')}"`,
               `"${conference.keywords.join(";")}"`,
               conference.domain,
-            ].join(","),
+            ].join(",")
           ),
-        ].join("\n")
-        break
+        ].join("\n");
+        break;
       case "patent":
         headers = [
           "Serial No",
@@ -534,7 +599,7 @@ function IntegratedDashboard() {
           "Year",
           "Capstone",
           "Document",
-        ]
+        ];
         csvContent = [
           headers.join(","),
           ...filteredData.map((patent: Patent, index) =>
@@ -548,41 +613,50 @@ function IntegratedDashboard() {
               patent.year,
               patent.isCapstone ? "Yes" : "No",
               patent.documentLink,
-            ].join(","),
+            ].join(",")
           ),
-        ].join("\n")
-        break
+        ].join("\n");
+        break;
     }
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const link = document.createElement("a")
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob)
-      link.setAttribute("href", url)
-      link.setAttribute("download", `${analysisType}_data.csv`)
-      link.style.visibility = "hidden"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `${analysisType}_data.csv`);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  }
+  };
 
   const handleDelete = async () => {
-    if(!deleteId) return;
+    if (!deleteId) return;
     try {
-      let response
+      let response;
       switch (analysisType) {
         case "journal":
-          response = await axios.delete(`${backendUrl}/api/v1/journal/${deleteId}`, { withCredentials: true })
-          break
+          response = await axios.delete(
+            `${backendUrl}/api/v1/journal/${deleteId}`,
+            { withCredentials: true }
+          );
+          break;
         case "conference":
-          response = await axios.delete(`${backendUrl}/api/v1/conference/${deleteId}`, { withCredentials: true })
-          break
+          response = await axios.delete(
+            `${backendUrl}/api/v1/conference/${deleteId}`,
+            { withCredentials: true }
+          );
+          break;
         case "patent":
-          response = await axios.delete(`${backendUrl}/api/v1/patent/${deleteId}`, { withCredentials: true })
-          break
+          response = await axios.delete(
+            `${backendUrl}/api/v1/patent/${deleteId}`,
+            { withCredentials: true }
+          );
+          break;
         default:
-          throw new Error("Invalid analysis type")
+          throw new Error("Invalid analysis type");
       }
 
       if (response.status === 200) {
@@ -590,44 +664,47 @@ function IntegratedDashboard() {
           title: "Success",
           variant: "mine",
           description: `Deleted successfully`,
-        })
-        setFilteredData(filteredData.filter((item) => item.id !== deleteId))
+        });
+        setFilteredData(filteredData.filter((item) => item.id !== deleteId));
       } else {
-        throw new Error("Failed to delete item")
+        throw new Error("Failed to delete item");
       }
     } catch (error) {
-      console.error("Error deleting item:", error)
+      console.error("Error deleting item:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: `Failed to delete ${analysisType}`,
-      })
+      });
     } finally {
-      setIsDeleteDialogOpen(false)
+      setIsDeleteDialogOpen(false);
     }
     setDeleteId("");
-  }
+  };
 
   return (
     <div className="container bg-black bg-opacity-80 mx-auto p-4 w-screen">
-       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-    <DialogContent className="sm:max-w-[525px] bg-white text-black">
-      <DialogHeader>
-        <DialogTitle>Are you sure you want to delete?</DialogTitle>
-        <DialogDescription>
-          This action cannot be undone. This will permanently delete the item and remove
-          its data from our servers.
-        </DialogDescription>
-      </DialogHeader>
-      <DialogFooter>
-        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-          No
-        </Button>
-        <Button variant="destructive" onClick={() => handleDelete()}>
-          Yes
-        </Button>
-      </DialogFooter>
-    </DialogContent>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[525px] bg-white text-black">
+          <DialogHeader>
+            <DialogTitle>Are you sure you want to delete?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the
+              item and remove its data from our servers.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              No
+            </Button>
+            <Button variant="destructive" onClick={() => handleDelete()}>
+              Yes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
       <h1 className="text-3xl font-bold mb-6">Research Analysis Dashboard</h1>
       <Card className="mb-6">
@@ -637,7 +714,9 @@ function IntegratedDashboard() {
         <CardContent>
           <Select
             value={analysisType}
-            onValueChange={(value: "journal" | "conference" | "patent") => setAnalysisType(value)}
+            onValueChange={(value: "journal" | "conference" | "patent") =>
+              setAnalysisType(value)
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Select analysis type" />
@@ -677,7 +756,12 @@ function IntegratedDashboard() {
                 <CardTitle>Visualization</CardTitle>
               </CardHeader>
               <CardContent>
-                <Select value={chartType} onValueChange={(value: "bar" | "line" | "pie") => setChartType(value)}>
+                <Select
+                  value={chartType}
+                  onValueChange={(value: "bar" | "line" | "pie") =>
+                    setChartType(value)
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select chart type" />
                   </SelectTrigger>
@@ -697,7 +781,9 @@ function IntegratedDashboard() {
               <CardContent>
                 <Select
                   value={metric}
-                  onValueChange={(value: "campus" | "dept" | "year" | "qNo" | "core") => setMetric(value)}
+                  onValueChange={(
+                    value: "campus" | "dept" | "year" | "qNo" | "core"
+                  ) => setMetric(value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select metric" />
@@ -706,8 +792,12 @@ function IntegratedDashboard() {
                     <SelectItem value="campus">Campus</SelectItem>
                     <SelectItem value="dept">Department</SelectItem>
                     <SelectItem value="year">Year</SelectItem>
-                    {analysisType === "journal" && <SelectItem value="qNo">Q Number</SelectItem>}
-                    {analysisType === "conference" && <SelectItem value="core">Core</SelectItem>}
+                    {analysisType === "journal" && (
+                      <SelectItem value="qNo">Q Number</SelectItem>
+                    )}
+                    {analysisType === "conference" && (
+                      <SelectItem value="core">Core</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </CardContent>
@@ -726,7 +816,9 @@ function IntegratedDashboard() {
                     min="1990"
                     max="2099"
                     value={yearRange.start}
-                    onChange={(e) => setYearRange({ ...yearRange, start: e.target.value })}
+                    onChange={(e) =>
+                      setYearRange({ ...yearRange, start: e.target.value })
+                    }
                   />
                 </div>
                 <div className="flex-1">
@@ -737,7 +829,9 @@ function IntegratedDashboard() {
                     min="1990"
                     max="2099"
                     value={yearRange.end}
-                    onChange={(e) => setYearRange({ ...yearRange, end: e.target.value })}
+                    onChange={(e) =>
+                      setYearRange({ ...yearRange, end: e.target.value })
+                    }
                   />
                 </div>
               </CardContent>
@@ -758,8 +852,10 @@ function IntegratedDashboard() {
                         checked={selectedCampuses.includes(campus)}
                         onCheckedChange={(checked) => {
                           setSelectedCampuses(
-                            checked ? [...selectedCampuses, campus] : selectedCampuses.filter((c) => c !== campus),
-                          )
+                            checked
+                              ? [...selectedCampuses, campus]
+                              : selectedCampuses.filter((c) => c !== campus)
+                          );
                         }}
                       />
                       <Label htmlFor={`campus-${campus}`}>{campus}</Label>
@@ -781,7 +877,11 @@ function IntegratedDashboard() {
                         id={`dept-${dept}`}
                         checked={selectedDepts.includes(dept)}
                         onCheckedChange={(checked) => {
-                          setSelectedDepts(checked ? [...selectedDepts, dept] : selectedDepts.filter((d) => d !== dept))
+                          setSelectedDepts(
+                            checked
+                              ? [...selectedDepts, dept]
+                              : selectedDepts.filter((d) => d !== dept)
+                          );
                         }}
                       />
                       <Label htmlFor={`dept-${dept}`}>{dept}</Label>
@@ -804,7 +904,11 @@ function IntegratedDashboard() {
                           id={`qNo-${qNo}`}
                           checked={selectedQNos.includes(qNo)}
                           onCheckedChange={(checked) => {
-                            setSelectedQNos(checked ? [...selectedQNos, qNo] : selectedQNos.filter((q) => q !== qNo))
+                            setSelectedQNos(
+                              checked
+                                ? [...selectedQNos, qNo]
+                                : selectedQNos.filter((q) => q !== qNo)
+                            );
                           }}
                         />
                         <Label htmlFor={`qNo-${qNo}`}>{qNo}</Label>
@@ -829,8 +933,10 @@ function IntegratedDashboard() {
                           checked={selectedCores.includes(core)}
                           onCheckedChange={(checked) => {
                             setSelectedCores(
-                              checked ? [...selectedCores, core] : selectedCores.filter((c) => c !== core),
-                            )
+                              checked
+                                ? [...selectedCores, core]
+                                : selectedCores.filter((c) => c !== core)
+                            );
                           }}
                         />
                         <Label htmlFor={`core-${core}`}>{core}</Label>
@@ -844,7 +950,10 @@ function IntegratedDashboard() {
 
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>{analysisType.charAt(0).toUpperCase() + analysisType.slice(1)} Analysis Chart</CardTitle>
+              <CardTitle>
+                {analysisType.charAt(0).toUpperCase() + analysisType.slice(1)}{" "}
+                Analysis Chart
+              </CardTitle>
             </CardHeader>
             <CardContent className="h-[480px]">
               <div ref={chartRef}>{renderChart()}</div>
@@ -856,7 +965,10 @@ function IntegratedDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{analysisType.charAt(0).toUpperCase() + analysisType.slice(1)} Details</CardTitle>
+              <CardTitle>
+                {analysisType.charAt(0).toUpperCase() + analysisType.slice(1)}{" "}
+                Details
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="table" className="w-full">
@@ -879,14 +991,18 @@ function IntegratedDashboard() {
                               {analysisType === "journal"
                                 ? "Journal Name"
                                 : analysisType === "conference"
-                                  ? "Conference Title"
-                                  : "Patent Title"}
+                                ? "Conference Title"
+                                : "Patent Title"}
                             </th>
                           )}
                           {analysisType !== "patent" && (
-                            <th className="px-6 py-3">{analysisType === "journal" ? "Q No" : "Core"}</th>
+                            <th className="px-6 py-3">
+                              {analysisType === "journal" ? "Q No" : "Core"}
+                            </th>
                           )}
-                          {analysisType !== "patent" && <th className="px-6 py-3">Impact Factor</th>}
+                          {analysisType !== "patent" && (
+                            <th className="px-6 py-3">Impact Factor</th>
+                          )}
                           <th className="px-6 py-3">Link</th>
                           <th className="px-6 py-3">Edit</th>
                           <th className="px-6 py-3">Delete</th>
@@ -894,108 +1010,120 @@ function IntegratedDashboard() {
                       </thead>
                       <tbody>
                         {filteredData
-                          .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                          .slice(
+                            (currentPage - 1) * itemsPerPage,
+                            currentPage * itemsPerPage
+                          )
                           .map((item, index) => (
                             <>
-                            <tr key={index} className="bg-white border-b">
-                              <td className="px-6 py-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                              <td className="px-6 py-4">
-                                {analysisType === "journal"
-                                  ? (item as Journal).title
-                                  : analysisType === "conference"
+                              <tr key={index} className="bg-white border-b">
+                                <td className="px-6 py-4">
+                                  {(currentPage - 1) * itemsPerPage + index + 1}
+                                </td>
+                                <td className="px-6 py-4">
+                                  {analysisType === "journal"
+                                    ? (item as Journal).title
+                                    : analysisType === "conference"
                                     ? (item as Conference).paperTitle
                                     : (item as Patent).patentTitle}
-                              </td>
-                              <td className="px-6 py-4">{item.campus}</td>
-                              <td className="px-6 py-4">{item.dept}</td>
-                              <td className="px-6 py-4">{item.year}</td>
-                              {analysisType !== "patent" && (
-                                <>
-                                  <td className="px-6 py-4">
-                                    {analysisType === "journal"
-                                      ? (item as Journal).journalName
-                                      : analysisType === "conference"
-                                        ? (item as Conference).proceedings_conference_title
+                                </td>
+                                <td className="px-6 py-4">{item.campus}</td>
+                                <td className="px-6 py-4">{item.dept}</td>
+                                <td className="px-6 py-4">{item.year}</td>
+                                {analysisType !== "patent" && (
+                                  <>
+                                    <td className="px-6 py-4">
+                                      {analysisType === "journal"
+                                        ? (item as Journal).journalName
+                                        : analysisType === "conference"
+                                        ? (item as Conference)
+                                            .proceedings_conference_title
                                         : "N/A"}
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    {analysisType === "journal"
-                                      ? (item as Journal).qNo
-                                      : analysisType === "conference"
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      {analysisType === "journal"
+                                        ? (item as Journal).qNo
+                                        : analysisType === "conference"
                                         ? (item as Conference).core
                                         : "N/A"}
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    {analysisType === "journal"
-                                      ? (item as Journal).impactFactor
-                                      : analysisType === "conference"
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      {analysisType === "journal"
+                                        ? (item as Journal).impactFactor
+                                        : analysisType === "conference"
                                         ? (item as Conference).impactFactor
                                         : "N/A"}
-                                  </td>
-                                </>
-                              )}
-                              <td className="px-6 py-4">
-                                {analysisType === "journal" ? (
-                                  (item as Journal).articleLink ? (
-                                    (
-                                      <a
-                                      href={(item as Journal).articleLink}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:underline"
-                                    >
-                                      View
-                                    </a>
-                                    )
-                                  ) : (
-                                    "N/A"
-                                  )
-                                ) : analysisType === "conference" ? (
-                                  (item as Conference).link_of_paper ? (
-                                    <a
-                                      href={(item as Conference).link_of_paper}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:underline"
-                                    >
-                                      View
-                                    </a>
-                                  ) : (
-                                    "N/A"
-                                  )
-                                ) : (item as Patent).documentLink ? (
-                                  <a
-                                    href={(item as Patent).documentLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                  >
-                                    View
-                                  </a>
-                                ) : (
-                                  "N/A"
+                                    </td>
+                                  </>
                                 )}
-                              </td>
-                              <td className="px-6 py-4">
-                                <Button
-                                  onClick={() => router.push(`/${analysisType}/edit/${item?.id}`)}
-                                  variant="outline"
-                                  size="sm"
-                                >
-                                  Edit
-                                  <Pencil className="h-4 w-4 ml-2" />
-                                </Button>
-                              </td>
-                              <td className="px-6 py-4" key={item?.id}>
-                              <Button variant="outline" onClick={()=>{
-                                 setIsDeleteDialogOpen(true)
-                                 setDeleteId(item?.id)
-                              }}>
-                                      <Trash className="h-4 w-4" />
-                              </Button>
-                               
-                              </td>
-                            </tr>
+                                <td className="px-6 py-4">
+                                  {analysisType === "journal" ? (
+                                    (item as Journal).articleLink ? (
+                                      <a
+                                        href={(item as Journal).articleLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:underline"
+                                      >
+                                        View
+                                      </a>
+                                    ) : (
+                                      "N/A"
+                                    )
+                                  ) : analysisType === "conference" ? (
+                                    (item as Conference).link_of_paper ? (
+                                      <a
+                                        href={
+                                          (item as Conference).link_of_paper
+                                        }
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:underline"
+                                      >
+                                        View
+                                      </a>
+                                    ) : (
+                                      "N/A"
+                                    )
+                                  ) : (item as Patent).documentLink ? (
+                                    <a
+                                      href={(item as Patent).documentLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:underline"
+                                    >
+                                      View
+                                    </a>
+                                  ) : (
+                                    "N/A"
+                                  )}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <Button
+                                    onClick={() =>
+                                      router.push(
+                                        `/research/${analysisType}s/edit/${item?.id}`
+                                      )
+                                    }
+                                    variant="outline"
+                                    size="sm"
+                                  >
+                                    Edit
+                                    <Pencil className="h-4 w-4 ml-2" />
+                                  </Button>
+                                </td>
+                                <td className="px-6 py-4" key={item?.id}>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setIsDeleteDialogOpen(true);
+                                      setDeleteId(item?.id);
+                                    }}
+                                  >
+                                    <Trash className="h-4 w-4" />
+                                  </Button>
+                                </td>
+                              </tr>
                             </>
                           ))}
                       </tbody>
@@ -1004,29 +1132,41 @@ function IntegratedDashboard() {
                   <Pagination className="mt-4">
                     <PaginationContent>
                       <PaginationItem>
-                        <PaginationPrevious onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))} />
+                        <PaginationPrevious
+                          onClick={() =>
+                            setCurrentPage((prev) => Math.max(1, prev - 1))
+                          }
+                        />
                       </PaginationItem>
-                      {getPageNumbers(currentPage, Math.ceil(filteredData.length / itemsPerPage), visiblePages).map(
-                        (pageNumber, index) =>
-                          pageNumber === null ? (
-                            <PaginationItem key={`ellipsis-${index}`}>
-                              <PaginationEllipsis />
-                            </PaginationItem>
-                          ) : (
-                            <PaginationItem key={pageNumber}>
-                              <PaginationLink
-                                onClick={() => setCurrentPage(pageNumber)}
-                                isActive={currentPage === pageNumber}
-                              >
-                                {pageNumber}
-                              </PaginationLink>
-                            </PaginationItem>
-                          ),
+                      {getPageNumbers(
+                        currentPage,
+                        Math.ceil(filteredData.length / itemsPerPage),
+                        visiblePages
+                      ).map((pageNumber, index) =>
+                        pageNumber === null ? (
+                          <PaginationItem key={`ellipsis-${index}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(pageNumber)}
+                              isActive={currentPage === pageNumber}
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
                       )}
                       <PaginationItem>
                         <PaginationNext
                           onClick={() =>
-                            setCurrentPage((prev) => Math.min(Math.ceil(filteredData.length / itemsPerPage), prev + 1))
+                            setCurrentPage((prev) =>
+                              Math.min(
+                                Math.ceil(filteredData.length / itemsPerPage),
+                                prev + 1
+                              )
+                            )
                           }
                         />
                       </PaginationItem>
@@ -1036,7 +1176,10 @@ function IntegratedDashboard() {
                 <TabsContent value="cards">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filteredData
-                      .slice((cardCurrentPage - 1) * cardsPerPage, cardCurrentPage * cardsPerPage)
+                      .slice(
+                        (cardCurrentPage - 1) * cardsPerPage,
+                        cardCurrentPage * cardsPerPage
+                      )
                       .map((item, index) => (
                         <Card key={index}>
                           <CardHeader>
@@ -1044,13 +1187,14 @@ function IntegratedDashboard() {
                               {analysisType === "journal"
                                 ? (item as Journal).title
                                 : analysisType === "conference"
-                                  ? (item as Conference).paperTitle
-                                  : (item as Patent).patentTitle}
+                                ? (item as Conference).paperTitle
+                                : (item as Patent).patentTitle}
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <p>
-                              <strong>Serial No:</strong> {(cardCurrentPage - 1) * cardsPerPage + index + 1}
+                              <strong>Serial No:</strong>{" "}
+                              {(cardCurrentPage - 1) * cardsPerPage + index + 1}
                             </p>
                             <p>
                               <strong>Campus:</strong> {item.campus}
@@ -1068,31 +1212,37 @@ function IntegratedDashboard() {
                                     {analysisType === "journal"
                                       ? "Journal Name"
                                       : analysisType === "conference"
-                                        ? "Conference Title"
-                                        : "Patent Title"}
+                                      ? "Conference Title"
+                                      : "Patent Title"}
                                     :
                                   </strong>{" "}
                                   {analysisType === "journal"
                                     ? (item as Journal).journalName
                                     : analysisType === "conference"
-                                      ? (item as Conference).proceedings_conference_title
-                                      : "N/A"}
+                                    ? (item as Conference)
+                                        .proceedings_conference_title
+                                    : "N/A"}
                                 </p>
                                 <p>
-                                  <strong>{analysisType === "journal" ? "Q No" : "Core"}:</strong>{" "}
+                                  <strong>
+                                    {analysisType === "journal"
+                                      ? "Q No"
+                                      : "Core"}
+                                    :
+                                  </strong>{" "}
                                   {analysisType === "journal"
                                     ? (item as Journal).qNo
                                     : analysisType === "conference"
-                                      ? (item as Conference).core
-                                      : "N/A"}
+                                    ? (item as Conference).core
+                                    : "N/A"}
                                 </p>
                                 <p>
                                   <strong>Impact Factor:</strong>{" "}
                                   {analysisType === "journal"
                                     ? (item as Journal).impactFactor
                                     : analysisType === "conference"
-                                      ? (item as Conference).impactFactor
-                                      : "N/A"}
+                                    ? (item as Conference).impactFactor
+                                    : "N/A"}
                                 </p>
                               </>
                             )}
@@ -1141,30 +1291,40 @@ function IntegratedDashboard() {
                   <Pagination className="mt-4">
                     <PaginationContent>
                       <PaginationItem>
-                        <PaginationPrevious onClick={() => setCardCurrentPage((prev) => Math.max(1, prev - 1))} />
+                        <PaginationPrevious
+                          onClick={() =>
+                            setCardCurrentPage((prev) => Math.max(1, prev - 1))
+                          }
+                        />
                       </PaginationItem>
-                      {getPageNumbers(cardCurrentPage, Math.ceil(filteredData.length / cardsPerPage), visiblePages).map(
-                        (pageNumber, index) =>
-                          pageNumber === null ? (
-                            <PaginationItem key={`ellipsis-${index}`}>
-                              <PaginationEllipsis />
-                            </PaginationItem>
-                          ) : (
-                            <PaginationItem key={pageNumber}>
-                              <PaginationLink
-                                onClick={() => setCardCurrentPage(pageNumber)}
-                                isActive={cardCurrentPage === pageNumber}
-                              >
-                                {pageNumber}
-                              </PaginationLink>
-                            </PaginationItem>
-                          ),
+                      {getPageNumbers(
+                        cardCurrentPage,
+                        Math.ceil(filteredData.length / cardsPerPage),
+                        visiblePages
+                      ).map((pageNumber, index) =>
+                        pageNumber === null ? (
+                          <PaginationItem key={`ellipsis-${index}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              onClick={() => setCardCurrentPage(pageNumber)}
+                              isActive={cardCurrentPage === pageNumber}
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
                       )}
                       <PaginationItem>
                         <PaginationNext
                           onClick={() =>
                             setCardCurrentPage((prev) =>
-                              Math.min(Math.ceil(filteredData.length / cardsPerPage), prev + 1),
+                              Math.min(
+                                Math.ceil(filteredData.length / cardsPerPage),
+                                prev + 1
+                              )
                             )
                           }
                         />
@@ -1184,7 +1344,7 @@ function IntegratedDashboard() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 export default function IntegratedAnalyze() {
@@ -1192,6 +1352,5 @@ export default function IntegratedAnalyze() {
     <Suspense fallback={<Spinner />}>
       <IntegratedDashboard />
     </Suspense>
-  )
+  );
 }
-
