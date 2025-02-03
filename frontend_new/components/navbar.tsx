@@ -1,83 +1,108 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { useState, useEffect, useMemo, useCallback } from "react"
-import Cookie from "js-cookie"
-import { Menu, X, CircleUserRound, LogOut, UserRoundIcon as UserRoundPen, Gauge, Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/context/auth"
-import { Avatar, AvatarImage } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { verifyToken } from "@/api"
+import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import Cookie from "js-cookie";
+import {
+  Menu,
+  X,
+  CircleUserRound,
+  LogOut,
+  UserRoundIcon as UserRoundPen,
+  Gauge,
+  Loader2,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/auth";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { verifyToken } from "@/api";
 
 function Navbar() {
-  const { isLoggedIn, setIsLoggedIn, user, setUser } = useAuth()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isVerifying, setIsVerifying] = useState(true)
-  const router = useRouter()
-  const accessToken = Cookie.get("accessToken")
+  const { isLoggedIn, setIsLoggedIn, user, setUser } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
+  const router = useRouter();
+  const accessToken = Cookie.get("accessToken");
 
   useEffect(() => {
     const fetchUser = async () => {
       if (accessToken) {
-        const resp: any = await verifyToken(accessToken)
+        const resp: any = await verifyToken(accessToken);
         if (resp?.status == 200) {
-          setIsLoggedIn(true)
-          setUser(resp?.data?.data)
+          setIsLoggedIn(true);
+          setUser(resp?.data?.data);
         } else {
-          setIsLoggedIn(false)
-          setUser(null)
+          setIsLoggedIn(false);
+          setUser(null);
         }
       } else {
-        setIsLoggedIn(false)
-        setUser(null)
+        setIsLoggedIn(false);
+        setUser(null);
       }
-      setIsVerifying(false)
-    }
-    fetchUser()
-  }, [accessToken, setIsLoggedIn, setUser])
+      setIsVerifying(false);
+    };
+    fetchUser();
+  }, [accessToken, setIsLoggedIn, setUser]);
 
   const navLinks = useMemo(
     () => (
       <>
         <li>
-          <Link href="/research" className="hover:underline">
+          <Link
+            href="/research"
+            className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-bold"
+          >
             Research
           </Link>
         </li>
         <li>
-          <Link href="/department" className="hover:underline">
+          <Link
+            href="/department"
+            className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-bold"
+          >
             Department
           </Link>
         </li>
         <li>
-          <Link href="/student" className="hover:underline">
+          <Link
+            href="/student"
+            className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-bold"
+          >
             Student
           </Link>
         </li>
         {isLoggedIn && user?.role == "admin" && user?.accessTo == "all" && (
           <li>
-            <Link href="/admin" className="hover:underline">
+            <Link
+              href="/admin"
+              className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-bold"
+            >
               Analysis
             </Link>
           </li>
         )}
       </>
     ),
-    [isLoggedIn, user],
-  )
+    [isLoggedIn, user]
+  );
 
   const handleLogout = useCallback(() => {
-    Cookie.remove("accessToken", { path: "/" })
-    setIsLoggedIn(false)
-    setUser(null)
-    window.location.href = "/login"
-  }, [setIsLoggedIn, setUser])
+    Cookie.remove("accessToken", { path: "/" });
+    setIsLoggedIn(false);
+    setUser(null);
+    window.location.href = "/login";
+  }, [setIsLoggedIn, setUser]);
 
   const toggleMobileMenu = useCallback(() => {
-    setIsMobileMenuOpen((prev) => !prev)
-  }, [])
+    setIsMobileMenuOpen((prev) => !prev);
+  }, []);
 
   return (
     <header>
@@ -85,13 +110,17 @@ function Navbar() {
         <Link href="/">
           <div className="flex justify-start items-center">
             <div className="bg-white border-sky-800 rounded-r-full py-2 px-6">
-              <img src="/PESU-logo.png" alt="Logo" className="w-24 h-auto md:w-28 md:h-auto" />
+              <img
+                src="/PESU-logo.png"
+                alt="Logo"
+                className="w-24 h-auto md:w-28 md:h-auto"
+              />
             </div>
             <h1 className="px-6 md:text-xl">PESU NAAC Portal</h1>
           </div>
         </Link>
         <nav className="hidden md:block">
-          <ul className="flex space-x-6 md:mx-4 items-center">
+          <ul className="flex space-x-2 mr-4 items-center">
             {isVerifying ? (
               <li>
                 <Loader2 className="h-6 w-6 animate-spin" />
@@ -118,10 +147,14 @@ function Navbar() {
                       <UserRoundPen className="mr-2 h-4 w-4" />
                       My Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                      <Gauge className="mr-2 h-4 w-4" />
-                      My Dashboard
-                    </DropdownMenuItem>
+                    {isLoggedIn && user?.role != "admin" && (
+                      <DropdownMenuItem
+                        onClick={() => router.push("/dashboard")}
+                      >
+                        <Gauge className="mr-2 h-4 w-4" />
+                        My Dashboard
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
@@ -166,12 +199,15 @@ function Navbar() {
                 {navLinks}
                 {isLoggedIn ? (
                   <>
-                    <Link href="/profile" className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium">
+                    <Link
+                      href="/profile"
+                      className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-bold"
+                    >
                       My Profile
                     </Link>
                     <Link
                       href="/dashboard"
-                      className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-medium"
+                      className="hover:bg-sky-500 block px-3 py-2 rounded-md text-base font-bold"
                     >
                       My Dashboard
                     </Link>
@@ -200,8 +236,7 @@ function Navbar() {
         </div>
       )}
     </header>
-  )
+  );
 }
 
-export default Navbar
-
+export default Navbar;

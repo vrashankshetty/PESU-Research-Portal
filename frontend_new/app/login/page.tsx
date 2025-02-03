@@ -73,7 +73,7 @@ export default function LoginPage() {
         toast({
           variant: "mine",
           title: "Successfully Logged In",
-          description: "Welcome to the PES portal",
+          description: "Welcome to the PESU NAAC Portal",
         });
         setIsLoggedIn(true);1
         setUser(response.data.data);

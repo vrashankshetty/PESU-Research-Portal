@@ -49,7 +49,7 @@ import { CAMPUS, DEPARTMENTS } from "@/lib/types";
 type Journal = {
   id: string;
   title: string;
-  teacherIds: string[];
+  teachers: string[];
   campus: string;
   dept: string;
   journalName: string;
@@ -359,7 +359,7 @@ function JournalDashboard() {
     const headers = [
       "Serial No",
       "Title",
-      "Teacher IDs",
+      "Authors",
       "Campus",
       "Department",
       "Journal Name",
@@ -387,7 +387,7 @@ function JournalDashboard() {
       ...filteredJournals.map((journal) =>
         [
           `"${journal.title.replace(/"/g, '""')}"`,
-          `"${journal.teacherIds.join(";")}"`,
+          `"${journal.teachers.join(";")}"`,
           journal.campus,
           journal.dept,
           `"${journal.journalName.replace(/"/g, '""')}"`,
@@ -622,9 +622,8 @@ function JournalDashboard() {
                     <tr>
                       <th className="px-6 py-3">S No.</th>
                       <th className="px-6 py-3">Title</th>
-                      <th className="px-6 py-3">Campus</th>
-                      <th className="px-6 py-3">Department</th>
                       <th className="px-6 py-3">Journal Name</th>
+                      <th className="px-6 py-3">Authors</th>
                       <th className="px-6 py-3">Year</th>
                       <th className="px-6 py-3">Q No</th>
                       <th className="px-6 py-3">Impact Factor</th>
@@ -644,9 +643,10 @@ function JournalDashboard() {
                             {(currentPage - 1) * itemsPerPage + index + 1}
                           </td>
                           <td className="px-6 py-4">{journal.title}</td>
-                          <td className="px-6 py-4">{journal.campus}</td>
-                          <td className="px-6 py-4">{journal.dept}</td>
                           <td className="px-6 py-4">{journal.journalName}</td>
+                          <td className="px-6 py-4">
+                            {journal.teachers.join(", ")}
+                          </td>
                           <td className="px-6 py-4">{journal.year}</td>
                           <td className="px-6 py-4">{journal.qNo}</td>
                           <td className="px-6 py-4">
@@ -761,6 +761,10 @@ function JournalDashboard() {
                         </p>
                         <p>
                           <strong>Journal Name:</strong> {journal.journalName}
+                        </p>
+                        <p>
+                          <strong>Authors:</strong>{" "}
+                          {journal.teachers.join(", ")}
                         </p>
                         <p>
                           <strong>Year:</strong> {journal.year}

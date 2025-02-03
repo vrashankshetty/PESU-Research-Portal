@@ -27,6 +27,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import { backendUrl } from "@/config";
+import { useEffect, useState } from "react";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -60,6 +62,11 @@ const formSchema = z.object({
   domain: z.string().min(1, "Domain is required"),
 });
 
+type Teacher = {
+  id: string;
+  name: string;
+};
+
 export default function JournalForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -89,6 +96,22 @@ export default function JournalForm() {
   });
 
   const { toast } = useToast();
+
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/v1/user`, {
+          withCredentials: true
+        });
+        setTeachers(response.data);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    };
+    fetchTeachers();
+  }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -151,6 +174,28 @@ export default function JournalForm() {
               />
               <FormField
                 control={form.control}
+                name="teacherIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Co-Author(s)</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={teachers.map(teacher => ({
+                          label: teacher.name,
+                          value: teacher.id
+                        }))}
+                        placeholder="Select teachers..."
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="text-black"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="journalName"
                 render={({ field }) => (
                   <FormItem>
@@ -169,13 +214,30 @@ export default function JournalForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Month</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="month"
-                          placeholder="Enter Month"
-                          {...field}
-                        />
-                      </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Month" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="January">January</SelectItem>
+                          <SelectItem value="February">February</SelectItem>
+                          <SelectItem value="March">March</SelectItem>
+                          <SelectItem value="April">April</SelectItem>
+                          <SelectItem value="May">May</SelectItem>
+                          <SelectItem value="June">June</SelectItem>
+                          <SelectItem value="July">July</SelectItem>
+                          <SelectItem value="August">August</SelectItem>
+                          <SelectItem value="September">September</SelectItem>
+                          <SelectItem value="October">October</SelectItem>
+                          <SelectItem value="November">November</SelectItem>
+                          <SelectItem value="December">December</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

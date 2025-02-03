@@ -49,6 +49,7 @@ import { CAMPUS, DEPARTMENTS } from "@/lib/types";
 type Patent = {
   id: string;
   teacherAdminId: string;
+  teachers: string[];
   campus: string;
   dept: string;
   patentNumber: string;
@@ -326,7 +327,8 @@ function ImprovedPatentDashboard() {
 
   const downloadTableAsCSV = () => {
     const headers = [
-      "Teacher ID",
+      "Serial No",
+      "Faculty",
       "Campus",
       "Department",
       "Patent Number",
@@ -337,9 +339,10 @@ function ImprovedPatentDashboard() {
     ];
     const csvContent = [
       headers.join(","),
-      ...filteredPatents.map((patent) =>
+      ...filteredPatents.map((patent, index) =>
         [
-          patent.teacherAdminId,
+          index + 1,
+          `"${patent.teachers.join(";")}"`,
           patent.campus,
           patent.dept,
           patent.patentNumber,
@@ -587,8 +590,6 @@ function ImprovedPatentDashboard() {
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
                       <th className="px-6 py-3">Faculty</th>
-                      <th className="px-6 py-3">Campus</th>
-                      <th className="px-6 py-3">Department</th>
                       <th className="px-6 py-3">Patent Number</th>
                       <th className="px-6 py-3">Patent Title</th>
                       <th className="px-6 py-3">Year</th>
@@ -612,10 +613,8 @@ function ImprovedPatentDashboard() {
                         return (
                           <tr key={index} className="bg-white border-b">
                             <td className="px-6 py-4">
-                              {teacher ? teacher.name : "Unknown"}
+                              {patent.teachers.join(", ")}
                             </td>
-                            <td className="px-6 py-4">{patent.campus}</td>
-                            <td className="px-6 py-4">{patent.dept}</td>
                             <td className="px-6 py-4">{patent.patentNumber}</td>
                             <td className="px-6 py-4">{patent.patentTitle}</td>
                             <td className="px-6 py-4">{patent.year}</td>
@@ -731,7 +730,7 @@ function ImprovedPatentDashboard() {
                         <CardContent>
                           <p>
                             <strong>Faculty:</strong>{" "}
-                            {teacher ? teacher.name : "Unknown"}
+                            {patent.teachers.join(", ")}
                           </p>
                           <p>
                             <strong>Campus:</strong> {patent.campus}

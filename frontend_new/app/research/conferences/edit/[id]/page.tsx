@@ -30,6 +30,13 @@ import { backendUrl } from "@/config";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/components/spinner";
+import { MultiSelect } from "@/components/ui/multi-select";
+
+type Teacher = {
+  id: string;
+  name: string;
+  userId: string;
+};
 
 const formSchema = z.object({
   teacherIds: z.array(z.string()),
@@ -58,6 +65,7 @@ export default function EditConferenceForm() {
   const params = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -85,7 +93,20 @@ export default function EditConferenceForm() {
 
   const { toast } = useToast();
 
-  // Fetch existing conference data
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/v1/user`, {
+          withCredentials: true,
+        });
+        setTeachers(response.data);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    };
+    fetchTeachers();
+  }, []);
+
   useEffect(() => {
     const fetchConference = async () => {
       try {
@@ -94,13 +115,14 @@ export default function EditConferenceForm() {
           { withCredentials: true }
         );
 
-        // Transform keywords array to string for the form input
+        // Transform conference data to include teacherIds
         const conferenceData = {
           ...response.data.conference,
-          keywords: response.data.conference.keywords.join(","),
+          teacherIds: response.data.conference.teachers.map(
+            (t: Teacher) => t.userId
+          ),
         };
 
-        // Reset form with fetched data
         form.reset(conferenceData);
         setIsLoading(false);
       } catch (error) {
@@ -120,6 +142,7 @@ export default function EditConferenceForm() {
   }, [params.id]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
     try {
       const response = await axios.put(
         `${backendUrl}/api/v1/conference/${params.id}`,
@@ -191,6 +214,29 @@ export default function EditConferenceForm() {
                       <FormLabel>Book Title</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter Book Title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="teacherIds"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Co-Author(s)</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={teachers.map((teacher) => ({
+                            label: teacher.name,
+                            value: teacher.id,
+                          }))}
+                          placeholder="Select teachers..."
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                          className="text-black"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -451,7 +497,7 @@ export default function EditConferenceForm() {
               </div>
               <div className="flex justify-center">
                 <Button type="submit" className="bg-sky-800">
-                  Submit
+                  Update
                 </Button>
               </div>
             </form>
