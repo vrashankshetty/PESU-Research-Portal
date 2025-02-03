@@ -38,6 +38,7 @@ function Navbar() {
         if (resp?.status == 200) {
           setIsLoggedIn(true);
           setUser(resp?.data?.data);
+          console.log(resp?.data?.data);
         } else {
           setIsLoggedIn(false);
           setUser(null);

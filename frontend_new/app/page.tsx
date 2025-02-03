@@ -46,7 +46,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <div className="group relative overflow-hidden rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 p-6 transition-all duration-300 hover:bg-white/20 hover:scale-105">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <Award className="h-12 w-12 text-white mb-4" />
@@ -86,7 +86,7 @@ export default function Home() {
 
         <div className="text-center mb-8">
           <Link href="/login">
-            <Button className="bg-sky-800 hover:bg-sky-800/90 px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button className="bg-sky-800 hover:bg-sky-800/90 px-8 py-6 mb-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
               Get Started <MoveRight className="w-6 h-6 ml-2" />
             </Button>
           </Link>
