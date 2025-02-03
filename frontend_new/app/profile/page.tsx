@@ -32,6 +32,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Spinner from "@/components/spinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Eye, EyeOff } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 const departmentExpertiseMap = {
   CSE: [
@@ -116,6 +127,11 @@ const formSchema = z.object({
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -172,6 +188,48 @@ export default function ProfilePage() {
       });
     }
   }
+
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+      })
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Passwords do not match",
+      })
+      return
+    }
+
+    try {
+      await axios.post(
+        `${backendUrl}/api/v1/user/changeProfilePassword`,
+        { newPassword, confirmPassword },
+        { withCredentials: true },
+      )
+      toast({
+        title: "Success",
+        variant: "mine",
+        description: "Password changed successfully",
+      })
+      setIsChangePasswordOpen(false)
+    } catch (error) {
+      console.error("Error changing password:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to change password",
+      })
+    }
+  }
+
 
   if (loading) {
     return <Spinner />;
@@ -435,10 +493,74 @@ export default function ProfilePage() {
                 />
               </div>
             </CardContent>
-            <div className="flex justify-center pb-2">
+            <div className="flex justify-between pb-2 mx-5">
               <Button type="submit" className="bg-sky-800">
                 Save Changes
               </Button>
+            <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default" className="bg-sky-700 text-white hover:bg-sky-600">
+                Change Password
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[625px] bg-white text-black">
+              <DialogHeader>
+                <DialogTitle>Change Password</DialogTitle>
+                <DialogDescription>Enter your new password below</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="new-password" className="text-right">
+                    New Password
+                  </Label>
+                  <div className="col-span-3 relative">
+                    <Input
+                      id="new-password"
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="confirm-password" className="text-right">
+                    Confirm Password
+                  </Label>
+                  <div className="col-span-3 relative">
+                    <Input
+                      id="confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" onClick={handleChangePassword} className="bg-sky-700 text-white hover:bg-sky-600">
+                  Save changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+            </Dialog>
             </div>
           </form>
         </Form>
