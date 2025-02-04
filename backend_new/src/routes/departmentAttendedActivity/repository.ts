@@ -65,7 +65,7 @@ export async function getAllActivities(userId: string, query: any, role: string,
 
             return filteredActivities.map(activity => ({
                 ...activity,
-                teacher: [...activity.user.name]
+                teacher: [activity.user.name]
             }));
         }
         const activities = await db.query.departmentAttendedActivity.findMany({

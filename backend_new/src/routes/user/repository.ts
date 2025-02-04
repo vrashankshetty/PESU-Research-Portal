@@ -23,6 +23,24 @@ export async function getAllUsers(role:string,accessTo:string) {
 }
 
 
+export async function getAllMultiSelectUsers() {
+    try {
+        const users = await db.query.user.findMany({
+            columns: {
+                password: false,
+                name:true,
+                id:true,
+            },
+        });
+        return users;
+    } catch (error) {
+        console.log('err in repo', error);
+        errs(error);
+    }
+}
+
+
+
 export async function getUser(role:string,accessTo:string,userId: string) {
     try {
         if(role!=='admin' && accessTo!=='all'){
