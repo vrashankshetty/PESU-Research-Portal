@@ -11,8 +11,15 @@ export async function getEachActivity(id: string, userId: string, role: string, 
         if (role === 'admin' && (accessTo === 'all' || accessTo === 'department')) {
             const activity = await db.query.departmentAttendedActivity.findFirst({
                 where: and(eq(departmentAttendedActivity.id, id)),
+                with:{
+                    user:{
+                        columns:{
+                            name:true
+                        }
+                    }
+                }
             });
-            return activity;
+            return {...activity, teacher: [activity?.user.name]};
         }
         const activity = await db.query.departmentAttendedActivity.findFirst({
             where: and(eq(departmentAttendedActivity.id, id), eq(departmentAttendedActivity.userId, userId)),
@@ -30,6 +37,13 @@ export async function getAllActivities(userId: string, query: any, role: string,
         if (role === 'admin' && (accessTo === 'all' || accessTo === 'department')) {
             const activities = await db.query.departmentAttendedActivity.findMany({
                 orderBy: desc(departmentAttendedActivity.createdAt),
+                with:{
+                    user:{
+                        columns:{
+                            name:true
+                        }
+                    }
+                }
             });
 
             const filteredActivities = activities.filter(activity => {
@@ -49,7 +63,10 @@ export async function getAllActivities(userId: string, query: any, role: string,
                 return isValid;
             });
 
-            return filteredActivities;
+            return filteredActivities.map(activity => ({
+                ...activity,
+                teacher: [...activity.user.name]
+            }));
         }
         const activities = await db.query.departmentAttendedActivity.findMany({
             where: eq(departmentAttendedActivity.userId, userId),
