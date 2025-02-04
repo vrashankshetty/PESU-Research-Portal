@@ -1,5 +1,5 @@
 import express from 'express';
-import { changePassword, deleteUser, getAllUsers, getUser, getUserProfile, updateUserProfile } from './repository';
+import { changePassword, changePasswordProfile, deleteUser, getAllUsers, getUser, getUserProfile, updateUserProfile } from './repository';
 import { catchError } from '../../utils/catch-error';
 import authenticateUser from '../../middleware/authenticate-user';
 import { userUpdateSchema } from './schema';
@@ -30,6 +30,8 @@ Router.get('/profile', authenticateUser, async (req, res) => {
     }
 });
 
+
+
 Router.put('/profile', authenticateUser, async (req, res) => {
     try {
         const data = req.body;
@@ -49,6 +51,22 @@ Router.put('/profile', authenticateUser, async (req, res) => {
         catchError(error, res);
     }
 });
+
+Router.post('/changeProfilePassword', authenticateUser, async (req, res) => {
+    try {
+        const { newPassword, confirmPassword } = req.body;
+        if (newPassword !== confirmPassword) {
+            return res.status(400).send('Passwords do not match');
+        }
+        const userId = (req as any).user.id;
+
+        const userData = await changePasswordProfile(userId, newPassword);
+        res.status(200).send(userData);
+    } catch (error) {
+        catchError(error, res);
+    }
+});
+
 
 
 Router.get('/:id', async (req, res) => {

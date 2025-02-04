@@ -93,6 +93,28 @@ export async function changePassword(role:string,accessTo:string,userId: string,
 }
 
 
+export async function changePasswordProfile(userId: string,password: string) {
+    try {
+        console.log('userId', userId);
+        const user1 = await db.query.user.findFirst({
+            where: (user, { eq }) => eq(user.id, userId),
+            columns: {
+                password: false,
+            },
+        });
+        if (!user1) {
+            throw new Error('User not found');
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await db.update(user).set({ password: hashedPassword }).where(eq(user.id, userId));
+        return user1;
+    } catch (error) {
+        console.log('err in repo', error);
+        errs(error);
+    }
+}
+
+
 
 
 export async function getUserProfile(userId: string) {
