@@ -108,7 +108,7 @@ export default function EditJournalForm() {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/api/v1/user`, {
+        const response = await axios.get(`${backendUrl}/api/v1/user/multiselect`, {
           withCredentials: true,
         });
         setTeachers(response.data);

@@ -1,5 +1,5 @@
 import express from 'express';
-import { changePassword, changePasswordProfile, deleteUser, getAllUsers, getUser, getUserProfile, updateUserProfile } from './repository';
+import { changePassword, changePasswordProfile, deleteUser, getAllMultiSelectUsers, getAllUsers, getUser, getUserProfile, updateUserProfile } from './repository';
 import { catchError } from '../../utils/catch-error';
 import authenticateUser from '../../middleware/authenticate-user';
 import { userUpdateSchema } from './schema';
@@ -11,6 +11,17 @@ Router.get('/', async (req, res) => {
     try {
         const {role,accessTo} = (req as any).user;
         const course = await getAllUsers(role,accessTo);
+        res.status(200).send(course);
+    } catch (error) {
+        console.log('error', error);
+        catchError(error, res);
+    }
+});
+
+
+Router.get('/multiselect', async (req, res) => {
+    try {
+        const course = await getAllMultiSelectUsers();
         res.status(200).send(course);
     } catch (error) {
         console.log('error', error);

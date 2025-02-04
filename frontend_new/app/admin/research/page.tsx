@@ -59,7 +59,7 @@ import {
 type Journal = {
   id: string;
   title: string;
-  teacherIds: string[];
+  teachers: string[];
   campus: string;
   dept: string;
   journalName: string;
@@ -85,7 +85,7 @@ type Journal = {
 
 type Conference = {
   id: string;
-  teacherIds: string[];
+  teachers: string[];
   campus: string;
   dept: string;
   bookTitle: string;
@@ -108,11 +108,10 @@ type Conference = {
 };
 
 type Patent = {
-  // Add patent type definition here
   id: string;
   patentNumber: string;
   patentTitle: string;
-  teacherIds: string[];
+  teachers: string[];
   isCapstone: boolean;
   documentLink: string;
   campus: string;
@@ -477,7 +476,7 @@ function IntegratedDashboard() {
         headers = [
           "Serial No",
           "Title",
-          "Teacher IDs",
+          "Authors",
           "Campus",
           "Department",
           "Journal Name",
@@ -506,7 +505,7 @@ function IntegratedDashboard() {
             [
               index + 1,
               `"${journal.title.replace(/"/g, '""')}"`,
-              `"${journal.teacherIds.join(";")}"`,
+              `"${journal.teachers.join(";")}"`,
               journal.campus,
               journal.dept,
               `"${journal.journalName.replace(/"/g, '""')}"`,
@@ -535,7 +534,7 @@ function IntegratedDashboard() {
       case "conference":
         headers = [
           "Serial No",
-          "Teacher IDs",
+          "Authors",
           "Campus",
           "Department",
           "Book Title",
@@ -561,7 +560,7 @@ function IntegratedDashboard() {
           ...filteredData.map((conference: Conference, index) =>
             [
               index + 1,
-              `"${conference.teacherIds.join(";")}"`,
+              `"${conference.teachers.join(";")}"`,
               conference.campus,
               conference.dept,
               `"${conference.bookTitle.replace(/"/g, '""')}"`,
@@ -591,7 +590,7 @@ function IntegratedDashboard() {
       case "patent":
         headers = [
           "Serial No",
-          "Teacher IDs",
+          "Authors",
           "Campus",
           "Department",
           "Patent Number",
@@ -605,7 +604,7 @@ function IntegratedDashboard() {
           ...filteredData.map((patent: Patent, index) =>
             [
               index + 1,
-              `"${patent.teacherIds.join(";")}"`,
+              `"${patent.teachers.join(";")}"`,
               patent.campus,
               patent.dept,
               patent.patentNumber,
@@ -983,8 +982,7 @@ function IntegratedDashboard() {
                         <tr>
                           <th className="px-6 py-3">S No.</th>
                           <th className="px-6 py-3">Title</th>
-                          <th className="px-6 py-3">Campus</th>
-                          <th className="px-6 py-3">Department</th>
+                          <th className="px-6 py-3">Author(s)</th>
                           <th className="px-6 py-3">Year</th>
                           {analysisType !== "patent" && (
                             <th className="px-6 py-3">
@@ -1027,8 +1025,7 @@ function IntegratedDashboard() {
                                     ? (item as Conference).paperTitle
                                     : (item as Patent).patentTitle}
                                 </td>
-                                <td className="px-6 py-4">{item.campus}</td>
-                                <td className="px-6 py-4">{item.dept}</td>
+                                <td>{item.teachers.join(", ")}</td>
                                 <td className="px-6 py-4">{item.year}</td>
                                 {analysisType !== "patent" && (
                                   <>

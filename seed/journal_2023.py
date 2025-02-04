@@ -25,7 +25,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "International Journal of Computing and Digital Systems",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -56,7 +56,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "Journal of Advanced Research in Applied Mechanics",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -87,7 +87,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "International Journal of Engineering and Advanced Technology",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -116,7 +116,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "ACM Transactions on Asian and Low-Resource Language Information Processing",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -147,7 +147,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "Grenze International Journal of Engineering and Technology, June Issu",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -178,7 +178,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "International Journal of System Assurance Engineering and Management",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -208,7 +208,7 @@ journal= [
     "name": "Dr. Jeny Jijo",
     "teacherIds": [],
     "journalName": "IETE Journal of Research",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -239,7 +239,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "Multimedia Tools and Applications",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -270,7 +270,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "Journal of Information Science, 49(4), 1007-1030.",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -302,7 +302,7 @@ journal= [
       "Dr. Sarasvathi V"
     ],
     "journalName": "Journal of Cybernetics and Information Technologies",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -333,7 +333,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "Journal of Cybernetics and Information Technologies",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -364,7 +364,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "International Journal of Intelligent Engineering and Systems, Vol.16, No.6, 2023",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -395,7 +395,7 @@ journal= [
     "teacherIds": [
     ],
     "journalName": "International Journal of Information Technology",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -425,7 +425,7 @@ journal= [
     "name": "Dr. Geetha Dayalan",
     "teacherIds": [],
     "journalName": "International Journal of Intelligent Systems and Applications in Engineering",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -457,7 +457,7 @@ journal= [
  
     ],
     "journalName": "Cardiometry",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -487,7 +487,7 @@ journal= [
     "name": "Dr. Gauri Sameer Rapate",
     "teacherIds": [],
     "journalName": "International Journal of Computer Networks and Applications (IJCNA)",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
@@ -517,7 +517,7 @@ journal= [
     "name": "J Ruby Dinakar",
     "teacherIds": [],
     "journalName": "International Journal on Recent and Innovation Trends in Computing and Communication",
-    "month": "Jan",
+    "month": "January",
     "year": "2023",
     "volumeNo": "10",
     "issueNo": "0",
