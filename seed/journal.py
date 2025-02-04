@@ -214,7 +214,7 @@ journal= [
      
     ],
     "journalName": "Hinweis Second International Conference on Advanced Research in Engineering and Technology",
-    "month": "Invalid Date",
+    "month": "February",
     "year": "2024",
     "volumeNo": "1",
     "issueNo": "1",
@@ -405,7 +405,7 @@ journal= [
      
     ],
     "journalName": "ACM Transactions on Asian and Low-Resource Language Information Processing",
-    "month": "Invalid Date",
+    "month": "November",
     "year": "2024",
     "volumeNo": "1",
     "issueNo": "1",
@@ -437,7 +437,7 @@ journal= [
    
     ],
     "journalName": "SN Computer Science",
-    "month": "Invalid Date",
+    "month": "August",
     "year": "2024",
     "volumeNo": "1",
     "issueNo": "1",
@@ -501,7 +501,7 @@ journal= [
   
     ],
     "journalName": "Smart Science(Taylor and Francis)",
-    "month": "Invalid Date",
+    "month": "August",
     "year": "2024",
     "volumeNo": "1",
     "issueNo": "1",
@@ -527,13 +527,13 @@ journal= [
     "domain": "CCNCS"
   },
   {
-    "title": "Artificial Hummingbird Algorithm with Optimal Deep Learning-Based Intrusion Detection on Vehicular Adhoc",
+    "title": "Artificial Hummingbird Algorithm with Optimal Deep Learning-Based Intrusion Detection on Vehicular Adhoc Networks",
     "name": "Dr. Clara Kanmani A",
     "teacherIds": [
    
     ],
     "journalName": "International Journal of Engineering Trends and Technology",
-    "month": "Invalid Date",
+    "month": "August",
     "year": "2024",
     "volumeNo": "1",
     "issueNo": "1",
@@ -751,7 +751,7 @@ journal= [
     "name": "Dr. Sudeepa Roy Dey",
     "teacherIds": [],
     "journalName": "Briefings in Functional Genomics (Oxford University Press,",
-    "month": "Invalid Date",
+    "month": "September",
     "year": "2024",
     "volumeNo": "1",
     "issueNo": "1",
