@@ -27,7 +27,7 @@ const formSchema = z.object({
   programTitle: z.string().min(1, "Program title is required"),
   durationStartDate: z.string().min(1, "Start date is required"),
   durationEndDate: z.string().min(1, "End date is required"),
-  documentLink: z.string().url("Please enter a valid URL").optional(),
+  documentLink: z.string().url("Please enter a valid URL").default(""),
 });
 
 export default function AttendedForm() {
