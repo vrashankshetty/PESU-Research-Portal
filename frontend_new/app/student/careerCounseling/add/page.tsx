@@ -17,10 +17,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import { backendUrl } from "@/config";
+import Link from "next/link";
 
 const formSchema = z.object({
   documentLink: z.string().min(1, "Link to relevant documents is required"),
-  numberOfStudents: z.string().min(1, "The no. of students that attended/participated is required"),
+  numberOfStudents: z
+    .string()
+    .min(1, "The no. of students that attended/participated is required"),
   year: z.string().min(1, "Year of the counseling is required"),
   activityName: z.string().min(1, "Name of the activity is required"),
 });
@@ -54,8 +57,7 @@ export default function CareerCounselingForm() {
       if (response.status === 201) {
         toast({
           title: "Record Submitted",
-          description:
-            "Your record has been successfully submitted.",
+          description: "Your record has been successfully submitted.",
           variant: "mine",
         });
         form.reset();
@@ -91,7 +93,10 @@ export default function CareerCounselingForm() {
                   <FormItem>
                     <FormLabel>Year of the activity</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter the year of the activity" {...field} />
+                      <Input
+                        placeholder="Enter the year of the activity"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -102,42 +107,67 @@ export default function CareerCounselingForm() {
                 name="activityName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name of the Activity conducted by the HEI to offer guidance for competitive examinations & career counseling offered by the institution</FormLabel>
+                    <FormLabel>
+                      Name of the Activity conducted by the HEI to offer
+                      guidance for competitive examinations & career counseling
+                      offered by the institution
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter the name of the activity" {...field} />
+                      <Input
+                        placeholder="Enter the name of the activity"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="numberOfStudents"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Number of students attended / participated</FormLabel>
+                      <FormLabel>
+                        Number of students attended / participated
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter the number of students attended / participated" {...field} />
+                        <Input
+                          placeholder="Enter the number of students attended / participated"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="documentLink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Link to relevant documents (Upload in this{" "}
+                        <Link
+                          href="https://drive.google.com/drive/folders/1XcuJLytDoSUxUVeAehTDKy0-elN438cr?usp=drive_link"
+                          className="text-blue-500 hover:underline"
+                          target="_blank"
+                        >
+                          Drive
+                        </Link>
+                        )
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter the link to relevant documents"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="documentLink"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Link to relevant documents</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter the link to relevant documents" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="flex justify-center">
                 <Button type="submit" className="bg-sky-800">
                   Submit

@@ -41,8 +41,9 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/spinner";
-import { Pencil } from "lucide-react";
+import { Pencil, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface HigherStudies {
   id: string;
@@ -51,6 +52,7 @@ interface HigherStudies {
   institutionAdmittedTo: string;
   programmeAdmittedTo: string;
   year: string;
+  documentLink: string;
 }
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
@@ -391,6 +393,7 @@ function HigherStudiesDashboard() {
                       <th className="px-6 py-3">
                         Name of programme admitted to
                       </th>
+                      <th className="px-6 py-3">Link</th>
                       <th className="px-6 py-3">Edit</th>
                     </tr>
                   </thead>
@@ -413,6 +416,11 @@ function HigherStudiesDashboard() {
                             </td>
                             <td className="px-6 py-3">
                               {entry.programmeAdmittedTo}
+                            </td>
+                            <td className="px-6 py-3">
+                              <Link href={entry.documentLink} target="_blank">
+                                <Eye />
+                              </Link>
                             </td>
                             <td className="px-6 py-4">
                               <Button
@@ -531,6 +539,16 @@ function HigherStudiesDashboard() {
                           <p>
                             <strong>Program graduated from: </strong>{" "}
                             {entry.programGraduatedFrom}
+                          </p>
+                          <p>
+                            <strong>Document Link: </strong>{" "}
+                            <Link
+                              href={entry.documentLink}
+                              className="text-blue-500 hover:underline"
+                              target="_blank"
+                            >
+                              View Document
+                            </Link>
                           </p>
                         </CardContent>
                       </Card>

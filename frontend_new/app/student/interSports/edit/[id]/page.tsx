@@ -26,6 +26,7 @@ import axios from "axios";
 import { backendUrl } from "@/config";
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
 const formSchema = z.object({
   nameOfStudent: z.string().min(1, "Name of student is required"),
@@ -191,7 +192,17 @@ export default function EditInterSportsForm() {
                   name="link"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Link to relevant documents</FormLabel>
+                      <FormLabel>
+                        Link to relevant documents (Upload in this{" "}
+                        <Link
+                          href="https://drive.google.com/drive/folders/1qi_V-T4rygli8CB4ZSwO5qwtfeynvjGa?usp=drive_link"
+                          className="text-blue-500 hover:underline"
+                          target="_blank"
+                        >
+                          Drive
+                        </Link>
+                        )
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Enter the link to relevant documents"
@@ -202,100 +213,100 @@ export default function EditInterSportsForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="yearOfEvent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Enter the year of the event</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ex. 2023" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="teamOrIndi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Team/Individual</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a option" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Team">Team</SelectItem>
+                          <SelectItem value="Individual">Individual</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="nameOfAward"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Runner-Up/Winners</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a option" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Runner-Up">Runner-Up</SelectItem>
+                          <SelectItem value="Winners">Winners</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Inter-University/State/National/International
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a option" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Inter-University">
+                            Inter-University
+                          </SelectItem>
+                          <SelectItem value="State">State</SelectItem>
+                          <SelectItem value="National">National</SelectItem>
+                          <SelectItem value="International">
+                            International
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-              <FormField
-                control={form.control}
-                name="yearOfEvent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Enter the year of the event</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex. 2023" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="teamOrIndi"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Team/Individual</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a option" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Team">Team</SelectItem>
-                        <SelectItem value="Individual">Individual</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="nameOfAward"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Runner-Up/Winners</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a option" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Runner-Up">Runner-Up</SelectItem>
-                        <SelectItem value="Winners">Winners</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="level"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Inter-University/State/National/International
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a option" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Inter-University">
-                          Inter-University
-                        </SelectItem>
-                        <SelectItem value="State">State</SelectItem>
-                        <SelectItem value="National">National</SelectItem>
-                        <SelectItem value="International">
-                          International
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="flex justify-center">
                 <Button type="submit" className="bg-sky-800">
                   Submit

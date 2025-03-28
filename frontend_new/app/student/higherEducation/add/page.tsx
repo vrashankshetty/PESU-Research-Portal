@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import { backendUrl } from "@/config";
+import Link from "next/link";
 
 const formSchema = z.object({
   studentName: z.string().min(1, "Name of the student is required"),
@@ -38,6 +39,7 @@ const formSchema = z.object({
     .min(1, "Institution of admittance is required"),
   programmeAdmittedTo: z.string().min(1, "Program of Admittance is required"),
   year: z.string().min(1, "Graduation year of the student is required"),
+  documentLink: z.string().url("Please enter a valid URL"),
 });
 
 export default function HigherEducationForm() {
@@ -49,6 +51,7 @@ export default function HigherEducationForm() {
       institutionAdmittedTo: "",
       programmeAdmittedTo: "",
       year: "",
+      documentLink: "",
     },
   });
 
@@ -163,33 +166,58 @@ export default function HigherEducationForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="programGraduatedFrom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Program of Graduation</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Program of Graduation" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="BTech">BTech</SelectItem>
+                          <SelectItem value="Mech">Mech</SelectItem>
+                          <SelectItem value="BCom">BCom</SelectItem>
+                          <SelectItem value="MCom">MCom</SelectItem>
+                          <SelectItem value="BBA">BBA</SelectItem>
+                          <SelectItem value="BPharma">BPharma</SelectItem>
+                          <SelectItem value="Nursing">Nursing</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-
               <FormField
                 control={form.control}
-                name="programGraduatedFrom"
+                name="documentLink"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Program of Graduation</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Program of Graduation" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="BTech">BTech</SelectItem>
-                        <SelectItem value="Mech">Mech</SelectItem>
-                        <SelectItem value="BCom">BCom</SelectItem>
-                        <SelectItem value="MCom">MCom</SelectItem>
-                        <SelectItem value="BBA">BBA</SelectItem>
-                        <SelectItem value="BPharma">BPharma</SelectItem>
-                        <SelectItem value="Nursing">Nursing</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>
+                      Link to Document (Upload the document in this{" "}
+                      <Link
+                        href="https://drive.google.com/drive/folders/13LJC5ztLmcSnXiPClgZhul9UYeu3TYQQ?usp=drive_link"
+                        className="text-blue-500 hover:underline"
+                        target="_blank"
+                      >
+                        Drive
+                      </Link>
+                      )
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com/document"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

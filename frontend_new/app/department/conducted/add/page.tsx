@@ -21,17 +21,14 @@ import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
 import { backendUrl } from "@/config";
+import Link from "next/link";
 
 const formSchema = z.object({
   year: z.string().regex(/^\d{4}$/, "Year must be a 4-digit number"),
   nameOfProgram: z.string().min(1, "Program name is required"),
   noOfParticipants: z.string().regex(/^\d+$/, "Please enter a valid number"),
-  durationStartDate: z
-    .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, "Start date must be in DD-MM-YYYY format"),
-  durationEndDate: z
-    .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, "End date must be in DD-MM-YYYY format"),
+  durationStartDate: z.string().min(1, "Start date is required"),
+  durationEndDate: z.string().min(1, "End date is required"),
   documentLink: z.string().url("Please enter a valid URL"),
 });
 
@@ -57,10 +54,10 @@ export default function ConductedForm() {
 
   useEffect(() => {
     if (dateRange?.from) {
-      form.setValue("durationStartDate", format(dateRange.from, "dd-MM-yyyy"));
+      form.setValue("durationStartDate", format(dateRange.from, "yyyy-MM-dd"));
     }
     if (dateRange?.to) {
-      form.setValue("durationEndDate", format(dateRange.to, "dd-MM-yyyy"));
+      form.setValue("durationEndDate", format(dateRange.to, "yyyy-MM-dd"));
     }
   }, [dateRange, form]);
 
@@ -178,7 +175,17 @@ export default function ConductedForm() {
                 name="documentLink"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Link to Document</FormLabel>
+                    <FormLabel>
+                      Link to Document (Upload the document in this{" "}
+                      <Link
+                        href="https://drive.google.com/drive/folders/1-AjZXyczFjzHeOZUAdBtXm6cYEPR9nmU?usp=drive_link"
+                        className="text-blue-500 hover:underline"
+                        target="_blank"
+                      >
+                        Drive
+                      </Link>
+                      )
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://example.com/document"
