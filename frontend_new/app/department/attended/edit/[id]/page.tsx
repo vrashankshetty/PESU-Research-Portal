@@ -23,6 +23,7 @@ import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
 import { backendUrl } from "@/config";
 import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/components/spinner";
+import Link from "next/link";
 
 const formSchema = z.object({
   year: z.string().regex(/^\d{4}$/, "Year must be a 4-digit number"),
@@ -198,7 +199,18 @@ export default function EditAttendedForm() {
                 name="documentLink"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Link to Relevant Document (Optional)</FormLabel>
+                    <FormLabel>
+                      Link to Relevant Document (Optional) <br />
+                      (Upload the document in this{" "}
+                      <Link
+                        href="https://drive.google.com/drive/folders/1p6FsJUQNGxcLsAiYYINsCBKZYkPrGGZX?usp=drive_link"
+                        className="text-blue-500 hover:underline"
+                        target="_blank"
+                      >
+                        Drive
+                      </Link>
+                      )
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://example.com/document"

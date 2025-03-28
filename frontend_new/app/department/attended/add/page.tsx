@@ -21,13 +21,17 @@ import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
 import { backendUrl } from "@/config";
+import Link from "next/link";
 
 const formSchema = z.object({
   year: z.string().regex(/^\d{4}$/, "Year must be a 4-digit number"),
   programTitle: z.string().min(1, "Program title is required"),
   durationStartDate: z.string().min(1, "Start date is required"),
   durationEndDate: z.string().min(1, "End date is required"),
-  documentLink: z.string().url("Please enter a valid URL").default(""),
+  documentLink: z.union([
+    z.string().url("Please enter a valid URL"),
+    z.string().length(0),
+  ]),
 });
 
 export default function AttendedForm() {
@@ -154,7 +158,19 @@ export default function AttendedForm() {
                 name="documentLink"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Link to Relevant Document (Optional)</FormLabel>
+                    <FormLabel>
+                      Link to Relevant Document (Optional)
+                      <br />
+                      (Upload the document in this{" "}
+                      <Link
+                        href="https://drive.google.com/drive/folders/1p6FsJUQNGxcLsAiYYINsCBKZYkPrGGZX?usp=drive_link"
+                        className="text-blue-500 hover:underline"
+                        target="_blank"
+                      >
+                        Drive
+                      </Link>
+                      )
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://example.com/document"

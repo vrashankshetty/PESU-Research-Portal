@@ -24,15 +24,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "axios";
 import { backendUrl } from "@/config";
+import Link from "next/link";
 
 const formSchema = z.object({
   nameOfStudent: z.string().min(1, "Name of student is required"),
   nameOfEvent: z.string().min(1, "Name of event is required"),
   link: z.string().min(1, "Link to relevant documents is required"),
-  nameOfUniv: z.string().min(1, "Name of University where the event was held is required"),
+  nameOfUniv: z
+    .string()
+    .min(1, "Name of University where the event was held is required"),
   yearOfEvent: z.string().min(1, "Year of the event is required"),
   teamOrIndi: z.enum(["Team", "Individual"], {
-      required_error: "Please select a option.",
+    required_error: "Please select a option.",
   }),
   level: z.enum(["Inter-University", "State", "National", "International"], {
     required_error: "Please select a option",
@@ -75,8 +78,7 @@ export default function InterSportsForm() {
       if (response.status === 201) {
         toast({
           title: "Event Submitted",
-          description:
-            "Your event has been successfully submitted.",
+          description: "Your event has been successfully submitted.",
           variant: "mine",
         });
         form.reset();
@@ -112,7 +114,10 @@ export default function InterSportsForm() {
                   <FormItem>
                     <FormLabel>Name of the Student</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter the name of the Student" {...field} />
+                      <Input
+                        placeholder="Enter the name of the Student"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -125,7 +130,10 @@ export default function InterSportsForm() {
                   <FormItem>
                     <FormLabel>Name of the Event</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter the name of the event" {...field} />
+                      <Input
+                        placeholder="Enter the name of the event"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -136,43 +144,60 @@ export default function InterSportsForm() {
                 name="nameOfUniv"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name of the University/Academy that organized the event</FormLabel>
+                    <FormLabel>
+                      Name of the University/Academy that organized the event
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter the name of the University/Academy that organized the event" {...field} />
+                      <Input
+                        placeholder="Enter the name of the University/Academy that organized the event"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="link"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Link to relevant documents</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter the link to relevant documents" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              </div>
-              <FormField
-                control={form.control}
-                name="yearOfEvent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Enter the year of the event</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex. 2023" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
+                <FormField
+                  control={form.control}
+                  name="link"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Link to relevant documents (Upload in this{" "}
+                        <Link
+                          href="https://drive.google.com/drive/folders/1qi_V-T4rygli8CB4ZSwO5qwtfeynvjGa?usp=drive_link"
+                          className="text-blue-500 hover:underline"
+                          target="_blank"
+                        >
+                          Drive
+                        </Link>
+                        )
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter the link to relevant documents"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="yearOfEvent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Enter the year of the event</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ex. 2023" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
                   control={form.control}
                   name="teamOrIndi"
                   render={({ field }) => (
@@ -196,7 +221,7 @@ export default function InterSportsForm() {
                     </FormItem>
                   )}
                 />
-              <FormField
+                <FormField
                   control={form.control}
                   name="nameOfAward"
                   render={({ field }) => (
@@ -220,12 +245,14 @@ export default function InterSportsForm() {
                     </FormItem>
                   )}
                 />
-              <FormField
+                <FormField
                   control={form.control}
                   name="level"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Inter-University/State/National/International</FormLabel>
+                      <FormLabel>
+                        Inter-University/State/National/International
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -236,16 +263,21 @@ export default function InterSportsForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Inter-University">Inter-University</SelectItem>
+                          <SelectItem value="Inter-University">
+                            Inter-University
+                          </SelectItem>
                           <SelectItem value="State">State</SelectItem>
                           <SelectItem value="National">National</SelectItem>
-                          <SelectItem value="International">International</SelectItem>
+                          <SelectItem value="International">
+                            International
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
               <div className="flex justify-center">
                 <Button type="submit" className="bg-sky-800">
                   Submit

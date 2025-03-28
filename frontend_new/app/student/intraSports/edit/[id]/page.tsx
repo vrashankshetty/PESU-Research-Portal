@@ -19,6 +19,7 @@ import axios from "axios";
 import { backendUrl } from "@/config";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const formSchema = z.object({
   event: z.string().min(1, "Event is required"),
@@ -155,7 +156,17 @@ export default function EditIntraSportsForm() {
                 name="link"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Link to relevant documents</FormLabel>
+                    <FormLabel>
+                      Link to relevant documents (Upload in this{" "}
+                      <Link
+                        href="https://drive.google.com/drive/folders/1eWpdRB1Iw63beACZcfEmTf4QjdQJItm4?usp=drive_link"
+                        className="text-blue-500 hover:underline"
+                        target="_blank"
+                      >
+                        Drive
+                      </Link>
+                      )
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter the link to relevant documents"
@@ -166,7 +177,7 @@ export default function EditIntraSportsForm() {
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="startDate"
