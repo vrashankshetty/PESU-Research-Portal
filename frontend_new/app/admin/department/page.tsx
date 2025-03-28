@@ -46,6 +46,7 @@ type Event = {
   id: string
   userId: string
   title: string
+  teacher: string[]
   durationStartDate: string
   durationEndDate: string
   documentLink: string | null
@@ -452,6 +453,7 @@ function IntegratedDepartmentDashboard() {
                         <tr>
                           <th className="px-6 py-3">S No.</th>
                           <th className="px-6 py-3">Year</th>
+                          <th className="px-6 py-3">Teacher Name</th>
                           <th className="px-6 py-3">Program Title</th>
                           <th className="px-6 py-3">Duration Start</th>
                           <th className="px-6 py-3">Duration End</th>
@@ -468,6 +470,7 @@ function IntegratedDepartmentDashboard() {
                             <tr key={event.id} className="bg-white border-b">
                               <td className="px-6 py-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                               <td className="px-6 py-4">{event.year}</td>
+                              <td className="px-6 py-4">{event.teacher?.join(',')}</td>
                               <td className="px-6 py-4">
                                 {eventType === "attended" ? event.programTitle : event.nameOfProgram}
                               </td>
