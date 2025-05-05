@@ -64,7 +64,7 @@ export default function LoginPage() {
         console.log("Setting cookies", response.data.token);
         Cookie.set("accessToken", response.data.token, {
           expires: 1,
-          domain: "10.2.80.90",
+          domain: process.env.NEXT_PUBLIC_IP_DOMAIN,
         });
         Cookie.set("accessToken", response.data.token, {
           expires: 1,
