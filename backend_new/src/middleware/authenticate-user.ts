@@ -30,41 +30,16 @@ export default async function authenticateUser(req: Request, res: Response, next
     }
 }
 
-// export function authenticateAdmin(req: Request, res: Response, next: NextFunction) {
-//     authenticateUser(req, res, () => {
-//         try {
-//             if ((req as any).user.role === 'admin') {
-//                 next();
-//             } else {
-//                 res.status(403).send('Only admin is allowed');
-//             }
-//         } catch (e) {
-//             return res.status(401).send('Unauthorized');
-//         }
-//     });
-// }
 
-// export function authenticateAffiliateUser(req: Request, res: Response, next: NextFunction) {
-//     authenticateUser(req, res, () => {
-//         if ((req as any).user.role === 'admin' || (req as any).user.role === 'affiliate_user') {
-//             next();
-//         } else {
-//             res.status(403).send('Only affiliate_user is allowed');
-//         }
-//     });
-// }
+export async function authenticateChairPerson(req: Request, res: Response, next: NextFunction) {
+    try {
+        const userData = (req as any).user;
+        if(userData.role !== 'chair_person') {
+            return res.status(403).send('Forbidden');
+        }
+        next();
+    } catch (e) {
+        return res.status(401).send('Unauthorized');
+    }
+}
 
-// export function authenticatePageControls(req: Request, res: Response, next: NextFunction) {
-//     authenticateUser(req, res, () => {
-//         try {
-//             if ((req as any).user.role === 'admin' || (req as any).user.role === 'internal_affiliate_user') {
-//                 next();
-//             } else {
-//                 res.status(403).send('You are not allowed');
-//             }
-//         } catch (e) {
-//             console.log('in authenticate page controls');
-//             return res.status(401).send('Unauthorized');
-//         }
-//     });
-// }

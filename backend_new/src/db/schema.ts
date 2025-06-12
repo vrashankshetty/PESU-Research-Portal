@@ -12,4 +12,8 @@ export * from '../models/studentCareerCounselling'
 export * from '../models/studentEntranceExam';
 export * from '../models/studentHigherStudies';
 export * from  '../models/interSports';
-export * from  '../models/intraSports'
+export * from  '../models/intraSports';
+export * from '../models/award';
+export * from '../models/mou';
+export * from '../models/grant';
+export * from '../models/collaboration';

@@ -153,3 +153,46 @@ export type IntraSports = {
     link: string;
     yearOfEvent: string;
 };
+
+
+export interface Award {
+    yearOfAward: string;
+    titleOfInnovation: string;
+    awardeeName: string;
+    awardingAgency: string;
+    category: string;
+    status?: string;
+    documentLink?: string;
+}
+
+
+export interface MOU {
+    organizationName: string;
+    yearOfSigning: string;
+    duration: string;
+    activities: string;
+    documentLink?: string;
+}
+
+export interface Grant {
+    schemeName: string;
+    investigatorName: string;
+    fundingAgency: string;
+    type: string;
+    department: string;
+    yearOfAward: string;
+    fundsProvided: string;
+    duration: string;
+    documentLink?: string;
+    status?: string;
+}
+
+export interface Collaboration {
+    title: string;
+    collaboratingAgency: string;
+    participantName: string;
+    yearOfCollaboration: string;
+    duration: string;
+    natureOfActivity: string;
+    documentLink?: string;
+}

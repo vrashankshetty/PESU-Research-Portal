@@ -154,6 +154,7 @@ export async function getUserProfile(userId: string) {
     }
 }
 
+
 export async function updateUserProfile(userId: string, userData: Partial<User>) {
     try {
         const existingUser = await db.query.user.findFirst({

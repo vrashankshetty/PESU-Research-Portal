@@ -1,27 +1,3 @@
-DO $$ BEGIN
- CREATE TYPE "qNo" AS ENUM('Q1', 'Q2', 'Q3', 'Q4', 'NA');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- CREATE TYPE "campus" AS ENUM('EC', 'RR', 'HSN');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- CREATE TYPE "coreEnum" AS ENUM('coreA', 'coreB', 'coreC', 'scopus', 'NA');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- CREATE TYPE "dept" AS ENUM('EC', 'CSE');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"empId" text NOT NULL,
@@ -39,6 +15,8 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"googleScholarId" text NOT NULL,
 	"sId" text NOT NULL,
 	"oId" text NOT NULL,
+	"role" text DEFAULT 'user' NOT NULL,
+	"accessTo" text DEFAULT 'none' NOT NULL,
 	"profileImg" text,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_empId_unique" UNIQUE("empId")
@@ -132,6 +110,98 @@ CREATE TABLE IF NOT EXISTS "patent" (
 	"createdAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "departmentConductedActivity" (
+	"id" text PRIMARY KEY NOT NULL,
+	"userId" text NOT NULL,
+	"nameOfProgram" text NOT NULL,
+	"noOfParticipants" integer NOT NULL,
+	"durationStartDate" timestamp NOT NULL,
+	"durationEndDate" timestamp NOT NULL,
+	"documentLink" text,
+	"year" text NOT NULL,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "departmentAttendedActivity" (
+	"id" text PRIMARY KEY NOT NULL,
+	"userId" text NOT NULL,
+	"programTitle" text NOT NULL,
+	"durationStartDate" timestamp NOT NULL,
+	"durationEndDate" timestamp NOT NULL,
+	"documentLink" text,
+	"year" text NOT NULL,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "studentSportsCultural" (
+	"id" text PRIMARY KEY NOT NULL,
+	"year" text NOT NULL,
+	"eventDate" timestamp NOT NULL,
+	"eventName" text NOT NULL,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "studentCareerCounselling" (
+	"id" text PRIMARY KEY NOT NULL,
+	"year" text NOT NULL,
+	"activityName" text NOT NULL,
+	"numberOfStudents" integer NOT NULL,
+	"documentLink" text,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "studentEntranceExam" (
+	"id" text PRIMARY KEY NOT NULL,
+	"year" text NOT NULL,
+	"registrationNumber" text NOT NULL,
+	"studentName" text NOT NULL,
+	"isNET" boolean DEFAULT false,
+	"isSLET" boolean DEFAULT false,
+	"isGATE" boolean DEFAULT false,
+	"isGMAT" boolean DEFAULT false,
+	"isCAT" boolean DEFAULT false,
+	"isGRE" boolean DEFAULT false,
+	"isJAM" boolean DEFAULT false,
+	"isIELTS" boolean DEFAULT false,
+	"isTOEFL" boolean DEFAULT false,
+	"documentLink" text,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "studentHigherStudies" (
+	"id" text PRIMARY KEY NOT NULL,
+	"studentName" text NOT NULL,
+	"programGraduatedFrom" text NOT NULL,
+	"institutionAdmittedTo" text NOT NULL,
+	"programmeAdmittedTo" text NOT NULL,
+	"documentLink" text,
+	"year" text NOT NULL,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "interSports" (
+	"id" text PRIMARY KEY NOT NULL,
+	"nameOfStudent" text NOT NULL,
+	"nameOfEvent" text NOT NULL,
+	"link" text NOT NULL,
+	"nameOfUniv" text NOT NULL,
+	"yearOfEvent" text NOT NULL,
+	"teamOrIndi" text NOT NULL,
+	"level" text NOT NULL,
+	"nameOfAward" text NOT NULL,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "intraSports" (
+	"id" text PRIMARY KEY NOT NULL,
+	"event" text NOT NULL,
+	"startDate" timestamp NOT NULL,
+	"endDate" timestamp NOT NULL,
+	"link" text NOT NULL,
+	"yearOfEvent" text NOT NULL,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "journal" ADD CONSTRAINT "journal_teacherAdminId_users_id_fk" FOREIGN KEY ("teacherAdminId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
@@ -182,6 +252,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "patent" ADD CONSTRAINT "patent_teacherAdminId_users_id_fk" FOREIGN KEY ("teacherAdminId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "departmentConductedActivity" ADD CONSTRAINT "departmentConductedActivity_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "departmentAttendedActivity" ADD CONSTRAINT "departmentAttendedActivity_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

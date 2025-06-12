@@ -1,6 +1,6 @@
 #!/bin/bash
 Set the base URL
-base_url="http://10.2.80.90:8081"
+base_url="http://localhost:5500"
 
 # Run scripts sequentially
 
