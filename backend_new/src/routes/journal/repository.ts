@@ -80,7 +80,7 @@ export async function getAllJournal(userId: string, role: string, accessTo: stri
     try {
         if (role === 'admin' && (accessTo === 'all' || accessTo === 'research')) {
             const journals = await db.query.journal.findMany({
-                orderBy: desc(journalUser.createdAt),
+                orderBy: desc(journal.createdAt),
                 with:{
                     teachers:{
                         columns:{
@@ -322,6 +322,7 @@ export async function seedJournal(patentData: Journal, name: string) {
                 id: generateRandomId(),
                 teacherAdminId: user1.id,
                 ...patentData,
+                status:'Published',
                 campus: user1.campus,
                 dept: user1.dept,
             })

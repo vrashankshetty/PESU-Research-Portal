@@ -65,12 +65,13 @@ export async function getAllGrants(query: any) {
     }
 }
 
-export async function createGrant(grantData: Grant) {
+export async function createGrant(grantData: Grant,userId:string) {
     try {
         await db
             .insert(grant)
             .values({
                 id: generateRandomId(),
+                teacherAdminId:userId,
                 ...grantData,
             })
             .returning();

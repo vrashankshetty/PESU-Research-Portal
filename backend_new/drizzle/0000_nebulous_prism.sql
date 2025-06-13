@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"role" text DEFAULT 'user' NOT NULL,
 	"accessTo" text DEFAULT 'none' NOT NULL,
 	"profileImg" text,
+	"centre_name" text,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_empId_unique" UNIQUE("empId")
 );
@@ -36,6 +37,7 @@ CREATE TABLE IF NOT EXISTS "journal" (
 	"issn" text NOT NULL,
 	"websiteLink" text,
 	"articleLink" text,
+	"status" text,
 	"isUGC" boolean DEFAULT false,
 	"isScopus" boolean DEFAULT false,
 	"isWOS" boolean DEFAULT false,
@@ -60,6 +62,7 @@ CREATE TABLE IF NOT EXISTS "conference" (
 	"paperTitle" text NOT NULL,
 	"proceedings_conference_title" text NOT NULL,
 	"volumeNo" text NOT NULL,
+	"status" text,
 	"issueNo" text NOT NULL,
 	"year" text NOT NULL,
 	"pageNumber" integer DEFAULT 0,
@@ -102,6 +105,7 @@ CREATE TABLE IF NOT EXISTS "patent" (
 	"teacherAdminId" text NOT NULL,
 	"campus" text NOT NULL,
 	"dept" text NOT NULL,
+	"status" text,
 	"patentNumber" text NOT NULL,
 	"patentTitle" text NOT NULL,
 	"isCapstone" boolean DEFAULT false,
@@ -202,6 +206,63 @@ CREATE TABLE IF NOT EXISTS "intraSports" (
 	"createdAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "award" (
+	"id" text PRIMARY KEY NOT NULL,
+	"teacherAdminId" text NOT NULL,
+	"yearOfAward" text NOT NULL,
+	"titleOfInnovation" text NOT NULL,
+	"awardeeName" text NOT NULL,
+	"awardingAgency" text NOT NULL,
+	"category" text NOT NULL,
+	"status" text,
+	"documentLink" text,
+	"createdAt" timestamp DEFAULT now() NOT NULL,
+	"updatedAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "mou" (
+	"id" text PRIMARY KEY NOT NULL,
+	"teacherAdminId" text NOT NULL,
+	"organizationName" text NOT NULL,
+	"yearOfSigning" text NOT NULL,
+	"duration" text NOT NULL,
+	"activities" text NOT NULL,
+	"documentLink" text,
+	"createdAt" timestamp DEFAULT now(),
+	"updatedAt" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "grant" (
+	"id" text PRIMARY KEY NOT NULL,
+	"teacherAdminId" text NOT NULL,
+	"schemeName" text NOT NULL,
+	"investigatorName" text NOT NULL,
+	"fundingAgency" text NOT NULL,
+	"type" text NOT NULL,
+	"department" text NOT NULL,
+	"yearOfAward" text NOT NULL,
+	"fundsProvided" text NOT NULL,
+	"duration" text NOT NULL,
+	"documentLink" text,
+	"status" text,
+	"createdAt" timestamp DEFAULT now(),
+	"updatedAt" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "collaboration" (
+	"id" text PRIMARY KEY NOT NULL,
+	"title" text NOT NULL,
+	"teacherAdminId" text NOT NULL,
+	"collaboratingAgency" text NOT NULL,
+	"participantName" text NOT NULL,
+	"yearOfCollaboration" text NOT NULL,
+	"duration" text NOT NULL,
+	"natureOfActivity" text NOT NULL,
+	"documentLink" text,
+	"createdAt" timestamp DEFAULT now() NOT NULL,
+	"updatedAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "journal" ADD CONSTRAINT "journal_teacherAdminId_users_id_fk" FOREIGN KEY ("teacherAdminId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
@@ -264,6 +325,30 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "departmentAttendedActivity" ADD CONSTRAINT "departmentAttendedActivity_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "award" ADD CONSTRAINT "award_teacherAdminId_users_id_fk" FOREIGN KEY ("teacherAdminId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "mou" ADD CONSTRAINT "mou_teacherAdminId_users_id_fk" FOREIGN KEY ("teacherAdminId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "grant" ADD CONSTRAINT "grant_teacherAdminId_users_id_fk" FOREIGN KEY ("teacherAdminId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "collaboration" ADD CONSTRAINT "collaboration_teacherAdminId_users_id_fk" FOREIGN KEY ("teacherAdminId") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

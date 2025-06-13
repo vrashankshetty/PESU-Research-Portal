@@ -17,6 +17,7 @@ import award from './award/api';
 import grant from './grant/api';
 import collaboration from './collaboration/api';
 import mou from './mou/api';
+import publication from './publication/api'
 import authenticateUser, { authenticateChairPerson } from '../middleware/authenticate-user';
 import home from './home/api';
 const router = express.Router();
@@ -34,11 +35,13 @@ router.use('/studentHigherStudies', authenticateUser,studentHigherStudies);
 router.use('/studentCareerCounselling', authenticateUser,studentCareerCounselling);
 router.use('/interSports',authenticateUser, interSports);
 router.use('/intraSports',authenticateUser, intraSports);
-router.use('/chairPerson', authenticateUser,authenticateChairPerson,chairPerson);
+router.use('/chairPerson', authenticateUser,chairPerson);
 router.use('/award',authenticateUser, award);
 router.use('/mou',authenticateUser, mou);
 router.use('/grant',authenticateUser, grant);
 router.use('/collaboration',authenticateUser, collaboration);
+router.use('/publication',authenticateUser,publication)
+
 
 // router.use('/user', user);
 // router.use('/home', home);
@@ -57,5 +60,5 @@ router.use('/collaboration',authenticateUser, collaboration);
 // router.use('/mou', mou);
 // router.use('/grant', grant);
 // router.use('/collaboration', collaboration);
-
+// router.use('/publication',publication)
 export default router;

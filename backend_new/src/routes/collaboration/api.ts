@@ -39,6 +39,7 @@ Router.get('/:id', async (req, res) => {
 Router.post('/', async (req, res) => {
     try {
         const data = req.body;
+         const userId = (req as any).user.id;
         const { error } = collaborationSchema.validate(data, { abortEarly: false });
         
         if (error) {
@@ -46,7 +47,7 @@ Router.post('/', async (req, res) => {
             return handleValidationError(error, res);
         }
 
-        const result = await createCollaboration(data);
+        const result = await createCollaboration(data,userId);
         res.status(201).send(result);
     } catch (error) {
         console.log('catch error', error);

@@ -1,10 +1,11 @@
 import express from 'express';
 import { catchError } from '../../utils/catch-error';
 import { getAllTeachers, getIndvTeacher, getIndvTeacherConference, getIndvTeacherEachConference, getIndvTeacherEachJournal, getIndvTeacherEachPatent, getIndvTeacherJournal, getIndvTeacherPatent } from './repository';
+import { authenticateChairPerson } from '../../middleware/authenticate-user';
 
 const Router = express.Router();
 
-Router.get('/teachers', async (req, res) => {
+Router.get('/teachers',authenticateChairPerson, async (req, res) => {
     try {
         const teachers = await getAllTeachers();
         res.status(200).send(teachers);
@@ -15,7 +16,7 @@ Router.get('/teachers', async (req, res) => {
 });
 
 
-Router.get('/teachers/:id', async (req, res) => {
+Router.get('/teachers/:id',authenticateChairPerson, async (req, res) => {
     try {
         const id = req.params.id;
         const indvTeacherData = await getIndvTeacher(id);
@@ -27,7 +28,7 @@ Router.get('/teachers/:id', async (req, res) => {
 });
 
 
-Router.get('/teachers/:teacherId/conferences', async (req, res) => {
+Router.get('/teachers/:teacherId/conferences',authenticateChairPerson, async (req, res) => {
     try {
         const id = req.params.teacherId;
         const confData = await getIndvTeacherConference(id);
@@ -39,7 +40,7 @@ Router.get('/teachers/:teacherId/conferences', async (req, res) => {
 });
 
 
-Router.get('/teachers/:teacherId/conferences/:id', async (req, res) => {
+Router.get('/teachers/:teacherId/conferences/:id',authenticateChairPerson,async (req, res) => {
     try {
         const teacherId = req.params.teacherId;
         const id = req.params.id;
@@ -52,7 +53,7 @@ Router.get('/teachers/:teacherId/conferences/:id', async (req, res) => {
 });
 
 
-Router.get('/teachers/:teacherId/journals', async (req, res) => {
+Router.get('/teachers/:teacherId/journals',authenticateChairPerson, async (req, res) => {
     try {
         const id = req.params.teacherId;
         const journalData = await getIndvTeacherJournal(id);

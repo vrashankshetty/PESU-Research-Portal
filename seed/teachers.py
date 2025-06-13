@@ -48,10 +48,11 @@ data['oId'] = '0001'
 data['role'] = data['role'] 
 data['accessTo'] = data['accessTo']
 data['profileImg'] = 'https://static.vecteezy.com/system/resources/previews/005/129/844/non_2x/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg'
+data['centre_name']= "to_be_filled"
 
 # Select only the required fields
 fields = ['empId','name', 'password', 'campus', 'qualification', 'expertise', 'panNo', 'phno', 'designation','dept',
-          'dateofJoining', 'totalExpBfrJoin', 'googleScholarId', 'sId', 'oId','role','accessTo','profileImg']
+          'dateofJoining', 'totalExpBfrJoin', 'googleScholarId', 'sId', 'oId','role','accessTo','profileImg','centre_name']
 
 # Create a list of dictionaries with only these fields
 data_list = data[fields].to_dict(orient='records')

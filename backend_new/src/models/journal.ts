@@ -19,6 +19,7 @@ export const journal = pgTable('journal', {
     issn: text('issn').notNull(),
     websiteLink: text('websiteLink'),
     articleLink: text('articleLink'),
+    status:text('status'),
     isUGC: boolean('isUGC').default(false),
     isScopus: boolean('isScopus').default(false),
     isWOS: boolean('isWOS').default(false),

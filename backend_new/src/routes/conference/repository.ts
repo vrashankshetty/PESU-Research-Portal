@@ -322,6 +322,7 @@ export async function seedConference(patentData: Conference, name: string) {
                 id: generateRandomId(),
                 teacherAdminId: user1.id,
                 ...patentData,
+                status:'Published',
                 campus: user1.campus,
                 dept: user1.dept,
             })

@@ -24,6 +24,7 @@ export const userSchema = Joi.object({
     sId: Joi.string().required(),
     oId: Joi.string().required(),
     profileImg: Joi.string().optional(),
+    centre_name: Joi.string().required(),
 });
 
 export const loginSchema = Joi.object({

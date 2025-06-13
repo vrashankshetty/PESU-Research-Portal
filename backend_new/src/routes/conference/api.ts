@@ -74,7 +74,6 @@ Router.put('/:id', async (req, res) => {
         if (error) {
             return handleValidationError(error, res);
         }
-
         const confData = await updateConference(data, id, userId,role, accessTo);
         if (confData?.status == 403) {
             return res.status(403).send(confData?.message);

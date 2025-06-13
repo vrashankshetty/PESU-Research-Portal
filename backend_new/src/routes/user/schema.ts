@@ -18,6 +18,7 @@ export const userUpdateSchema = Joi.object({
     dateofJoining: Joi.date().required(),
     totalExpBfrJoin: Joi.string().required(),
     googleScholarId: Joi.string().required(),
+    centre_name:Joi.string().required(),
     role: Joi.string().default('user'),
     accessTo: Joi.string().default('none'),
     sId: Joi.string().required(),

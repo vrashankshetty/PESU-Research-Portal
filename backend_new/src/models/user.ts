@@ -20,5 +20,6 @@ export const user = pgTable('users', {
     role: text('role').notNull().default('user'),
     accessTo: text('accessTo').notNull().default('none'),
     profileImg: text('profileImg'),
+    centre_name: text('centre_name'),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
 });

@@ -37,14 +37,14 @@ Router.get('/:id', async (req, res) => {
 Router.post('/', async (req, res) => {
     try {
         const data = req.body;
+         const userId = (req as any).user.id;
         const { error } = awardSchema.validate(data, { abortEarly: false });
         
         if (error) {
             console.log('error', error);
             return handleValidationError(error, res);
         }
-
-        const result = await createAward(data);
+        const result = await createAward(data,userId);
         res.status(201).send(result);
     } catch (error) {
         console.log('catch error', error);

@@ -54,12 +54,13 @@ export async function getAllAwards(query: any) {
     }
 }
 
-export async function createAward(awardData: Award) {
+export async function createAward(awardData: Award,userId:string) {
     try {
         await db
             .insert(award)
             .values({
                 id: generateRandomId(),
+                teacherAdminId:userId,
                 ...awardData,
             })
             .returning();

@@ -15,6 +15,7 @@ export const conference = pgTable('conference', {
     paperTitle: text('paperTitle').notNull(),
     proceedings_conference_title: text('proceedings_conference_title').notNull(),
     volumeNo: text('volumeNo').notNull(),
+    status:text('status'),
     issueNo: text('issueNo').notNull(),
     year: text('year').notNull(),
     pageNumber: integer('pageNumber').default(0),

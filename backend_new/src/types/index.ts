@@ -16,6 +16,7 @@ export type Journal = {
     articleLink: string;
     isUGC: boolean;
     isScopus: boolean;
+    status:string;
     isWOS: boolean;
     qNo: string;
     impactFactor: string;
@@ -39,6 +40,7 @@ export type Conference = {
     year: string;
     pageNumber: number;
     issn: string;
+    status:string;
     is_affiliating_institution_same: boolean;
     publisherName: string;
     impactFactor: string;
@@ -55,6 +57,7 @@ export type Patent = {
     campus: string;
     dept: string;
     patentNumber: string;
+    status:string;
     patentTitle: string;
     isCapstone: boolean;
     year: string;
@@ -78,6 +81,7 @@ export type User = {
     sId: string;
     oId: string;
     profileImg?: string;
+    centre_name:string;
 };
 
 export type StudentCareerCounselling = {

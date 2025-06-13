@@ -10,6 +10,7 @@ export const conferenceSchema = Joi.object({
     issueNo: Joi.string().required(),
     year: Joi.string().required(),
     pageNumber: Joi.number().integer().default(0),
+    status:Joi.string().allow(''),
     issn: Joi.string().required(),
     is_affiliating_institution_same: Joi.boolean().default(false),
     publisherName: Joi.string().required(),

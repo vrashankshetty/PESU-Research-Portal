@@ -10,6 +10,7 @@ export const patent = pgTable('patent', {
         .references(() => user.id),
     campus: text('campus').notNull(),
     dept: text('dept').notNull(),
+    status:text('status'),
     patentNumber: text('patentNumber').notNull(),
     patentTitle: text('patentTitle').notNull(),
     isCapstone: boolean('isCapstone').default(false),

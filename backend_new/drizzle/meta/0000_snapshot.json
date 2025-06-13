@@ -1,5 +1,5 @@
 {
-  "id": "f16b5ca3-4f0c-4c7d-8657-1061cbcaae2b",
+  "id": "f0ad816c-7048-467d-97ab-d6904cf12d22",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -124,6 +124,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "centre_name": {
+          "name": "centre_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -223,6 +229,12 @@
         },
         "articleLink": {
           "name": "articleLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -385,6 +397,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "issueNo": {
           "name": "issueNo",
@@ -708,6 +726,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "patentNumber": {
           "name": "patentNumber",
@@ -1297,6 +1321,380 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "award": {
+      "name": "award",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "teacherAdminId": {
+          "name": "teacherAdminId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "yearOfAward": {
+          "name": "yearOfAward",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titleOfInnovation": {
+          "name": "titleOfInnovation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "awardeeName": {
+          "name": "awardeeName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "awardingAgency": {
+          "name": "awardingAgency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "documentLink": {
+          "name": "documentLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "award_teacherAdminId_users_id_fk": {
+          "name": "award_teacherAdminId_users_id_fk",
+          "tableFrom": "award",
+          "tableTo": "users",
+          "columnsFrom": [
+            "teacherAdminId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "mou": {
+      "name": "mou",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "teacherAdminId": {
+          "name": "teacherAdminId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organizationName": {
+          "name": "organizationName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "yearOfSigning": {
+          "name": "yearOfSigning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duration": {
+          "name": "duration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "activities": {
+          "name": "activities",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "documentLink": {
+          "name": "documentLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "mou_teacherAdminId_users_id_fk": {
+          "name": "mou_teacherAdminId_users_id_fk",
+          "tableFrom": "mou",
+          "tableTo": "users",
+          "columnsFrom": [
+            "teacherAdminId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "grant": {
+      "name": "grant",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "teacherAdminId": {
+          "name": "teacherAdminId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "schemeName": {
+          "name": "schemeName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "investigatorName": {
+          "name": "investigatorName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fundingAgency": {
+          "name": "fundingAgency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "department": {
+          "name": "department",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "yearOfAward": {
+          "name": "yearOfAward",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fundsProvided": {
+          "name": "fundsProvided",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duration": {
+          "name": "duration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "documentLink": {
+          "name": "documentLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "grant_teacherAdminId_users_id_fk": {
+          "name": "grant_teacherAdminId_users_id_fk",
+          "tableFrom": "grant",
+          "tableTo": "users",
+          "columnsFrom": [
+            "teacherAdminId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "collaboration": {
+      "name": "collaboration",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "teacherAdminId": {
+          "name": "teacherAdminId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "collaboratingAgency": {
+          "name": "collaboratingAgency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "participantName": {
+          "name": "participantName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "yearOfCollaboration": {
+          "name": "yearOfCollaboration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duration": {
+          "name": "duration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "natureOfActivity": {
+          "name": "natureOfActivity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "documentLink": {
+          "name": "documentLink",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "collaboration_teacherAdminId_users_id_fk": {
+          "name": "collaboration_teacherAdminId_users_id_fk",
+          "tableFrom": "collaboration",
+          "tableTo": "users",
+          "columnsFrom": [
+            "teacherAdminId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     }

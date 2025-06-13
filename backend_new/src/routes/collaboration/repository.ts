@@ -61,12 +61,13 @@ export async function getAllCollaborations(query: any) {
     }
 }
 
-export async function createCollaboration(collaborationData: Collaboration) {
+export async function createCollaboration(collaborationData: Collaboration,userId:string) {
     try {
         await db
             .insert(collaboration)
             .values({
                 id: generateRandomId(),
+                teacherAdminId:userId,
                 ...collaborationData,
             })
             .returning();

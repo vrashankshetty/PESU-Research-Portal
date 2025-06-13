@@ -11,6 +11,7 @@ export const journalSchema = Joi.object({
     issn: Joi.string().required(),
     websiteLink: Joi.string().allow(''),
     articleLink: Joi.string().allow(''),
+    status:Joi.string().allow(''),
     isUGC: Joi.boolean().default(false),
     isScopus: Joi.boolean().default(false),
     isWOS: Joi.boolean().default(false),

@@ -48,12 +48,13 @@ export async function getAllMOUs(query: any) {
     }
 }
 
-export async function createMOU(mouData: MOU) {
+export async function createMOU(mouData: MOU,userId:string) {
     try {
         await db
             .insert(mou)
             .values({
                 id: generateRandomId(),
+                teacherAdminId:userId,
                 ...mouData,
             })
             .returning();
