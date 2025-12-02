@@ -1,1 +1,1 @@
-export const backendUrl = 'http://localhost:5500';
+export const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';

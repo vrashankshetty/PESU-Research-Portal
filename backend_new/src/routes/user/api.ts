@@ -46,6 +46,7 @@ Router.get('/profile', authenticateUser, async (req, res) => {
 Router.put('/profile', authenticateUser, async (req, res) => {
     try {
         const data = req.body;
+        console.log('data', data);
         const userId = (req as any).user.id;
 
         const { error } = userUpdateSchema.validate(data, { abortEarly: false });

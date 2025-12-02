@@ -6,6 +6,7 @@ import express from 'express';
 import errorHandler from './middleware/error-handler';
 import { rateLimiter } from './middleware/rate-limiter';
 import routes from './routes';
+import path from 'path';
 
 dotenv.config();
 

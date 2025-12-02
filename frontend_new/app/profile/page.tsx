@@ -120,6 +120,7 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "Total experience is required" }),
   googleScholarId: z.string(),
+  centre_name: z.string().optional().default(''),
   sId: z.string().min(1, { message: "SID is required" }),
   oId: z.string().min(1, { message: "OID is required" }),
 });
